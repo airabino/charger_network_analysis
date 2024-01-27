@@ -43,6 +43,56 @@ import networkx as nx
 
 from scipy.spatial import KDTree
 
+from .utilities import pythagorean
+
+def random_graph(n, scale, link_bounds = (0, np.inf), link_speeds = [1], seed = None):
+	
+	rng = np.random.default_rng(seed)
+
+	x = rng.random(n) * scale[0]
+	y = rng.random(n) * scale[1]
+	
+	nodes = []
+
+	for idx in range(n):
+
+		nodes.append({
+			'id': idx,
+			'x': x[idx],
+			'y': y[idx],
+		})
+
+	links = []
+
+	for idx_s in range(n):
+		for idx_t in range(n):
+
+			source = nodes[idx_s]['id']
+			target = nodes[idx_t]['id']
+
+			link_length = pythagorean(
+				nodes[idx_s]['x'],
+				nodes[idx_s]['y'],
+				nodes[idx_t]['x'],
+				nodes[idx_t]['y'],
+			)
+
+			if (link_length < link_bounds[0]) or (link_length > link_bounds[1]):
+
+				continue
+
+			link_time = link_length / rng.choice(link_speeds)
+
+			links.append({
+				'source': source,
+				'target': target,
+				'length': link_length,
+				'time': link_time,
+			})
+
+	return graph_from_nlg({'nodes': nodes, 'links': links})
+
+
 # Functions for NLG JSON handling 
 
 class NpEncoder(json.JSONEncoder):

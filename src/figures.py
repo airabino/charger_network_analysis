@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 
 from matplotlib.colors import LinearSegmentedColormap
 
-from .utilities import IsIterable
+from cycler import cycler
+
+from .graph import subgraph
 
 default_prop_cycle = matplotlib.rcParamsDefault['axes.prop_cycle'].by_key()['color'].copy()
 
@@ -33,6 +35,88 @@ colormaps={
 	'trb': ["#82212a", "#999999", "#181818"],
 	'default_prop_cycle': default_prop_cycle,
 }
+
+def dijkstra_output(g, path_values, sources, targets, chargers):
+
+	fig, ax = plt.subplots(figsize = (8, 6))
+
+	max_time = 0
+
+	for node in path_values.values():
+
+			max_time = max([max_time, node[1]])
+
+	for source, node in g._node.items():
+
+		try:
+			node['travel_time_norm'] = path_values[source][1]
+
+		except:
+			node['travel_time_norm'] = np.nan
+
+	kwargs = {
+		'node_field': 'travel_time_norm',
+		'scatter': {
+			's': 100,
+			'ec': 'k',
+		},
+		'plot': {
+			'lw': .8,
+			'zorder': 0,
+			'color': 'lightgray',
+		},
+		'colorbar': {
+			'label': 'Time to Node [h]',
+		}
+	}
+
+	graph(g, ax = ax, **kwargs)
+
+	kwargs = {
+		'show_links': False,
+		'scatter': {
+			's': 300,
+			'ec': 'k',
+			'fc': 'none',
+			'marker': '*',
+			'lw': 2,
+			'label': 'Origin',
+		},
+	}
+
+	graph(subgraph(g, sources), ax = ax, **kwargs)
+
+	kwargs = {
+		'show_links': False,
+		'scatter': {
+			's': 300,
+			'ec': 'r',
+			'fc': 'none',
+			'marker': 'H',
+			'lw': 2,
+			'label': 'Destinations',
+		},
+	}
+
+	graph(subgraph(g, targets), ax = ax, **kwargs)
+
+	kwargs = {
+		'show_links': False,
+		'scatter': {
+			's': 300,
+			'ec': 'b',
+			'fc': 'none',
+			'marker': 'h',
+			'lw': 2,
+			'label': 'Chargers',
+		},
+	}
+
+	graph(subgraph(g, chargers), ax = ax, **kwargs)
+
+	_ = ax.legend(markerscale = .5)
+	
+	return fig
 
 def colormap(colors):
 
@@ -64,10 +148,11 @@ def add_node_field(graph, field, values):
 
 def graph(graph, ax = None, **kwargs):
 
-	cmap = kwargs.get('cmap', ReturnColorMap('viridis'))
+	cmap = kwargs.get('cmap', colormap('viridis'))
 	node_field = kwargs.get('node_field', None)
 	link_field = kwargs.get('link_field', None)
 	show_links = kwargs.get('show_links', True)
+	show_colorbar = kwargs.get('show_colorbar', False)
 	
 	return_fig = False
 
@@ -88,81 +173,120 @@ def graph(graph, ax = None, **kwargs):
 		coords[:, 0], coords[:, 1], **kwargs.get('scatter', {})
 		)
 
-	if show_links:
+	if show_links or kwargs.get('plot', {}):
 
-		for source in graph._adj.keys():
+		dx = []
+		dy = []
 
-			for target  in graph._adj[source].keys():
+		if link_field is not None:
+			
+			values = []
 
-				if link_field is not None:
+			for source in graph._adj.keys():
 
-					kwargs['plot']['color'] = cmap(graph._adj[source][target][link_field])
+				for target in graph._adj[source].keys():
+
+					dx.append([graph._node[source]['x'], graph._node[target]['x']])
+					dy.append([graph._node[source]['y'], graph._node[target]['y']])
+
+					values.append(graph._adj[source][target][link_field])
+
+			values_norm = (
+				(values - np.nanmin(values)) / (np.nanmax(values) - np.nanmin(values))
+				)
+			
+
+			for idx in range(len(dx)):
 
 				ax.plot(
-					[graph._node[source]['x'], graph._node[target]['x']],
-					[graph._node[source]['y'], graph._node[target]['y']],
-					**kwargs.get('plot', {}),
+					dx[idx],
+					dy[idx],
+					color = cmap(values_norm[idx]),
+					**kwargs.get('plot', {})
 					)
+
+		else:
+
+			for source in graph._adj.keys():
+
+				for target in graph._adj[source].keys():
+
+					dx.append([graph._node[source]['x'], graph._node[target]['x']])
+					dy.append([graph._node[source]['y'], graph._node[target]['y']])
+
+			ax.plot(dx, dy, **kwargs.get('plot', {}))
 
 	ax.set(**kwargs.get('axes', {}))
 
+	if show_colorbar or kwargs.get('colorbar', {}):
+
+		norm = matplotlib.colors.Normalize(
+			vmin = np.nanmin(values),
+			vmax = np.nanmax(values)
+			) 
+
+		sm = matplotlib.cm.ScalarMappable(cmap = cmap, norm = norm)    
+		sm.set_array([])
+
+		plt.colorbar(sm, ax = ax, **kwargs.get('colorbar', {})) 
+
 	if return_fig:
 
 		return fig
 
-def PlotRoutes(graph,routes,figsize=(8,8),ax=None,cmap=ReturnColorMap('viridis'),
-	axes_kwargs={},destination_kwargs={},depot_kwargs={},arrow_kwargs={}):
+# def PlotRoutes(graph,routes,figsize=(8,8),ax=None,cmap=ReturnColorMap('viridis'),
+# 	axes_kwargs={},destination_kwargs={},depot_kwargs={},arrow_kwargs={}):
 	
-	return_fig=False
-	if ax==None:
-		fig,ax=plt.subplots(figsize=figsize)
-		return_fig=True
+# 	return_fig=False
+# 	if ax==None:
+# 		fig,ax=plt.subplots(figsize=figsize)
+# 		return_fig=True
 
-	route_depot=np.zeros(len(graph._node))
+# 	route_depot=np.zeros(len(graph._node))
 
-	for route in routes:
-		for destination in route[:-1]:
-			route_depot[destination]=route[0]
+# 	for route in routes:
+# 		for destination in route[:-1]:
+# 			route_depot[destination]=route[0]
 
-	graph=AddVertexField(graph,'route_depot',route_depot)
+# 	graph=AddVertexField(graph,'route_depot',route_depot)
 
-	PlotGraph(graph,ax=ax,field='route_depot',cmap=cmap,
-					  scatter_kwargs=destination_kwargs)
+# 	PlotGraph(graph,ax=ax,field='route_depot',cmap=cmap,
+# 					  scatter_kwargs=destination_kwargs)
 
-	depot_cmap=ReturnColorMap(['none','k'])
-	depot_kwargs['ec']=depot_cmap([node['is_depot'] for node in graph._node.values()])
+# 	depot_cmap=ReturnColorMap(['none','k'])
+# 	depot_kwargs['ec']=depot_cmap([node['is_depot'] for node in graph._node.values()])
 
-	cmap=ReturnColorMap(['none','whitesmoke'])
-	PlotGraph(graph,ax=ax,field='is_depot',cmap=cmap,
-					  scatter_kwargs=depot_kwargs)
+# 	cmap=ReturnColorMap(['none','whitesmoke'])
+# 	PlotGraph(graph,ax=ax,field='is_depot',cmap=cmap,
+# 					  scatter_kwargs=depot_kwargs)
 
-	PlotRoute(graph,routes,ax=ax,arrow_kwargs=arrow_kwargs)
+# 	PlotRoute(graph,routes,ax=ax,arrow_kwargs=arrow_kwargs)
 
-	ax.set(**axes_kwargs)
+# 	ax.set(**axes_kwargs)
 
-	if return_fig:
-		return fig
+# 	if return_fig:
+# 		return fig
 
-def PlotRoute(graph,routes,figsize=(8,8),ax=None,cmap=ReturnColorMap('viridis'),
-	axes_kwargs={},scatter_kwargs={},arrow_kwargs={}):
+# def PlotRoute(graph,routes,figsize=(8,8),ax=None,cmap=ReturnColorMap('viridis'),
+# 	axes_kwargs={},scatter_kwargs={},arrow_kwargs={}):
 	
-	return_fig=False
-	if ax==None:
-		fig,ax=plt.subplots(figsize=figsize)
-		return_fig=True
+# 	return_fig=False
+# 	if ax==None:
+# 		fig,ax=plt.subplots(figsize=figsize)
+# 		return_fig=True
 
-	coords=np.array([[v['x'],v['y']] for v in graph._node.values()])
+# 	coords=np.array([[v['x'],v['y']] for v in graph._node.values()])
 
-	for route in routes:
+# 	for route in routes:
 
-		for idx in range(1,len(route)):
+# 		for idx in range(1,len(route)):
 
-			x,y=coords[route[idx-1]]
-			dx,dy=coords[route[idx]]-coords[route[idx-1]]
+# 			x,y=coords[route[idx-1]]
+# 			dx,dy=coords[route[idx]]-coords[route[idx-1]]
 
-			ax.arrow(x,y,dx,dy,**arrow_kwargs)
+# 			ax.arrow(x,y,dx,dy,**arrow_kwargs)
 
-	ax.set(**axes_kwargs)
+# 	ax.set(**axes_kwargs)
 
-	if return_fig:
-		return fig
+# 	if return_fig:
+# 		return fig
