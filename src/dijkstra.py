@@ -45,7 +45,7 @@ class Objective():
             self.initial_values = [0] * self.n
 
         self.initial_capacities = [self.limits[idx] - self.initial_values[idx] \
-        for idx in range(self.n)]
+            for idx in range(self.n)]
 
         self.weights = weights
 
@@ -74,7 +74,6 @@ class Objective():
             )
 
         return weighted_values
-
 
 def dijkstra(graph, sources, objective, targets = [], chargers = {}, **kwargs):
     """Uses Dijkstra's algorithm to find shortest weighted paths

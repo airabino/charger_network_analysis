@@ -12,6 +12,8 @@ from cycler import cycler
 
 from .graph import subgraph
 
+from scipy.stats._continuous_distns import _distn_names
+
 default_prop_cycle = matplotlib.rcParamsDefault['axes.prop_cycle'].by_key()['color'].copy()
 
 colormaps={
@@ -36,7 +38,7 @@ colormaps={
 	'default_prop_cycle': default_prop_cycle,
 }
 
-def dijkstra_output(g, path_values, sources, targets, chargers):
+def dijkstra_output(graph, path_values, sources, targets, chargers):
 
 	fig, ax = plt.subplots(figsize = (8, 6))
 
@@ -46,7 +48,7 @@ def dijkstra_output(g, path_values, sources, targets, chargers):
 
 			max_time = max([max_time, node[1]])
 
-	for source, node in g._node.items():
+	for source, node in graph._node.items():
 
 		try:
 			node['travel_time_norm'] = path_values[source][1]
@@ -70,7 +72,7 @@ def dijkstra_output(g, path_values, sources, targets, chargers):
 		}
 	}
 
-	graph(g, ax = ax, **kwargs)
+	plot_graph(graph, ax = ax, **kwargs)
 
 	kwargs = {
 		'show_links': False,
@@ -84,7 +86,7 @@ def dijkstra_output(g, path_values, sources, targets, chargers):
 		},
 	}
 
-	graph(subgraph(g, sources), ax = ax, **kwargs)
+	plot_graph(subgraph(graph, sources), ax = ax, **kwargs)
 
 	kwargs = {
 		'show_links': False,
@@ -98,7 +100,7 @@ def dijkstra_output(g, path_values, sources, targets, chargers):
 		},
 	}
 
-	graph(subgraph(g, targets), ax = ax, **kwargs)
+	plot_graph(subgraph(graph, targets), ax = ax, **kwargs)
 
 	kwargs = {
 		'show_links': False,
@@ -112,7 +114,7 @@ def dijkstra_output(g, path_values, sources, targets, chargers):
 		},
 	}
 
-	graph(subgraph(g, chargers), ax = ax, **kwargs)
+	plot_graph(subgraph(graph, chargers), ax = ax, **kwargs)
 
 	_ = ax.legend(markerscale = .5)
 	
@@ -146,7 +148,7 @@ def add_node_field(graph, field, values):
 
 	return graph
 
-def graph(graph, ax = None, **kwargs):
+def plot_graph(graph, ax = None, **kwargs):
 
 	cmap = kwargs.get('cmap', colormap('viridis'))
 	node_field = kwargs.get('node_field', None)
@@ -194,7 +196,6 @@ def graph(graph, ax = None, **kwargs):
 			values_norm = (
 				(values - np.nanmin(values)) / (np.nanmax(values) - np.nanmin(values))
 				)
-			
 
 			for idx in range(len(dx)):
 
@@ -214,7 +215,7 @@ def graph(graph, ax = None, **kwargs):
 					dx.append([graph._node[source]['x'], graph._node[target]['x']])
 					dy.append([graph._node[source]['y'], graph._node[target]['y']])
 
-			ax.plot(dx, dy, **kwargs.get('plot', {}))
+			ax.plot(np.array(dx).T, np.array(dy).T, **kwargs.get('plot', {}))
 
 	ax.set(**kwargs.get('axes', {}))
 

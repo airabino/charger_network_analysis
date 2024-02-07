@@ -45,7 +45,7 @@ from scipy.spatial import KDTree
 
 from .utilities import pythagorean
 
-def random_graph(n, scale, link_bounds = (0, np.inf), link_speeds = [1], seed = None):
+def random_graph(n, scale, s = 1, link_bounds = (0, np.inf), link_speeds = [1], seed = None):
 	
 	rng = np.random.default_rng(seed)
 
@@ -77,9 +77,22 @@ def random_graph(n, scale, link_bounds = (0, np.inf), link_speeds = [1], seed = 
 				nodes[idx_t]['y'],
 			)
 
-			if (link_length < link_bounds[0]) or (link_length > link_bounds[1]):
+			p = np.exp(-link_length / s)
+			r = rng.random()
+			# if r <= p:
+				# print(idx_s, idx_t, p, r, link_length)
+
+			dont_add_link = np.any((
+				(link_length < link_bounds[0]),
+				(link_length > link_bounds[1]),
+				r > p,
+				))
+
+			if dont_add_link:
 
 				continue
+
+			# print(idx_s, idx_t, p, r, link_length)
 
 			link_time = link_length / rng.choice(link_speeds)
 
