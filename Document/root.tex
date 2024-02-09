@@ -31,6 +31,14 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
+% draw a frame around given text
+\newcommand{\framedtext}[1]{%
+	\par%
+	\noindent\fbox{%
+		\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{#1}%
+	}%
+}
+
 \renewcommand{\arraystretch}{1.2}
 
 \sloppy
@@ -129,7 +137,35 @@ In general, costs can be either positive or negative and limits on cost can have
 
 \subsection*{Stochastic Routing}
 
-\subsection*{\gls{ev} Routing}
+The principle of stochastic optimization is to find the set of controls which returns the best expected outcome for an uncertain situation modeled as a set of discrete situations of known likelihood. The goal of stochastic optimization is
+
+\begin{equation}
+	\min_{\overline{U}}\quad J(U)=\sum_{S\in\overline{S}} P(S)F(U,S)\label{eq:stochastic_optimization}
+\end{equation}
+
+where $\overline{S}$ is the set of possible scenarios, $P(S)$ is the probability of $S$, $F(U,S)$ is the cost of control vector $U$ for scenario $S$, and $\overline{U}$ is the set of possible controls. A control vector $U=\{U_g,U_p\}$ contains general and specific controls (sometimes called first and second stage controls). General controls are shared among all scenarios and specific controls apply only ot one scenario. An example of stochastic optimization is as follows:
+\medskip
+
+\framedtext{
+\noindent Example - Stochastic Crop Allocation:\\
+
+\noindent A farmer has 100 total acres of fields to plant and may choose from among three crops. Each crop has a different cost per acre for seeds. Depending on meteorological conditions, each crop will have a different revenue per acre in  low, medium, and high yield scenarios. Seeds must be purchased in the fall but the farmer has until the spring to actually decide what to plant and at that point he will have more information about the weather for the coming year. Any excess seeds may be re-sold for a 20\% loss. What quantities of seed should the farmer purchase in order to maximize profit?
+}
+\medskip
+
+In the example the farmer has to make one set of decisions (what quantities of seeds to buy for the three crops) which holds for all yield scenarios. These are general controls. The farmer then has a set of decisions (what quantities of seed to plant and to resell for each crop) which may vary in different yield scenarios. These are specific controls. The problem contains 3 general controls and 9 specific controls (3 per scenario) for a total of 12 controls. The expected profit for the farmer at the time of seed purchase is the total cost from \eqref{eq:stochastic_optimization} over the number of scenarios.
+
+If the farmer had complete information about the following year's weather at the time of seed purchase he could optimize both seed purchase and seed planting for specific scenarios. In this case the farmer could compute optimal controls for each scenario individually (6 specific controls per scenario). The difference between the expected profit from the stochastic optimization and the mean value of the profits from the deterministic optimizations is called the "cost-of-uncertainty" or the "value-of-information".
+
+A few things are worth mentioning specifically. first, the cost-of-uncertainty should be positive (expected profit less than mean profit). In the example, the farmer may have to buy more seeds than he can possibly plant due to uncertainty and have to sell the excess at a loss. In the deterministic scenarios the optimal solution will never call for purchasing more seeds than needed for planting if the resell value is less than the purchase value. It is intuitive to see that the farmer is paying a price for his decision to purchase seeds before it is possible to predict the weather with sufficient accuracy. Second, stochastic optimization reduces to deterministic optimization with the removal of general controls. In other words, a stochastic optimization problem is an optimization problem with at least one general control and need not have any specific controls.
+
+For a \gls{bev} driving between an origin and a destination the controls relate to where to charge. In th case that there is less than 100\% certainty of a charger being usable (functional, accessible, and available) at the time of arrival to the charger. The technical non-functionality of a given charger may be known to the driver before the trip but accessibility and availability are not likely to be known prior to arrival. When a driver arrives at a charger and becomes aware that the charge is not available the driver has the following options: (1) Wait at the charger until it becomes available, (2) re-route from current location to destination. If the charger is found to be non-functional or inaccessible then only option (2) is possible. Less than perfect reliability may result in an optimal route which is, otherwise, higher cost than that for perfect reliability. Less than perfect certainty may result in a route which is, otherwise, higher cost than that produced with perfect information. Sufficiently poor reliability/certainty may render a trip infeasible from the start or after several failed charge events.
+
+\subsubsection*{Dijkstra}
+
+Using Dijkstra's method for stochastic routing restricts the problem to general controls. There are several approaches to integrating stochasticity into a Dijkstra formulation: (1) Simultaneous consideration of several graphs, (2) Route probability as a cost, and (3) Minimum allowable route probability.
+
+
 
 \section*{Routing-Based Metrology}
 
