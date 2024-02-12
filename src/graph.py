@@ -70,21 +70,21 @@ def random_graph(n, scale, s = 1, link_bounds = (0, np.inf), link_speeds = [1], 
 			source = nodes[idx_s]['id']
 			target = nodes[idx_t]['id']
 
-			link_length = pythagorean(
+			link_distance = pythagorean(
 				nodes[idx_s]['x'],
 				nodes[idx_s]['y'],
 				nodes[idx_t]['x'],
 				nodes[idx_t]['y'],
 			)
 
-			p = np.exp(-link_length / s)
+			p = np.exp(-link_distance / s)
 			r = rng.random()
 			# if r <= p:
-				# print(idx_s, idx_t, p, r, link_length)
+				# print(idx_s, idx_t, p, r, link_distance)
 
 			dont_add_link = np.any((
-				(link_length < link_bounds[0]),
-				(link_length > link_bounds[1]),
+				(link_distance < link_bounds[0]),
+				(link_distance > link_bounds[1]),
 				r > p,
 				))
 
@@ -92,14 +92,14 @@ def random_graph(n, scale, s = 1, link_bounds = (0, np.inf), link_speeds = [1], 
 
 				continue
 
-			# print(idx_s, idx_t, p, r, link_length)
+			# print(idx_s, idx_t, p, r, link_distance)
 
-			link_time = link_length / rng.choice(link_speeds)
+			link_time = link_distance / rng.choice(link_speeds)
 
 			links.append({
 				'source': source,
 				'target': target,
-				'length': link_length,
+				'distance': link_distance,
 				'time': link_time,
 			})
 

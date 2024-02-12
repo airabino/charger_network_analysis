@@ -46,18 +46,19 @@ def dijkstra_output(graph, path_values, sources, targets, chargers):
 
 	for node in path_values.values():
 
-			max_time = max([max_time, node[1]])
+			max_time = max([max_time, node['time']])
 
 	for source, node in graph._node.items():
 
+
 		try:
-			node['travel_time_norm'] = path_values[source][1]
+			node['travel_time'] = path_values[source]['time']
 
 		except:
-			node['travel_time_norm'] = np.nan
+			node['travel_time'] = np.nan
 
 	kwargs = {
-		'node_field': 'travel_time_norm',
+		'node_field': 'travel_time',
 		'scatter': {
 			's': 100,
 			'ec': 'k',
@@ -114,7 +115,9 @@ def dijkstra_output(graph, path_values, sources, targets, chargers):
 		},
 	}
 
-	plot_graph(subgraph(graph, chargers), ax = ax, **kwargs)
+	if chargers:
+
+		plot_graph(subgraph(graph, chargers), ax = ax, **kwargs)
 
 	_ = ax.legend(markerscale = .5)
 	
@@ -169,7 +172,8 @@ def plot_graph(graph, ax = None, **kwargs):
 
 		values = np.array([v[node_field] for v in graph._node.values()])
 
-		kwargs['scatter']['color'] = cmap(values)
+		kwargs['scatter']['color'] = cmap(values / np.nanmax(values))
+		# print(values)
 
 	ax.scatter(
 		coords[:, 0], coords[:, 1], **kwargs.get('scatter', {})

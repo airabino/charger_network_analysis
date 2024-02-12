@@ -10,3 +10,4 @@ from . import dijkstra
 from . import bellman
 # from . import router # Solving VRP
 from . import in_polygon
+from . import dijkstra_stochastic
