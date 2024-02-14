@@ -8,6 +8,5 @@ from . import entities
 from . import adjacency # Computation of adjacency for graphs
 from . import dijkstra
 from . import bellman
-# from . import router # Solving VRP
-from . import in_polygon
-from . import dijkstra_stochastic
+# from . import in_polygon
+from . import rng

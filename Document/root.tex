@@ -85,7 +85,7 @@ Shown in Figure \ref{fig:random_graph} is a randomly generated graph ($G = \{V, 
 	\label{fig:random_graph}
 \end{figure}
 
-The links are traversed at speeds randomly selected from $\{35, 55, 90, 105\}$ kph. Like a real road network, all nodes are connected to the \gls{gcc} but not directly to all others. Because the random graph is based on nodes drawn from a uniform random distribution, the distances between nodes should be normally distributed. Because the probability of a given link is a function of distance, one would also expect the nodes in the middle to have the highest valency and for valency to be Poisson distributed and this is, indeed, the case. The random graph shown in Figure \ref{fig:random_graph} will be referenced throughout this document.
+The links are traversed at speeds randomly selected from $\{35, 55, 90, 105\}$ kph. Like a real road network, all nodes are connected to the \gls{gcc} but not directly to all others. Because the random graph is based on nodes drawn from a uniform random distribution, the distances between nodes should be normally distributed. Because the probability of a given link is a function of distance, one would also expect the nodes in the middle to have the highest valency and for valency to be Poisson distributed and this is, indeed, the case.
 
 \subsection*{California Example}
 
@@ -149,8 +149,6 @@ For vehicles, the primary routing constraint will be range. Each vehicle has a l
 	\label{fig:routing_chargers}
 \end{figure}
 
-
-
 \subsection*{Stochastic Routing}
 
 The principle of stochastic optimization is to find the set of controls which returns the best expected outcome for an uncertain situation modeled as a set of discrete situations of known likelihood. The goal of stochastic optimization is
@@ -166,23 +164,43 @@ where $\overline{S}$ is the set of possible scenarios, $P(S)$ is the probability
 \noindent Example - Stochastic Crop Allocation:\\
 
 \noindent A farmer has 100 total acres of fields to plant and may choose from among three crops. Each crop has a different cost per acre for seeds. Depending on meteorological conditions, each crop will have a different revenue per acre in  low, medium, and high yield scenarios. Seeds must be purchased in the fall but the farmer has until the spring to actually decide what to plant and at that point he will have more information about the weather for the coming year. Any excess seeds may be re-sold for a 20\% loss. What quantities of seed should the farmer purchase in order to maximize profit?
-}
+
+\medskip
+
+Discussion:
+
 \medskip
 
 In the example the farmer has to make one set of decisions (what quantities of seeds to buy for the three crops) which holds for all yield scenarios. These are general controls. The farmer then has a set of decisions (what quantities of seed to plant and to resell for each crop) which may vary in different yield scenarios. These are specific controls. The problem contains 3 general controls and 9 specific controls (3 per scenario) for a total of 12 controls. The expected profit for the farmer at the time of seed purchase is the total cost from \eqref{eq:stochastic_optimization} over the number of scenarios.
 
 If the farmer had complete information about the following year's weather at the time of seed purchase he could optimize both seed purchase and seed planting for specific scenarios. In this case the farmer could compute optimal controls for each scenario individually (6 specific controls per scenario). The difference between the expected profit from the stochastic optimization and the mean value of the profits from the deterministic optimizations is called the "cost-of-uncertainty" or the "value-of-information".
 
-A few things are worth mentioning specifically. first, the cost-of-uncertainty should be positive (expected profit less than mean profit). In the example, the farmer may have to buy more seeds than he can possibly plant due to uncertainty and have to sell the excess at a loss. In the deterministic scenarios the optimal solution will never call for purchasing more seeds than needed for planting if the resell value is less than the purchase value. It is intuitive to see that the farmer is paying a price for his decision to purchase seeds before it is possible to predict the weather with sufficient accuracy. Second, stochastic optimization reduces to deterministic optimization with the removal of general controls. In other words, a stochastic optimization problem is an optimization problem with at least one general control and need not have any specific controls.
+A few things are worth mentioning specifically. first, the cost-of-uncertainty should be positive (expected profit less than mean profit). In the example, the farmer may have to buy more seeds than he can possibly plant due to uncertainty and have to sell the excess at a loss. In the deterministic scenarios the optimal solution will never call for purchasing more seeds than needed for planting if the resell value is less than the purchase value. It is intuitive to see that the farmer is paying a price for his decision to purchase seeds before it is possible to predict the weather with sufficient accuracy. Second, stochastic optimization reduces to deterministic optimization with the removal of general controls. In other words, a stochastic optimization problem is an optimization problem with at least one general control and need not have any specific controls.}
 
-For a \gls{bev} driving between an origin and a destination the controls relate to where to charge. In th case that there is less than 100\% certainty of a charger being usable (functional, accessible, and available) at the time of arrival to the charger. The technical non-functionality of a given charger may be known to the driver before the trip but accessibility and availability are not likely to be known prior to arrival. When a driver arrives at a charger and becomes aware that the charge is not available the driver has the following options: (1) Wait at the charger until it becomes available, (2) re-route from current location to destination. If the charger is found to be non-functional or inaccessible then only option (2) is possible. Less than perfect reliability may result in an optimal route which is, otherwise, higher cost than that for perfect reliability. Less than perfect certainty may result in a route which is, otherwise, higher cost than that produced with perfect information. Sufficiently poor reliability/certainty may render a trip infeasible from the start or after several failed charge events.
+\bigskip
+
+For a \gls{bev} driving between an origin and a destination the controls relate to where to charge. If there is less than 100\% certainty of a charger being usable (functional, accessible, and available) at the time of arrival to the charger, the optimization becomes stochastic. The technical non-functionality of a given charger may be known to the driver before the trip but accessibility and availability are not likely to be known prior to arrival. When a driver arrives at a charger and becomes aware that the charger is not usable the driver has the following options: (1) Wait at the charger until it becomes available, (2) re-route from current location to destination. If the charger is found to be non-functional or inaccessible then only option (2) is possible. Less than perfect reliability may result in an optimal route which is, otherwise, higher cost than that for perfect reliability. Less than perfect certainty may result in a route which is, otherwise, higher cost than that produced with perfect information. Sufficiently poor reliability/certainty may render a trip infeasible from the start or after several failed charge events.
 
 \subsubsection*{Dijkstra}
 
-Using Dijkstra's method for stochastic routing restricts the problem to general controls. In all cases, routing is effected by the presence of energizing nodes and their properties. A deterministic model of an energizing node is that, if visited, the node resets the vehicle's range to either full or a pre-determined level and adds time to the route. As such, nodes are parameterized by $\hat{\Psi} = \{\Psi_v,\quad \forall v\in V\}$ where $\Psi_v = \{\psi_v^l,\psi_v^w,\psi_v^r\}$ which are the range upon leaving the node, the wait time before charging, and the charging rate respectively. All parameters are zero for non-energizing nodes. For stochastic optimization, all parameters are sampled from defined distributions for energizing nodes. In effect, where deterministic routing occurs on a graph $G$, stochastic routing occurs on the spanning set of possible graphs $\overline{G}$ which has infinite cardinality. In reality, optimization must occur over a finite set. Thus stochastic optimization occurs on $\hat{G}\subset\overline{G}$ of cardinality $N$. Higher values of $N$ better approximate $\overline{G}$ at the cost of increased computational load.
+Where deterministic routing occurs on a graph $G$, stochastic routing occurs on the spanning set of possible graphs $\overline{G}$ which has infinite cardinality. In reality, optimization must occur over a finite set. Thus stochastic optimization occurs on $\hat{G}\subset\overline{G}$ of cardinality $N$. Higher values of $N$ better approximate $\overline{G}$ at the cost of increased computational load. Dijkstra's method for stochastic routing results in a single general optimal route $R^*$. $R^*$ is found using a Monte-Carlo style solution wherein $N$ integrations are simultaneously computed along the same paths experiencing different parameters along the way. The goal of the optimization is to produce the route with the lowest expected cost $\mathbb{J}^* = F(R^*,\hat{G})$ where $R^*$ is the expected optimal route.
 
+$R^*$ is subject to charger usability for O/D pairs of a greater distance than the vehicle's remaining range. The net result of charging (or fueling etc.) is that the vehicle's range is reset, time is added to the route, and money is added to the route price. Time additions are due to charge time and a possible delay due to queuing. Price additions are due to charge pricing. As such, the chargers in $\hat{G}$ are parameterized by $\hat{\Psi} = \{\Psi_v,\quad \forall v\in V\}$ where $\Psi_v = \{\psi_v^r,\psi_v^p,\psi_v^d,\psi_v^c\}$ which are the range completion of the charge event (the reset range), the charge power, the wait time before charging, and the charging cost respectively. If the vehicle's remaining range is greater than $\psi_v^r$ no charge event will occur. For stochastic optimization, all parameters are sampled from defined distributions each time the charger is visited.
 
-Stochastic vehicle routing calls for a Monte-Carlo style solution wherein $N$ instances are simultaneously routes along the same path but experience different parameters at each energizing node. The goal of the optimization is to produce the route with the lowest expected cost $\mathbb{J}^* = F(R^*,\hat{G})$ where $R^*$ is the expected optimal route. An issue with this formulation is that, depending on the configuration of $G$, certain routes may be feasible or infeasible potentially creating a discontinuous cost space where the costs of the feasible routes must be considered alongside those of infeasible routes. There are, in essence, two approaches: (1) apply a cost for route infeasibility and/or (2) set a limit on route unlikelihood. 
+Depending on the configuration of $G$, certain routes may be feasible or infeasible (because they cause the vehicle range to go below a minimum value) potentially creating a discontinuous cost space where the costs of the feasible routes must be considered alongside those of infeasible routes. A probabilistic risk measure, the Super-Quantile provides an elegant solution. The Super-Quantile function for a given distribution is
+
+\begin{equation}
+	S_p(D) = \frac{1}{1-p}\int_{p}^{1}Q_\alpha(D)d\alpha
+\end{equation}
+
+where $D$ is a given \gls{pdf}, $p\in[0, 1]$ is a probability threshold, and $Q_\alpha$ is the quantile function of a given \gls{pdf} for probability $\alpha$. In effect, the Super-Quantile is the mean of the \gls{pdf} after $p$. For route $R$ on graphs $\hat{G}$ of cardinality $N$, there will be a revealed distribution $D_r$ of remaining range at all points. The remaining range constraint can thus be written as
+
+\begin{equation}
+	S_p(-D_r)\geq -r^{min} \label{eq:remaining_range_constraint}
+\end{equation}
+
+where $r^{min}$ is the lowest allowable remaining range and $p$ is set by the user. In effect, \eqref{eq:remaining_range_constraint} guarantees that the expected value of the worst $1-p$ portion of outcomes is within the feasible range. General values of other route costs are computed similarly.
+
 
 \section*{Routing-Based Metrology}
 

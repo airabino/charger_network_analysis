@@ -8,74 +8,125 @@ Edits are to allow for native tracking of multiple shortest path simultaneously.
 For example, one could get a shortest path weighted by 'distance' but also
 want to know path 'time', this edited code allows for this to be done efficiently.
 '''
+import numpy as np
+
+from copy import deepcopy
 from heapq import heappop, heappush
 from itertools import count
 from sys import float_info, maxsize
 
+class Node_Cost_Stochastic():
+
+    def __call__(self, cost):
+
+        return cost
+
+class Link_Cost_Stochastic():
+
+    def __init__(self, link, out_of_range_penalty = 5):
+
+        self.time = link['time']
+        self.distance = link['distance']
+        self.out_of_range_penalty = out_of_range_penalty
+
+    def __call__(self, cost):
+
+        for idx in range(len(cost['range'])):
+
+            cost['time'][idx] += self.time
+            cost['distance'][idx] += self.distance
+            cost['range'][idx] -= self.distance
+
+            if cost['range'][idx] < 0:
+
+                cost['range'][idx] = 0
+                cost['time'][idx] += self.out_of_range_penalty
+
+        return cost
+
+class Cost():
+
+    def __init__(self, field, value):
+
+        self.field = field
+        self.value = value
+
+    def __call__(self, cost):
+
+        for value in cost[self.field]:
+
+            value += self.value
+
+        return cost
+
 class Charger():
 
-    def __init__(self, node, fields, amounts, probability = 1):
+    def __init__(self, reset, rate, delay, price, **kwargs):
 
-        self.node = node
-        self.fields = fields
-        self.amounts = amounts
-        self.probability = probability
+        self.reset = reset
+        self.rate = rate
+        self.delay = delay
+        self.price = price
 
-    def update(self, capacities, probability):
+        self.range_field = kwargs.get('range_field', 'range')
+        self.time_field = kwargs.get('time_field', 'time')
+        self.price_field = kwargs.get('price_field', 'price')
+        self.rng = np.random.default_rng(kwargs.get('seed', None))
 
-        for idx, field in enumerate(self.fields):
+    def get_random_state(self):
 
-            capacities[idx] = self.amounts[idx]
+        rn = self.rng.random()
 
-        return capacities, probability * self.probability
+        return self.reset(rn), self.rate(rn), self.delay(rn), self.price(rn)
+
+    def update(self, cost):
+        # print('ccccc')
+
+        for idx in range(len(cost[self.range_field])):
+
+            reset, rate, delay, price = self.get_random_state()
+            # print(reset, rate, delay, price)
+
+            if cost[self.range_field][idx] < reset:
+                
+                cost[self.time_field][idx] += (
+                    (reset - cost[self.range_field][idx]) / rate + delay)
+
+                cost[self.price_field][idx] += (
+                    (reset - cost[self.range_field][idx]) * price)
+
+                cost[self.range_field][idx] = reset
+
+        return cost
 
 class Objective():
 
-    def __init__(self, fields, limits, initial_values = None, weights = None):
+    def __init__(self, field, initial, feasible, weight):
 
-        self.fields = fields
-        self.limits = limits
+        self.field = field
+        self.initial = initial
+        self.feasible = feasible
+        self.weight = weight
 
-        self.n = len(fields)
+        self.n = len(self.initial)
 
-        self.initial_values = initial_values
+    def update(self, cost, entity):
 
-        if initial_values is None:
+        # print('a', self.field, cost, entity)
+        # print(entity.get(self.field, 0))
 
-            self.initial_values = [0] * self.n
+        entity_value = entity.get(self.field, 0)
+        # print('c', entity_value)
 
-        self.initial_capacities = [self.limits[idx] - self.initial_values[idx] \
-            for idx in range(self.n)]
+        for idx in range(self.n):
 
-        self.weights = weights
+            cost[self.field][idx] += entity_value
 
-        if weights is None:
+        # print('b', self.field, cost)
 
-            self.weights = [1] + [0] * (self.n - 1)
+        return cost
 
-    def cost(self, link):
-
-        return [link[field] for field in self.fields]
-
-    def update(self, link, values, capacities):
-
-        cost = self.cost(link)
-
-        new_values = [values[idx] + cost[idx] for idx in range(self.n)]
-        new_capacities = [capacities[idx] - cost[idx] for idx in range(self.n)]
-        feasible = all([new_capacities[idx] >= 0 for idx in range(self.n)])
-
-        return new_values, new_capacities, feasible
-
-    def weighted_sum(self, values):
-
-        weighted_values = sum(
-            [self.weights[idx] * values[idx] for idx in range(self.n)]
-            )
-
-        return weighted_values
-
-def dijkstra(graph, sources, objective, targets = [], chargers = {}, **kwargs):
+def dijkstra_stochastic(graph, origins, objectives, n = 1, destinations = [], **kwargs):
     """Uses Dijkstra's algorithm to find shortest weighted paths
 
     Code is based on (is an edited version of):
@@ -124,115 +175,167 @@ def dijkstra(graph, sources, objective, targets = [], chargers = {}, **kwargs):
     """
 
     return_paths = kwargs.get('return_paths', False)
-    minimum_path_probability = kwargs.get('minimum_path_probability', 0)
-
-    charger_nodes = list(chargers.keys())
 
     if return_paths:
 
-        paths = {source: [source] for source in sources}
+        paths = {origin: [origin] for origin in origins}
 
     else:
 
         paths = None
 
-    graph_succ = graph._adj
+    adjacency = graph._adj
     # For speed-up (and works for both directed and undirected graphs)
 
-    path_values = {}  # dictionary of final distances
-    path_capacities = {}
-    path_probability = {}
-    seen = {}
+    path_values = {}  # dictionary of cost values for paths
 
-    targets_visited = 0
+    visited = {} # dictionary of costs-to-reach for nodes
 
-    if len(targets) == 0:
+    destinations_visited = 0
 
-        targets_to_hit = maxsize
+    if len(destinations) == 0:
+
+        destinations_to_visit = maxsize # If no targets are provided then search all nodes
 
     else:
 
-        targets_to_hit = len(targets)
+        destinations_to_visit = len(destinations)
+        # If targets are provided then search until all are seen
 
-    # fringe is heapq with 3-tuples (distance,c,node)
-    # use the count c to avoid comparing nodes (may not be able to)
+    # Heap Queue is used for search, efficiently allows for tracking of nodes
+    # and pushing/pulling
+    c = count() # use the count c to avoid comparing nodes (may not be able to)
+    heap = [] # heap is heapq with 3-tuples (cost, c, node)
 
-    c = count()
-    fringe = []
+    for origin in origins:
 
-    for source in sources:
+        visited[origin] = 0 # Source is seen at the start of iteration and at 0 cost
+        # Adding the source tuple to the heap (initial cost, count, id)
+        cost = {objective.field: objective.initial for objective in objectives}
+        heappush(heap, (0, cost, next(c), origin))
 
-        seen[source] = 0
-        heappush(
-            fringe,
-            ((objective.initial_values, objective.initial_capacities, 1), next(c), source)
-            )
+    while heap: # Iterating while there are accessible unseen nodes
 
-    while fringe:
+        # Popping the smallest unseen node from the heap
 
-        (d,  _, v) = heappop(fringe)
+        (wc, cost,  _, source) = heappop(heap)
 
-        if v in path_values:
+        if source in path_values:
 
             continue  # already searched this node.
 
-        path_values[v] = d[0]
-        path_capacities[v] = d[1]
-        path_probability[v] = d[2]
+        path_values[source] = cost
+        # Checking if the current source is a search target
+        # If all targets are reached then the search is terminated
 
-        if v in targets:
+        if source in destinations:
 
-            targets_visited += 1
+            destinations_visited += 1
 
-        if targets_visited >= targets_to_hit:
+        if destinations_visited >= destinations_to_visit:
 
             break
 
-        for u, e in graph_succ[v].items():
+        # Iterating through the current source node's adjacency
+        for target, link in adjacency[source].items():
 
-            tentative_values, tentative_capacities, feasible = objective.update(
-                e, path_values[v], path_capacities[v])
+            tentative_cost = deepcopy(cost)
 
-            tentative_probability = d[2]
+            feasible = True
+            weighted_cost = 0
 
-            if not feasible:
+            # print('a', tentative_cost)
 
-                continue
+            for objective in objectives:
+                # print(objective.__dict__)
 
-            if u in charger_nodes:
+                # Updating objective for link
+                tentative_cost = objective.update(tentative_cost, link)
 
-                tentative_capacities, tentative_probability = chargers[u].update(
-                    tentative_capacities, path_probability[v])
+                # Checking if link traversal is possible
+                feasible *= objective.feasible(tentative_cost)
 
-            # print(tentative_probability)
+                # Adding the target node cost
+                tentative_cost = objective.update(tentative_cost, graph._node[target])
 
-            if tentative_probability < minimum_path_probability:
+                # Updating the weighted cost for the path
+                weighted_cost += objective.weight(tentative_cost)
 
-                continue
+                # Charging if availabe
+                if 'charger' in graph._node[target]:
 
-            weighted_tentative_values = objective.weighted_sum(tentative_values)
+                    # print('dddddd', graph._node[target])
 
-            if u not in seen or weighted_tentative_values < seen[u]:
+                    tentative_cost = graph._node[target]['charger'].update(tentative_cost)
 
-                seen[u] = weighted_tentative_values
 
-                heappush(
-                    fringe,
-                    (
-                        (tentative_values, tentative_capacities, tentative_probability),
-                        next(c),
-                        u
-                        )
-                    )
+            # print('b', tentative_cost)
+
+            not_visited = target not in visited
+            savings = weighted_cost < visited.get(target, 0)
+            # print((not_visited or savings) and feasible)
+
+            if (not_visited or savings) and feasible:
+
+                # print(tentative_cost)
+
+                visited[target] = weighted_cost
+
+                heappush(heap, (weighted_cost, tentative_cost, next(c), target))
 
                 if paths is not None:
 
-                    paths[u] = paths[v] + [u]
+                    paths[target] = paths[source] + [target]
 
     return path_values, paths
 
+class Node_Cost():
 
-def dijkstra_old(graph, sources, weights, targets = [], chargers = {}, **kwargs):
+    def __call__(self, cost):
+
+        return cost
+
+class Link_Cost():
+
+    def __init__(self, link, out_of_range_penalty = 5):
+
+        self.time = link['time']
+        self.distance = link['distance']
+        self.out_of_range_penalty = out_of_range_penalty
+
+    def __call__(self, cost):
+
+        cost['time'] += self.time
+        cost['distance'] += self.distance
+        cost['range'] -= self.distance
+
+        if cost['range'] < 0:
+
+            cost['range'] = 0
+            cost['time'] += self.out_of_range_penalty
+
+
+        return cost
+
+class Charger_Cost(Node_Cost):
+
+    def __init__(self, reset_range, charge_rate, delay):
+
+        self.reset_range = reset_range
+        self.charge_rate = charge_rate
+        self.delay = delay
+
+    def __call__(self, cost):
+
+        if cost['range'] < self.reset_range:
+            
+            cost['time'] += (
+                (self.reset_range - cost['range']) / self.charge_rate + self.delay)
+            cost['range'] = self.reset_range
+
+        return cost
+
+def dijkstra(graph, origins, objective, destinations = [], **kwargs):
     """Uses Dijkstra's algorithm to find shortest weighted paths
 
     Code is based on (is an edited version of):
@@ -251,7 +354,7 @@ def dijkstra_old(graph, sources, weights, targets = [], chargers = {}, **kwargs)
         iterable, the computed paths may begin from any one of the start
         nodes.
 
-    weights : dictionary - {field: cutoff}
+    objectives : dictionary - {field: {'limit': limit, 'weight': weight}}
         Cumulative values for path fields will be returned - if any cutoff is exceeded
         in reaching a node the node is considered unreachable via the given path.
         AT LEAST ONE FIELD IS REQUIRED.
@@ -282,112 +385,94 @@ def dijkstra_old(graph, sources, weights, targets = [], chargers = {}, **kwargs)
 
     return_paths = kwargs.get('return_paths', False)
 
-    charger_nodes = list(chargers.keys())
-
     if return_paths:
 
-        paths = {source: [source] for source in sources}
+        paths = {origin: [origin] for origin in origins}
 
     else:
 
         paths = None
 
-    n_weights=len(weights)
-
-    for weight, limit in weights.items():
-
-        if limit <= 0:
-
-            weights[weight] = float_info.max
-
-    graph_succ = graph._adj
+    adjacency = graph._adj
     # For speed-up (and works for both directed and undirected graphs)
 
-    path_weights = {}  # dictionary of final distances
-    path_capacities = {}
-    seen = {}
+    path_values = {}  # dictionary of cost values for paths
 
-    targets_visited = 0
+    visited = {} # dictionary of costs-to-reach for nodes
 
-    if len(targets) == 0:
+    destinations_visited = 0
 
-        targets_to_hit = maxsize
+    if len(destinations) == 0:
+
+        destinations_to_visit = maxsize # If no targets are provided then search all nodes
 
     else:
 
-        targets_to_hit = len(targets)
+        destinations_to_visit = len(destinations)
+        # If targets are provided then search until all are seen
 
-    # fringe is heapq with 3-tuples (distance,c,node)
-    # use the count c to avoid comparing nodes (may not be able to)
+    # Heap Queue is used for search, efficiently allows for tracking of nodes
+    # and pushing/pulling
+    c = count() # use the count c to avoid comparing nodes (may not be able to)
+    heap = [] # heap is heapq with 3-tuples (cost, c, node)
 
-    c = count()
-    fringe = []
+    for origin in origins:
 
-    for source in sources:
+        visited[origin] = 0 # Source is seen at the start of iteration and at 0 cost
+        # Adding the source tuple to the heap (initial cost, count, id)
+        cost = {key: val['initial'] for key, val in objective.items()}
+        heappush(heap, (0, cost, next(c), origin))
 
-        seen[source] = 0
-        heappush(fringe, (([0,]*n_weights, weights.copy()), next(c), source))
+    while heap: # Iterating while there are accessible unseen nodes
 
-    while fringe:
+        # Popping the smallest unseen node from the heap
 
-        (d,  _, v) = heappop(fringe)
+        (wc, cost,  _, source) = heappop(heap)
 
-        if v in path_weights:
+        if source in path_values:
 
             continue  # already searched this node.
 
-        path_weights[v] = d[0]
-        path_capacities[v] = d[1]
+        path_values[source] = cost
 
-        if v in targets:
+        # Checking if the current source is a search target
+        # If all targets are reached then the search is terminated
 
-            targets_visited += 1
+        if source in destinations:
 
-        if targets_visited >= targets_to_hit:
+            destinations_visited += 1
+
+        if destinations_visited >= destinations_to_visit:
 
             break
 
-        for u, e in graph_succ[v].items():
+        # Iterating through the current source node's adjacency
+        for target, link in adjacency[source].items():
 
-            cost = [e.get(field, 1) for field in weights.keys()]
+            tentative_cost = cost.copy()
 
-            if cost[0] is None:
+            # Updating costs for fields in objective
+            tentative_cost = link['cost'](tentative_cost)
 
-                continue
+            tentative_cost = graph._node[target]['cost'](tentative_cost)
 
-            vu_weights = [path_weights[v][idx] + cost[idx] for idx in range(n_weights)]
-            vu_capacities = {k: path_capacities[v][k] - cost[idx] \
-                for idx, k in enumerate(weights.keys())}
+            feasible = True
+            weighted_cost = 0
 
-            cutoff_exceeded = any([vu_capacities[k] < 0 \
-                for k in weights.keys()])
+            for key, value in objective.items():
 
-            if cutoff_exceeded:
+                feasible *= value['feasible'](tentative_cost[key])
 
-                continue
+                weighted_cost += value['weight'](tentative_cost[key])
 
-            if u in charger_nodes:
+            if target not in visited or weighted_cost < visited[target]:
 
-                for key, val in chargers[u].items():
+                visited[target] = weighted_cost
 
-                    vu_capacities[key] = val
-
-            if u in path_weights:
-
-                u_dist = path_weights[u]
-
-                if vu_weights[0] < u_dist[0]:
-
-                    raise ValueError("Contradictory paths found:", "negative weights?")
-
-            elif u not in seen or vu_weights[0] < seen[u]:
-
-                seen[u] = vu_weights[0]
-
-                heappush(fringe, ((vu_weights, vu_capacities), next(c), u))
+                heappush(heap, (weighted_cost, tentative_cost, next(c), target))
 
                 if paths is not None:
 
-                    paths[u] = paths[v] + [u]
+                    paths[target] = paths[source] + [target]
 
-    return path_weights, paths
+    return path_values, paths

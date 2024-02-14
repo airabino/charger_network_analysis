@@ -50,7 +50,6 @@ def dijkstra_output(graph, path_values, sources, targets, chargers):
 
 	for source, node in graph._node.items():
 
-
 		try:
 			node['travel_time'] = path_values[source]['time']
 
