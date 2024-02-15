@@ -1,7 +1,7 @@
 import numpy as np
 
 from .graph import graph_from_nlg
-from .utilities import pythagorean
+from .utilities import pythagorean, top_n_indices
 
 def random_graph(n, scale, s = 1, link_bounds = (0, np.inf), link_speeds = [1], seed = None):
 	
@@ -76,6 +76,18 @@ def random_chargers(graph, n_chargers, charger, seed = None):
 			replace = False,
 		),
 	)
+
+	for node in charger_nodes:
+
+		graph._node[node]['charger'] = charger
+
+	return graph, charger_nodes
+
+def highly_valent_chargers(graph, n_chargers, charger, seed = None):
+
+	valency = [len(graph._adj[n]) for n in graph.nodes]
+
+	charger_nodes = top_n_indices(valency, n_chargers)
 
 	for node in charger_nodes:
 

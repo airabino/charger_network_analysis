@@ -38,15 +38,28 @@ colormaps={
 	'default_prop_cycle': default_prop_cycle,
 }
 
-def dijkstra_output(graph, path_values, sources, targets, chargers):
+def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, **kwargs):
 
-	fig, ax = plt.subplots(figsize = (8, 6))
+	return_fig = False
 
-	max_time = 0
+	if ax is None:
 
-	for node in path_values.values():
+		fig, ax = plt.subplots(**kwargs.get('figure', {}))
+		return_fig = True
 
-			max_time = max([max_time, node['time']])
+	field = kwargs.get('field', 'time')
+
+	if 'max_val' in kwargs:
+
+		max_val = kwargs['max_val']
+
+	else:
+
+		max_val = 0
+
+		for node in path_values.values():
+
+				max_val = max([max_val, node['time']])
 
 	for source, node in graph._node.items():
 
@@ -57,6 +70,7 @@ def dijkstra_output(graph, path_values, sources, targets, chargers):
 			node['travel_time'] = np.nan
 
 	kwargs = {
+		'show_links': kwargs.get('show_links', True),
 		'node_field': 'travel_time',
 		'scatter': {
 			's': 100,
@@ -100,7 +114,9 @@ def dijkstra_output(graph, path_values, sources, targets, chargers):
 		},
 	}
 
-	plot_graph(subgraph(graph, targets), ax = ax, **kwargs)
+	if targets:
+
+		plot_graph(subgraph(graph, targets), ax = ax, **kwargs)
 
 	kwargs = {
 		'show_links': False,
@@ -120,7 +136,9 @@ def dijkstra_output(graph, path_values, sources, targets, chargers):
 
 	_ = ax.legend(markerscale = .5)
 	
-	return fig
+	if return_fig:
+
+		return fig
 
 def colormap(colors):
 
@@ -178,7 +196,7 @@ def plot_graph(graph, ax = None, **kwargs):
 		coords[:, 0], coords[:, 1], **kwargs.get('scatter', {})
 		)
 
-	if show_links or kwargs.get('plot', {}):
+	if show_links:
 
 		dx = []
 		dy = []

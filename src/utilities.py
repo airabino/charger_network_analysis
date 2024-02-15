@@ -4,9 +4,10 @@ import numpy as np
 
 from shutil import get_terminal_size
 
-def super_quantile(x, alpha, discretization = .001):
+def super_quantile(x, alpha, discretization = .01):
     
-    q = np.arange(alpha, 1, discretization)
+    q = np.arange(alpha, .99, discretization)
+    # print(q)
     
     sq = 1/(1 - alpha) * (np.quantile(x, q) * discretization).sum()
 
