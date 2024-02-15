@@ -8,56 +8,13 @@ Edits are to allow for native tracking of multiple shortest path simultaneously.
 For example, one could get a shortest path weighted by 'distance' but also
 want to know path 'time', this edited code allows for this to be done efficiently.
 '''
+import time
 import numpy as np
 
 from copy import deepcopy
 from heapq import heappop, heappush
 from itertools import count
 from sys import float_info, maxsize
-
-class Node_Cost_Stochastic():
-
-    def __call__(self, cost):
-
-        return cost
-
-class Link_Cost_Stochastic():
-
-    def __init__(self, link, out_of_range_penalty = 5):
-
-        self.time = link['time']
-        self.distance = link['distance']
-        self.out_of_range_penalty = out_of_range_penalty
-
-    def __call__(self, cost):
-
-        for idx in range(len(cost['range'])):
-
-            cost['time'][idx] += self.time
-            cost['distance'][idx] += self.distance
-            cost['range'][idx] -= self.distance
-
-            if cost['range'][idx] < 0:
-
-                cost['range'][idx] = 0
-                cost['time'][idx] += self.out_of_range_penalty
-
-        return cost
-
-class Cost():
-
-    def __init__(self, field, value):
-
-        self.field = field
-        self.value = value
-
-    def __call__(self, cost):
-
-        for value in cost[self.field]:
-
-            value += self.value
-
-        return cost
 
 class Charger():
 
@@ -126,7 +83,7 @@ class Objective():
 
         return cost
 
-def dijkstra_stochastic(graph, origins, objectives, n = 1, destinations = [], **kwargs):
+def dijkstra(graph, origins, objectives, n = 1, destinations = [], **kwargs):
     """Uses Dijkstra's algorithm to find shortest weighted paths
 
     Code is based on (is an edited version of):
@@ -206,6 +163,8 @@ def dijkstra_stochastic(graph, origins, objectives, n = 1, destinations = [], **
     # and pushing/pulling
     c = count() # use the count c to avoid comparing nodes (may not be able to)
     heap = [] # heap is heapq with 3-tuples (cost, c, node)
+
+    # tc = 0
 
     for origin in origins:
 
@@ -249,24 +208,32 @@ def dijkstra_stochastic(graph, origins, objectives, n = 1, destinations = [], **
             for objective in objectives:
                 # print(objective.__dict__)
 
+                # t0 = time.time()
                 # Updating objective for link
                 tentative_cost = objective.update(tentative_cost, link)
+
 
                 # Checking if link traversal is possible
                 feasible *= objective.feasible(tentative_cost)
 
+
                 # Adding the target node cost
                 tentative_cost = objective.update(tentative_cost, graph._node[target])
+
 
                 # Updating the weighted cost for the path
                 weighted_cost += objective.weight(tentative_cost)
 
+                
                 # Charging if availabe
                 if 'charger' in graph._node[target]:
 
                     # print('dddddd', graph._node[target])
 
                     tentative_cost = graph._node[target]['charger'].update(tentative_cost)
+
+                # tc += time.time() - t0
+                
 
 
             # print('b', tentative_cost)
@@ -287,192 +254,194 @@ def dijkstra_stochastic(graph, origins, objectives, n = 1, destinations = [], **
 
                     paths[target] = paths[source] + [target]
 
+    # print('tc', tc)
+
     return path_values, paths
 
-class Node_Cost():
+# class Node_Cost():
 
-    def __call__(self, cost):
+#     def __call__(self, cost):
 
-        return cost
+#         return cost
 
-class Link_Cost():
+# class Link_Cost():
 
-    def __init__(self, link, out_of_range_penalty = 5):
+#     def __init__(self, link, out_of_range_penalty = 5):
 
-        self.time = link['time']
-        self.distance = link['distance']
-        self.out_of_range_penalty = out_of_range_penalty
+#         self.time = link['time']
+#         self.distance = link['distance']
+#         self.out_of_range_penalty = out_of_range_penalty
 
-    def __call__(self, cost):
+#     def __call__(self, cost):
 
-        cost['time'] += self.time
-        cost['distance'] += self.distance
-        cost['range'] -= self.distance
+#         cost['time'] += self.time
+#         cost['distance'] += self.distance
+#         cost['range'] -= self.distance
 
-        if cost['range'] < 0:
+#         if cost['range'] < 0:
 
-            cost['range'] = 0
-            cost['time'] += self.out_of_range_penalty
+#             cost['range'] = 0
+#             cost['time'] += self.out_of_range_penalty
 
 
-        return cost
+#         return cost
 
-class Charger_Cost(Node_Cost):
+# class Charger_Cost(Node_Cost):
 
-    def __init__(self, reset_range, charge_rate, delay):
+#     def __init__(self, reset_range, charge_rate, delay):
 
-        self.reset_range = reset_range
-        self.charge_rate = charge_rate
-        self.delay = delay
+#         self.reset_range = reset_range
+#         self.charge_rate = charge_rate
+#         self.delay = delay
 
-    def __call__(self, cost):
+#     def __call__(self, cost):
 
-        if cost['range'] < self.reset_range:
+#         if cost['range'] < self.reset_range:
             
-            cost['time'] += (
-                (self.reset_range - cost['range']) / self.charge_rate + self.delay)
-            cost['range'] = self.reset_range
+#             cost['time'] += (
+#                 (self.reset_range - cost['range']) / self.charge_rate + self.delay)
+#             cost['range'] = self.reset_range
 
-        return cost
+#         return cost
 
-def dijkstra(graph, origins, objective, destinations = [], **kwargs):
-    """Uses Dijkstra's algorithm to find shortest weighted paths
+# def dijkstra(graph, origins, objective, destinations = [], **kwargs):
+#     """Uses Dijkstra's algorithm to find shortest weighted paths
 
-    Code is based on (is an edited version of):
-    NetworkX shortest_paths.weighted._dijkstra_multisource
+#     Code is based on (is an edited version of):
+#     NetworkX shortest_paths.weighted._dijkstra_multisource
 
-    Edits are to allow for native tracking of multiple shortest path simultaneously.
+#     Edits are to allow for native tracking of multiple shortest path simultaneously.
 
-    Parameters
-    ----------
-    graph : NetworkX graph
+#     Parameters
+#     ----------
+#     graph : NetworkX graph
 
-    sources : non-empty iterable of nodes
-        Starting nodes for paths. If this is just an iterable containing
-        a single node, then all paths computed by this function will
-        start from that node. If there are two or more nodes in this
-        iterable, the computed paths may begin from any one of the start
-        nodes.
+#     sources : non-empty iterable of nodes
+#         Starting nodes for paths. If this is just an iterable containing
+#         a single node, then all paths computed by this function will
+#         start from that node. If there are two or more nodes in this
+#         iterable, the computed paths may begin from any one of the start
+#         nodes.
 
-    objectives : dictionary - {field: {'limit': limit, 'weight': weight}}
-        Cumulative values for path fields will be returned - if any cutoff is exceeded
-        in reaching a node the node is considered unreachable via the given path.
-        AT LEAST ONE FIELD IS REQUIRED.
+#     objectives : dictionary - {field: {'limit': limit, 'weight': weight}}
+#         Cumulative values for path fields will be returned - if any cutoff is exceeded
+#         in reaching a node the node is considered unreachable via the given path.
+#         AT LEAST ONE FIELD IS REQUIRED.
 
-    targets : iterable of nodes - optionally empty
-        Ending nodes for path. Search is halted when all targets are reached. If empty
-        all nodes will be reached if possible.
+#     targets : iterable of nodes - optionally empty
+#         Ending nodes for path. Search is halted when all targets are reached. If empty
+#         all nodes will be reached if possible.
 
-    chargers : Dictionary - {node: weights}
-        Dictionary of nodes that reset given weights to zere. As an example
-        a charger can be a node which resets a distance weight to zero allowing for
-        further distances to be reached.
+#     chargers : Dictionary - {node: weights}
+#         Dictionary of nodes that reset given weights to zere. As an example
+#         a charger can be a node which resets a distance weight to zero allowing for
+#         further distances to be reached.
 
-    return_paths : Boolean
-        Boolean whether or not to compute paths dictionary. If False None
-        is returned for the paths output. COMPUTING PATHS WILL INCREASE RUN-TIME.
+#     return_paths : Boolean
+#         Boolean whether or not to compute paths dictionary. If False None
+#         is returned for the paths output. COMPUTING PATHS WILL INCREASE RUN-TIME.
 
-    Returns
-    -------
-    path_weights : dictionary
-        Path weights from source nodes to target nodes.
+#     Returns
+#     -------
+#     path_weights : dictionary
+#         Path weights from source nodes to target nodes.
 
-    paths : dictionary
-        Dictionary containing ordered lists of nodes passed on shortest
-        path between the origin node and other nodes. If return_paths == False
-        then None will be returned.
-    """
+#     paths : dictionary
+#         Dictionary containing ordered lists of nodes passed on shortest
+#         path between the origin node and other nodes. If return_paths == False
+#         then None will be returned.
+#     """
 
-    return_paths = kwargs.get('return_paths', False)
+#     return_paths = kwargs.get('return_paths', False)
 
-    if return_paths:
+#     if return_paths:
 
-        paths = {origin: [origin] for origin in origins}
+#         paths = {origin: [origin] for origin in origins}
 
-    else:
+#     else:
 
-        paths = None
+#         paths = None
 
-    adjacency = graph._adj
-    # For speed-up (and works for both directed and undirected graphs)
+#     adjacency = graph._adj
+#     # For speed-up (and works for both directed and undirected graphs)
 
-    path_values = {}  # dictionary of cost values for paths
+#     path_values = {}  # dictionary of cost values for paths
 
-    visited = {} # dictionary of costs-to-reach for nodes
+#     visited = {} # dictionary of costs-to-reach for nodes
 
-    destinations_visited = 0
+#     destinations_visited = 0
 
-    if len(destinations) == 0:
+#     if len(destinations) == 0:
 
-        destinations_to_visit = maxsize # If no targets are provided then search all nodes
+#         destinations_to_visit = maxsize # If no targets are provided then search all nodes
 
-    else:
+#     else:
 
-        destinations_to_visit = len(destinations)
-        # If targets are provided then search until all are seen
+#         destinations_to_visit = len(destinations)
+#         # If targets are provided then search until all are seen
 
-    # Heap Queue is used for search, efficiently allows for tracking of nodes
-    # and pushing/pulling
-    c = count() # use the count c to avoid comparing nodes (may not be able to)
-    heap = [] # heap is heapq with 3-tuples (cost, c, node)
+#     # Heap Queue is used for search, efficiently allows for tracking of nodes
+#     # and pushing/pulling
+#     c = count() # use the count c to avoid comparing nodes (may not be able to)
+#     heap = [] # heap is heapq with 3-tuples (cost, c, node)
 
-    for origin in origins:
+#     for origin in origins:
 
-        visited[origin] = 0 # Source is seen at the start of iteration and at 0 cost
-        # Adding the source tuple to the heap (initial cost, count, id)
-        cost = {key: val['initial'] for key, val in objective.items()}
-        heappush(heap, (0, cost, next(c), origin))
+#         visited[origin] = 0 # Source is seen at the start of iteration and at 0 cost
+#         # Adding the source tuple to the heap (initial cost, count, id)
+#         cost = {key: val['initial'] for key, val in objective.items()}
+#         heappush(heap, (0, cost, next(c), origin))
 
-    while heap: # Iterating while there are accessible unseen nodes
+#     while heap: # Iterating while there are accessible unseen nodes
 
-        # Popping the smallest unseen node from the heap
+#         # Popping the smallest unseen node from the heap
 
-        (wc, cost,  _, source) = heappop(heap)
+#         (wc, cost,  _, source) = heappop(heap)
 
-        if source in path_values:
+#         if source in path_values:
 
-            continue  # already searched this node.
+#             continue  # already searched this node.
 
-        path_values[source] = cost
+#         path_values[source] = cost
 
-        # Checking if the current source is a search target
-        # If all targets are reached then the search is terminated
+#         # Checking if the current source is a search target
+#         # If all targets are reached then the search is terminated
 
-        if source in destinations:
+#         if source in destinations:
 
-            destinations_visited += 1
+#             destinations_visited += 1
 
-        if destinations_visited >= destinations_to_visit:
+#         if destinations_visited >= destinations_to_visit:
 
-            break
+#             break
 
-        # Iterating through the current source node's adjacency
-        for target, link in adjacency[source].items():
+#         # Iterating through the current source node's adjacency
+#         for target, link in adjacency[source].items():
 
-            tentative_cost = cost.copy()
+#             tentative_cost = cost.copy()
 
-            # Updating costs for fields in objective
-            tentative_cost = link['cost'](tentative_cost)
+#             # Updating costs for fields in objective
+#             tentative_cost = link['cost'](tentative_cost)
 
-            tentative_cost = graph._node[target]['cost'](tentative_cost)
+#             tentative_cost = graph._node[target]['cost'](tentative_cost)
 
-            feasible = True
-            weighted_cost = 0
+#             feasible = True
+#             weighted_cost = 0
 
-            for key, value in objective.items():
+#             for key, value in objective.items():
 
-                feasible *= value['feasible'](tentative_cost[key])
+#                 feasible *= value['feasible'](tentative_cost[key])
 
-                weighted_cost += value['weight'](tentative_cost[key])
+#                 weighted_cost += value['weight'](tentative_cost[key])
 
-            if target not in visited or weighted_cost < visited[target]:
+#             if target not in visited or weighted_cost < visited[target]:
 
-                visited[target] = weighted_cost
+#                 visited[target] = weighted_cost
 
-                heappush(heap, (weighted_cost, tentative_cost, next(c), target))
+#                 heappush(heap, (weighted_cost, tentative_cost, next(c), target))
 
-                if paths is not None:
+#                 if paths is not None:
 
-                    paths[target] = paths[source] + [target]
+#                     paths[target] = paths[source] + [target]
 
-    return path_values, paths
+#     return path_values, paths
