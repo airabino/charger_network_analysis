@@ -6,7 +6,8 @@ from . import figures # Graph and route plotting
 from . import graph # Graph handling
 from . import entities
 from . import adjacency # Computation of adjacency for graphs
-from . import dijkstra
-from . import bellman
+# from . import dijkstra
+# from . import bellman
 # from . import in_polygon
 from . import rng
+from . import routing

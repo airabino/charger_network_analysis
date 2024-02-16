@@ -3,7 +3,15 @@ import numpy as np
 from .graph import graph_from_nlg
 from .utilities import pythagorean, top_n_indices
 
-def random_graph(n, scale, s = 1, link_bounds = (0, np.inf), link_speeds = [1], seed = None):
+def random_graph(n, **kwargs):
+
+	scale = kwargs.get('scale', (1, 1))
+	reference_distance = kwargs.get('reference_distance', 1)
+	link_bounds = kwargs.get('link_bounds', (0, np.inf))
+	link_speeds = kwargs.get('link_speeds', [1])
+	seed= kwargs.get('seed', None)
+	range_multiplier = kwargs.get('range_multiplier', -1)
+
 	
 	rng = np.random.default_rng(seed)
 
@@ -35,7 +43,7 @@ def random_graph(n, scale, s = 1, link_bounds = (0, np.inf), link_speeds = [1], 
 				nodes[idx_t]['y'],
 			)
 
-			p = np.exp(-link_distance / s)
+			p = np.exp(-link_distance / reference_distance)
 			r = rng.random()
 			# if r <= p:
 				# print(idx_s, idx_t, p, r, link_distance)
@@ -59,7 +67,7 @@ def random_graph(n, scale, s = 1, link_bounds = (0, np.inf), link_speeds = [1], 
 				'target': target,
 				'distance': link_distance,
 				'time': link_time,
-				'range': -link_distance,
+				'range': link_distance * range_multiplier,
 			})
 
 	return graph_from_nlg({'nodes': nodes, 'links': links})

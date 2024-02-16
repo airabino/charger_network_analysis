@@ -10,6 +10,7 @@ want to know path 'time', this edited code allows for this to be done efficientl
 '''
 import time
 import numpy as np
+import networkx as nx
 
 from copy import deepcopy
 from heapq import heappop, heappush
@@ -83,7 +84,45 @@ class Objective():
 
         return cost
 
-def bellman(graph, destinations, objectives, n = 1, origins = [], **kwargs):
+def bellman(graph, destinations, objectives, origins = [], **kwargs):
+
+    node_values, _ = bellman_integration(
+        graph, destinations, objectives, origins = origins, **kwargs)
+
+    path_values, paths = bellman_evaluation(
+        graph, node_values, objectives, origins = origins, **kwargs)
+
+    return path_values, paths
+
+def bellman_evaluation(graph, node_values, objectives, origins = [], **kwargs):
+
+    null_adjacency = {o.field: [maxsize] * len(o.initial) for o in objectives}
+
+    adjacency = graph._adj
+
+    paths = {origin: [origin] for origin in origins}
+
+    path_values = {origin: {o.field: o.initial for o in objectives} for origin in origins}
+
+    for origin in origins:
+
+        current = origin
+
+        while True:
+
+            current_adjacency = adjacency[current]
+
+            adjacency_costs = (
+                {key: node_values.get(key, null_adjacency) for key in current_adjacency}
+                )
+
+
+    return path_values, paths
+
+
+
+
+def bellman_integration(graph, destinations, objectives, origins = [], **kwargs):
     """Uses Dijkstra's algorithm to find shortest weighted paths
 
     Code is based on (is an edited version of):
@@ -141,7 +180,8 @@ def bellman(graph, destinations, objectives, n = 1, origins = [], **kwargs):
 
         paths = None
 
-    if tpye(graph) is nx.classes.digraph.DiGraph:
+    if type(graph) is nx.classes.digraph.DiGraph:
+        # Reverses directed graphs
 
         graph = graph.reverse(default = True)
 
@@ -152,15 +192,15 @@ def bellman(graph, destinations, objectives, n = 1, origins = [], **kwargs):
 
     visited = {} # dictionary of costs-to-reach for nodes
 
-    destinations_visited = 0
+    origins_visited = 0
 
-    if len(destinations) == 0:
+    if len(origins) == 0:
 
-        originss_to_visit = maxsize # If no targets are provided then search all nodes
+        origins_to_visit = maxsize # If no targets are provided then search all nodes
 
     else:
 
-        originss_to_visit = len(origins)
+        origins_to_visit = len(origins)
         # If targets are provided then search until all are seen
 
     # Heap Queue is used for search, efficiently allows for tracking of nodes
@@ -168,14 +208,12 @@ def bellman(graph, destinations, objectives, n = 1, origins = [], **kwargs):
     c = count() # use the count c to avoid comparing nodes (may not be able to)
     heap = [] # heap is heapq with 3-tuples (cost, c, node)
 
-    # tc = 0
-
     for destination in destinations:
 
-        visited[origin] = 0 # Source is seen at the start of iteration and at 0 cost
+        visited[destination] = 0 # Source is seen at the start of iteration and at 0 cost
         # Adding the source tuple to the heap (initial cost, count, id)
-        cost = {objective.field: objective.final for objective in objectives}
-        heappush(heap, (0, cost, next(c), origin))
+        cost = {objective.field: objective.initial for objective in objectives}
+        heappush(heap, (0, cost, next(c), destination))
 
     while heap: # Iterating while there are accessible un-visited nodes
 
@@ -207,12 +245,8 @@ def bellman(graph, destinations, objectives, n = 1, origins = [], **kwargs):
             feasible = True
             weighted_cost = 0
 
-            # print('a', tentative_cost)
-
             for objective in objectives:
-                # print(objective.__dict__)
 
-                # t0 = time.time()
                 # Updating objective for link
                 tentative_cost = objective.update(tentative_cost, link)
 
@@ -232,23 +266,12 @@ def bellman(graph, destinations, objectives, n = 1, origins = [], **kwargs):
                 # Charging if availabe
                 if 'charger' in graph._node[source]:
 
-                    # print('dddddd', graph._node[target])
-
                     tentative_cost = graph._node[source]['charger'].update(tentative_cost)
-
-                # tc += time.time() - t0
-                
-
-
-            # print('b', tentative_cost)
 
             not_visited = source not in visited
             savings = weighted_cost < visited.get(source, 0)
-            # print((not_visited or savings) and feasible)
 
             if (not_visited or savings) and feasible:
-
-                # print(tentative_cost)
 
                 visited[source] = weighted_cost
 
@@ -257,7 +280,5 @@ def bellman(graph, destinations, objectives, n = 1, origins = [], **kwargs):
                 if paths is not None:
 
                     paths[source] = [source] + paths[target]
-
-    # print('tc', tc)
 
     return path_values, paths
