@@ -26,6 +26,10 @@ def random_graph(n, **kwargs):
 			'id': idx,
 			'x': x[idx],
 			'y': y[idx],
+			'distance': 0,
+			'time': 0,
+			'range': 0,
+			'price': 0,
 		})
 
 	links = []
@@ -68,6 +72,7 @@ def random_graph(n, **kwargs):
 				'distance': link_distance,
 				'time': link_time,
 				'range': link_distance * range_multiplier,
+				'price': 0,
 			})
 
 	return graph_from_nlg({'nodes': nodes, 'links': links})

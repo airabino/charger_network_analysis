@@ -10,6 +10,7 @@ want to know path 'time', this edited code allows for this to be done efficientl
 '''
 import time
 import numpy as np
+import networkx as nx
 
 from copy import deepcopy
 from heapq import heappop, heappush
@@ -62,6 +63,166 @@ class Charger():
                 cost[self.range_field][idx] = reset
 
         return cost
+
+    def update_reverse(self, cost):
+
+        for idx in range(cost[self.range_field].shape[1]):
+
+            reset, rate, delay, price = self.get_random_state()
+            # print(reset)
+
+            if cost[self.range_field][idx] > reset:
+                
+                cost[self.time_field][idx] += (
+                    (cost[self.range_field][idx] - reset) / rate + delay)
+
+                cost[self.price_field][idx] += (
+                    (cost[self.range_field][idx] - reset) * price)
+
+                cost[self.range_field][idx] = reset
+
+        return cost
+
+def bellman_integration(graph, destinations, **kwargs):  
+
+    origins = kwargs.get('origins', [])
+    states = kwargs.get('states', default_objectives)
+    constraints = kwargs.get('constraints', [])
+    objectives = kwargs.get('objectives', [])
+
+    if type(graph) is nx.classes.digraph.DiGraph:
+
+        graph = graph.reverse()
+
+    adjacency = graph._adj
+
+    path_values = {}  # dictionary of costs for paths
+
+    path_costs = {} # dictionary of objective values for paths
+
+    visited = {} # dictionary of costs-to-reach for nodes
+
+    origins_visited = 0
+
+    if len(origins) == 0:
+
+        # If no destinations are provided then search all nodes
+        origins_to_visit = maxsize
+
+    else:
+
+        #If destinations are provided then search until all are seen
+        origins_to_visit = len(origins)
+
+    c = count() # use the count c to avoid comparing nodes (may not be able to)
+    heap = [] # heap is heapq with 3-tuples (cost, c, node)
+
+    for destination in destinations:
+
+        visited[destination] = 0 # Source is seen at the start of iteration and at 0 cost
+
+        # Adding the source tuple to the heap (initial cost, count, id)
+        values = {}
+
+        for key, info in states.items():
+
+            values[key] = info['final']
+            dims = info['final'].shape
+
+        heappush(heap, (next(c), np.zeros(dims[0]), values, destination))
+
+    # initial_values = {key: info['initial'] for key, info in states.items()}
+
+    while heap: # Iterating while there are accessible unseen nodes
+
+        # Popping the lowest cost unseen node from the heap
+        (_, cost, values, target) = heappop(heap)
+
+        if target in path_values:
+
+            continue  # already searched this node.
+
+        path_values[target] = values
+        path_costs[target] = cost
+
+        # Checking if the current source is a search target
+        # If all targets are reached then the search is terminated
+        if target in origins:
+
+            origins_visited += 1
+
+        if origins_visited >= origins_to_visit:
+
+            break
+
+        # Iterating through the current source node's adjacency
+        for source, link in adjacency[target].items():
+
+            current = graph._node[source]
+
+            current_values = deepcopy(values) #cost-to-go
+
+            for key, info in states.items():
+
+                # Updating objective for link
+                current_values[key] = info['update'](
+                    current_values[key], link.get(info['field'], 1)
+                    )
+
+                # Adding the target node cost
+                current_values[key] = info['update'](
+                    current_values[key], current.get(info['field'], 1)
+                    )
+
+            # Charging if availabe
+            if 'charger' in current:
+
+                current_values = current['charger'].update_reverse(current_values)
+
+            cost = np.zeros(dims[0])
+
+            for key, info in objectives.items():
+
+                # Updating the weighted cost for the path
+                cost += info(current_values)
+
+            feasible = np.array([True] * dims[0])
+
+            for key, info in constraints.items():
+
+                feasible *= info(current_values)
+
+            if source in visited:
+
+                source_cost = visited.get(source, np.ones(dims[0]) * np.inf)
+
+                savings = cost < source_cost
+
+                add_to_heap = False
+
+                for idx in range(dims[0]):
+
+                    if savings[idx] and feasible[idx]:
+
+                        source_cost[idx] = cost[idx]
+
+                        add_to_heap = True
+
+                source_values = deepcopy(values)
+
+                for key, val in current_values.items():
+    # 
+                    next_values[key][savings * feasible] = val[idx]
+
+                if add_to_heap:
+
+                    visited[source] = source_cost
+
+                    heappush(heap, (next(c), source_cost, next_values, source))
+
+            else
+
+    return path_costs, path_values
 
 def dijkstra(graph, origins, **kwargs):  
     """
@@ -141,11 +302,20 @@ def dijkstra(graph, origins, **kwargs):
         'update': Function which updates path values for nodes/links
         'cost': Function for computing a cost expectation from values
 
+        states are used to compute the cost expectation
+
     constraints: dictionary with the below fields:
         'field': The relevant node/link property for integration
-        'initial': Initial values for integration
+        'initinal': Iitial values for integration
         'update': Function which updates path values for nodes/links
         'feasible': Function which returns a Boolean for feasibility from values
+
+    parameters: dictionary with the below fields:
+        'field': The relevant node/link property for integration
+        'initinal': Iitial values for integration
+        'update': Function which updates path values for nodes/links
+
+        parameters are NOT used to compute the cost expectation
 
     return_paths: Boolean
         Boolean whether or not to compute paths dictionary. If False None
@@ -169,6 +339,7 @@ def dijkstra(graph, origins, **kwargs):
     destinations = kwargs.get('destinations', [])
     states = kwargs.get('states', default_objectives)
     constraints = kwargs.get('constraints', [])
+    objectives = kwargs.get('objectives', [])
     return_paths = kwargs.get('return_paths', False)
 
     if return_paths:
@@ -213,10 +384,6 @@ def dijkstra(graph, origins, **kwargs):
 
             values[key] = info['initial']
 
-        for key, info in constraints.items():
-
-            values[key] = info['initial']
-
         heappush(heap, (0, values, next(c), origin))
 
     while heap: # Iterating while there are accessible unseen nodes
@@ -246,25 +413,7 @@ def dijkstra(graph, origins, **kwargs):
 
             current = graph._node[target]
 
-            current_values = deepcopy(values)
-
-            feasible = True
-
-            for key, info in constraints.items():
-
-                # Updating objective for link
-                current_values[key] = info['update'](
-                    current_values[key], link.get(info['field'], 1)
-                    )
-
-                # Checking if link traversal is possible
-                feasible *= info['feasible'](current_values[key])
-
-            if not feasible:
-
-                continue
-
-            cost = 0
+            current_values = deepcopy(values)            
 
             for key, info in states.items():
 
@@ -277,19 +426,34 @@ def dijkstra(graph, origins, **kwargs):
                 current_values[key] = info['update'](
                     current_values[key], current.get(info['field'], 1)
                     )
+            
+            cost = 0
+
+            for key, info in objectives.items():
 
                 # Updating the weighted cost for the path
-                cost += info['cost'](current_values[key])
+                cost += info(current_values)
+
+            feasible = True
+
+            for key, info in constraints.items():
+
+                # Checking if link traversal is possible
+                feasible *= info(current_values)
+
+            if not feasible:
+
+                continue
                 
-                # Charging if availabe
-                if 'charger' in graph._node[target]:
+            # Charging if availabe
+            if 'charger' in current:
 
-                    current_values = current['charger'].update(current_values)
+                current_values = current['charger'].update(current_values)
 
-            not_visited = target not in visited
-            savings = cost < visited.get(target, 0)
+            # not_visited = target not in visited
+            savings = cost < visited.get(target, np.inf)
 
-            if not_visited or savings:
+            if savings:
 
                 visited[target] = cost
 
