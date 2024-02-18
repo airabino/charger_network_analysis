@@ -109,16 +109,17 @@ For a graph $G=\{V,E\}$ where $O\in V$ is an origin and $D\in V$ is a destinatio
 	J_k = F(U_k,\dots) + F(U^*_{k+1},\dots)
 \end{equation}
 
-which states that the cost of a given control at the current step is the sum of the cost of the control and the cost of the optimal control at the next step subject to the control for a time-varying \gls{ocp}. A corollary is that the optimal control at a given step is influenced by the optimal controls at all following steps. Dijkstra's method implements this concept via forward induction where Bellman's method implements this concept via backward induction followed by forward evaluation. The methods are diagrammed in Figure \ref{fig:dijkstra_bellman} and generic algorithms can be found in the Appendix.
+which states that the cost of a given control at the current step is the sum of the cost of the control and the cost of the optimal control at the next step subject to the control for a time-varying \gls{ocp}. A corollary is that the optimal control at a given step is influenced by the optimal controls at all following steps. Both Dijkstra's and Bellman's methods work by starting at a given point on a graph with a cost of zero and assigning infinite cost to all other points. The edges of the graph are then explored and for each edge $(u, v)$ if the cost $c(v)$ is greater than the path cost $c(u) + c(u, v)$ then the cost at $v$ is updated to the path cost. This process is called relaxation. The fundamental difference between the methods is that Bellman's method calls for evaluating every edge to check if a relaxation is possible for $|V|$ iterations where $|V|$ is the cardinality of the set of vertices belonging to the graph where Dijkstra's method calls for evaluating only those edges belonging to the "closest" unseen node at each iteration. Dijkstra's method uses a heap queue (priority queue) to keep track of nodes where every node that is reached is added and, at the beginning of each iteration, the edges of node with the smallest cost are evaluated. Essentially, the benefit of Bellman's method over Dijkstra's is that it allows for "upstream" changes to be evaluated constantly where Dijkstra's method only focuses downstream. However Dijkstra's is more often used because it is far more efficient than Bellman's method for the same problem. Generic algorithms can be found in the Appendix. Both methods will usually produce the same globally optimal route. The cases were Bellman's method is needed generally have to do with negative edge costs which are not common in transportation and many other fields. Both methods may be deployed with forward integration (sources to targets) or reverse integration (targets to sources) as diagrammed in Figure \ref{fig:dijkstra}. It is worth noting that \textbf{forward integration creates a tree from a single origin to all destinations} where \textbf{reverse integration creates a tree from all origins to a single destination}. 
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width = \linewidth]{figs/routing_diagram.png}
-	\caption{Comparison between Dijkstra and Bellman routing methods}
-	\label{fig:dijkstra_bellman}
+	\caption{Comparison between Forward and Reverse Integration for Dijkstra's}
+	\label{fig:dijkstra}
 \end{figure}
 
-It is worth noting that \textbf{Dijkstra's algorithm creates a tree from a single origin to all destinations} where \textbf{Bellman's algorithm creates a tree from all origins to a single destination}. The optimal paths created by both algorithms for a single O/D pair on a common graph will usually be the same unless there are many similarly expensive paths. The path produced by Bellman's method will be the globally optimal path where Dijkstra's method may produce a locally optimal path which is not globally optimal. The difference is that Dijkstra's method utilizes forward-integration where Bellman's method utilizes backward-integration followed by forward-evaluation. The separate integration and evaluation steps guarantee global optimality form any origin node. The integration stages in both methods are similar. For a un-directed graph, the difference between forward and backward integration is which nodes are the origins and which nodes are the destinations.
+
+
 
 \subsection*{Route Constraints}
 
