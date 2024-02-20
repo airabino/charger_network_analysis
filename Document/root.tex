@@ -119,8 +119,6 @@ which states that the cost of a given control at the current step is the sum of 
 \end{figure}
 
 
-
-
 \subsection*{Route Constraints}
 
 In the basic formulation presented in the Appendix, minimum cost routes will be found for all destinations. However, in reality, routes can be infeasible for many reasons. Herein two reasons will be focused on these being excessive route cost and insufficient route probability. The cost of a route ($R$) is
@@ -260,11 +258,50 @@ Consider a randomly generated graph of 100 nodes on a 1,000 by 1,000 km grid whe
 
 As seen in Figure \ref{fig:parameter_factorial} \gls{scramd} optimal routes are effected by both reliability and risk tolerance in an additive manner. The high risk tolerance scenarios in the top row show a small effect of charger reliability which leads to slightly longer travel times. The high reliability scenarios in the first column shows a small effect of risk tolerance, even smaller than the previously mentioned effect. However, the low risk tolerance scenarios in the second row show a huge effect of charger reliability and the low reliability scenarios in the second column show a huge effect of risk tolerance. This result reinforces the need for \gls{scram} - \textbf{the underlying parameters of \gls{pev} charging networks go hand-in-hand with user risk tolerance to effect \gls{pev} dis-utility}.
 
+\subsection*{Cost Differential}
+
+If the user experience for \glspl{pev} is different than that for \glspl{icev} the difference is due to charging vs. fueling. Charging a \gls{pev} at a public charging station is, overall, a worse experience than \gls{icev} refueling or low-rate private \gls{pev} charging. The worse experience is due to the longer time required compared to fueling and charger sparsity and unreliability. Although DC charging is, on a cost-per-unit-range-added basis often cheaper than fueling, the pricing structure associated with DC charging is variable and, often, opaque. Gasoline prices, in the US, are determined by individual stations but are, in general, set on the basis of weeks-ahead futures contracts. The price of a gallon of gasoline will be fairly predictable on a several-day timescale and within a region. In effect, most of the time \gls{icev} drivers will have a reasonable expectation that they will be able to find a working fueling station with predictably priced gasoline before running out of fuel when their refueling warning light comes on. It is, however, common for \gls{icev} drivers who are operating in areas which are sparsely populated and/or unfamiliar to them to maintain a higher fuel state by stopping to fuel more often. Comparing the regularity and reliability of the fueling infrastructure present on interstate highways which traverse the emptiest expanses of the American west to the DC charging infrastructure in the most populated portions of the country is a sobering exercise.
+
+The cost-of-travel for a given O/D pair for a given mode is effected by the network structure as well as underlying mode characteristics. If the driving distance for an O/D is considerably less than half of a given vehicle's range then it might be assumed that traversal will not be effected by charging/fueling. For longer trips, wherein charging/fueling is required itinerary cost (time, distance, price) may be directly added by a chartering/fueling event or may be increased due to the need to take a sub-optimal route to accommodate the event. Figure \ref{fig:suboptimal_paths} shows this effect by comparing \gls{bev} travel times with and without charging time included with \gls{icev} travel times for the same graph while assuming that all chargers are always usable and available.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\includegraphics[width = \linewidth]{figs/effect_of_charging_bev_nc.png}
+		\captionsetup{width=.8\linewidth}
+		\caption{\gls{bev} travel times without charging time}
+	\end{subfigure}%
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\includegraphics[width = \linewidth]{figs/effect_of_charging_bev_c.png}
+		\captionsetup{width=.8\linewidth}
+		\caption{\gls{bev} travel times with charging time}
+	\end{subfigure}
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\includegraphics[width = \linewidth]{figs/effect_of_charging_icev_nc.png}
+		\captionsetup{width=.8\linewidth}
+		\caption{\gls{icev} travel times without fueling time}
+	\end{subfigure}%
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\includegraphics[width = \linewidth]{figs/effect_of_charging_icev_c.png}
+		\captionsetup{width=.8\linewidth}
+		\caption{\gls{icev} travel times with fueling time}
+	\end{subfigure}
+	\caption{Expected travel times with and without charging/fueling time included for \gls{bev} with 400 km of range and \gls{icev} with 600 km of range.}
+	\label{fig:effect_of_charging}
+\end{figure}
+
+In this case the \gls{icev} is assumed to not be effected by limited fueling opportunities and may purchase fuel while pursuing the optimal route. \gls{icev} fueling time and price were modeled on the basis of 30 seconds per gallon (to account for setup time) and \$3.50 per gallon where fueling requirements were assessed. \gls{icev} fueling was assumed to be available at all nodes. The added fueling time for long \gls{icev} trips is not substantial compared to overall trip duration. This is in contrast to the substantial contribution of charging time to overall trip time for long trips taken with \glspl{bev}. However, the limited charger availability compared to fueling stations dictates that equivalent \gls{bev} trips would take longer even if charging was instantaneous. Constrained \gls{bev} routing generally also means longer distance trips following less direct routes which eats into the price advantage provided by \glspl{bev}. Optimal route cost quantiles are shown in Figure \ref{fig:routes_boxplots}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/routes_boxplots.png}
+	\caption{Quantiles of costs for optimal routes for \glspl{bev} and \glspl{icev}}
+	\label{fig:routes_boxplots}
+\end{figure}
+
 \bigskip
 
 \noindent{\Huge More to come ...}
-
-%\subsection*{\gls{icev}/\gls{ev} Cost Differential Tree}
 %
 %\subsection*{Weighted Charger Centrality}
 %

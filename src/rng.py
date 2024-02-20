@@ -2,6 +2,7 @@ import numpy as np
 
 from .graph import graph_from_nlg
 from .utilities import pythagorean, top_n_indices
+from .routing import Charger
 
 def random_graph(n, **kwargs):
 
@@ -77,11 +78,8 @@ def random_graph(n, **kwargs):
 
 	return graph_from_nlg({'nodes': nodes, 'links': links})
 
-def random_chargers(graph, n_chargers, charger, seed = None):
+def random_chargers(graph, n_chargers, charger_kw, rng = np.random.default_rng(None)):
 
-	rng = np.random.default_rng(seed)
-
-	# Adding cost functions to nodes
 	charger_nodes = list(
 		rng.choice(
 			list(range(len(graph.nodes))),
@@ -92,7 +90,7 @@ def random_chargers(graph, n_chargers, charger, seed = None):
 
 	for node in charger_nodes:
 
-		graph._node[node]['charger'] = charger
+		graph._node[node]['charger'] = Charger(**charger_kw)
 
 	return graph, charger_nodes
 

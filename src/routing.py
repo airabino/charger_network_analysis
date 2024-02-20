@@ -28,39 +28,53 @@ default_objectives = [
 
 class Charger():
 
-    def __init__(self, reset, rate, delay, price, **kwargs):
+    def __init__(self, **kwargs):
 
-        self.reset = reset
-        self.rate = rate
-        self.delay = delay
-        self.price = price
+        self.n_cases = kwargs.get('n_cases', 1)
+
+        self.reset_function = kwargs.get(
+            'reset_function', lambda x: np.array([1] * self.n_cases))
+        self.rate_function = kwargs.get(
+            'rate_function', lambda x: np.array([1] * self.n_cases))
+        self.delay_function = kwargs.get(
+            'delay_function', lambda x: np.array([0] * self.n_cases))
+        self.price_function = kwargs.get(
+            'price_function', lambda x: np.array([0] * self.n_cases))
 
         self.range_field = kwargs.get('range_field', 'range')
         self.time_field = kwargs.get('time_field', 'time')
         self.price_field = kwargs.get('price_field', 'price')
-        self.rng = np.random.default_rng(kwargs.get('seed', None))
 
-    def get_random_state(self):
+        self.rng = kwargs.get('rng',np.random.default_rng(None))
 
-        rn = self.rng.random()
+        self.random_state()
 
-        return self.reset(rn), self.rate(rn), self.delay(rn), self.price(rn)
+    def random_state(self):
+
+        rn = self.rng.random((self.n_cases, ))
+        # print(rn)
+
+        self.reset = self.reset_function(rn)
+        self.rate = self.rate_function(rn)
+        self.delay = self.delay_function(rn)
+        self.price = self.price_function(rn)
+
+        # print(self.rate, self.delay)
 
     def update(self, cost):
 
-        for idx in range(len(cost[self.range_field])):
+        reset_indices = cost[self.range_field] < self.reset
+            
+        cost[self.time_field][reset_indices] += (
+            (self.reset[reset_indices] - cost[self.range_field][reset_indices]) /
+            self.rate[reset_indices] +
+            self.delay[reset_indices])
 
-            reset, rate, delay, price = self.get_random_state()
+        cost[self.price_field][reset_indices] += (
+            (self.reset[reset_indices] - cost[self.range_field][reset_indices]) *
+            self.price[reset_indices])
 
-            if cost[self.range_field][idx] < reset:
-                
-                cost[self.time_field][idx] += (
-                    (reset - cost[self.range_field][idx]) / rate + delay)
-
-                cost[self.price_field][idx] += (
-                    (reset - cost[self.range_field][idx]) * price)
-
-                cost[self.range_field][idx] = reset
+        cost[self.range_field][reset_indices] = self.reset[reset_indices]
 
         return cost
 
@@ -281,6 +295,8 @@ def dijkstra(graph, origins, **kwargs):
                 # Checking if link traversal is possible
                 feasible *= info(current_values)
 
+            # print(feasible)
+
             if not feasible:
 
                 continue
@@ -288,10 +304,14 @@ def dijkstra(graph, origins, **kwargs):
             # Charging if availabe
             if 'charger' in current:
 
+                # print('a',current_values)
+
                 current_values = current['charger'].update(current_values)
+                # print('b',current_values)
 
             # not_visited = target not in visited
             savings = cost < visited.get(target, np.inf)
+            # print(savings)
 
             if savings:
 

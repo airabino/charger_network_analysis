@@ -59,12 +59,12 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 
 		for node in path_values.values():
 
-				max_val = max([max_val, node['time']])
+				max_val = max([max_val, node[field]])
 
 	for source, node in graph._node.items():
 
 		try:
-			node['travel_time'] = path_values[source]['time']
+			node['travel_time'] = path_values[source][field]
 
 		except:
 			node['travel_time'] = np.nan
