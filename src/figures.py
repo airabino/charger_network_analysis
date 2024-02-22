@@ -100,7 +100,9 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 		},
 	}
 
-	plot_graph(subgraph(graph, sources), ax = ax, **kwargs)
+	if sources:
+
+		plot_graph(subgraph(graph, sources), ax = ax, **kwargs)
 
 	kwargs = {
 		'show_links': False,

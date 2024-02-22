@@ -1,0 +1,55 @@
+\section{Appendix: Stochastic Optimization Example - Crop Allocation}
+
+\noindent Problem Description:
+
+\medskip
+
+A farmer has 100 total acres of fields to plant and may choose from among three crops. Each crop has a different cost per acre for seeds. Depending on meteorological conditions, each crop will have a different revenue per acre in  low, medium, and high yield scenarios. Seeds must be purchased in the fall but the farmer has until the spring to actually decide what to plant and at that point he will have more information about the weather for the coming year. Any excess seeds may be re-sold for a 20\% loss. What quantities of seed should the farmer purchase in order to maximize profit?
+
+\medskip
+
+\noindent Discussion:
+
+\medskip
+
+In the example the farmer has to make one set of decisions (what quantities of seeds to buy for the three crops) which holds for all yield scenarios. These are general controls. The farmer then has a set of decisions (what quantities of seed to plant and to resell for each crop) which may vary in different yield scenarios. These are specific controls. The problem contains 3 general controls and 9 specific controls (3 per scenario) for a total of 12 controls. The expected profit for the farmer at the time of seed purchase is the total cost from \eqref{eq:stochastic_optimization} over the number of scenarios.
+
+If the farmer had complete information about the following year's weather at the time of seed purchase he could optimize both seed purchase and seed planting for specific scenarios. In this case the farmer could compute optimal controls for each scenario individually (6 specific controls per scenario). The difference between the expected profit from the stochastic optimization and the mean value of the profits from the deterministic optimizations is called the "cost-of-uncertainty" or the "value-of-information".
+
+A few things are worth mentioning specifically. first, the cost-of-uncertainty should be positive (expected profit less than mean profit). In the example, the farmer may have to buy more seeds than he can possibly plant due to uncertainty and have to sell the excess at a loss. In the deterministic scenarios the optimal solution will never call for purchasing more seeds than needed for planting if the resell value is less than the purchase value. It is intuitive to see that the farmer is paying a price for his decision to purchase seeds before it is possible to predict the weather with sufficient accuracy. Second, stochastic optimization reduces to deterministic optimization with the removal of general controls. In other words, a stochastic optimization problem is an optimization problem with at least one general control and need not have any specific controls.
+
+\section{Appendix: Generic Routing Algorithm Formulations}
+
+\noindent A generic formulation of Dijkstra's algorithm is as follows:
+
+\begin{algorithm}[H]
+	\caption{Dijkstra Routing Algorithm}
+	\begin{algorithmic}
+		\State $G = \{V, E\}$ \Comment{Graph consisting of nodes and links}
+		\State $C = \{C_V, C_E\}$ \Comment{Traversal costs corresponding to each node and link}
+		\State $O\in V$ \Comment{Single origin node}
+		\State $D\in V$ \Comment{Set of destination nodes}
+		\State
+		\State $S = \{\}$ \Comment{Set of visited nodes}
+		\State $W = \{\infty\}_{v \in V}$ \Comment{All node weights initialized to infinity}
+		\State $P = \{\{\}\}_{d \in D}$ \Comment{Initializing empty path for each destination}
+		\State $F = \{(w_{o_0}, o_0)\}$
+		\State\Comment{Heap queue containing nodes to be visited. Elements are tuples (weight, node) and the heap is ordered by weight. The heap is initialized with the origin node.}
+		\State
+		\While {$F\neq \emptyset$} \Comment{Iterate while there are reachable nodes which have not been visited}
+		\State $w_v, v = f_0$
+		\State $F = F \not\cup f_0$ \Comment{Remove current node from heap queue}
+		\State $E_v = \{(v_s, v_t)\in E| v_s = v\}$
+		\ForAll{$(v, v_t) \in E_v$} \Comment{Iterate through links of $v$}
+		\If{$w_v + c_{v,(v, v_t)} < w_{v_t}$} \Comment{If current path represents savings ...}
+		\State $p_{v_t} = p_{v}\cup \{v_t\}$ \Comment{Update path to $v_t$}
+		\State $w_{v_t} = w_v + c_{v,(v, v_t)}$ \Comment{Update cost at $v_t$}
+		\If{$v_t \not\in S$} 
+		\State $F = F \cup \{(w_t, v_t)\}$ \Comment{If $v_t$ has not been visited add to heap queue}
+		\EndIf
+		\EndIf
+		\EndFor
+		\State $S = S\cup\{v\}$ \Comment{Add current node to set of visited nodes}
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
