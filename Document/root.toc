@@ -1,14 +1,14 @@
 \babel@toc {english}{}\relax 
 \contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
-\contentsline {section}{\numberline {2}\gls {evse} Network}{4}{section.2}%
-\contentsline {section}{\numberline {3}Routing}{7}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Background}{7}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Route Constraints}{8}{subsection.3.2}%
-\contentsline {section}{\numberline {4}Stochastic Routing Methodology}{10}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Algorithms}{10}{subsection.4.1}%
-\contentsline {subsubsection}{\numberline {4.1.1}\gls {scramd}}{11}{subsubsection.4.1.1}%
-\contentsline {subsection}{\numberline {4.2}Routing-Based Metrology}{12}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Cost Differential}{14}{subsection.4.3}%
-\contentsline {section}{\numberline {5}Station Centrality}{17}{section.5}%
-\contentsline {section}{\numberline {A}Appendix: Stochastic Optimization Example - Crop Allocation}{23}{appendix.A}%
-\contentsline {section}{\numberline {B}Appendix: Generic Routing Algorithm Formulations}{23}{appendix.B}%
+\contentsline {section}{\numberline {2}\gls {evse} Network}{3}{section.2}%
+\contentsline {section}{\numberline {3}Routing}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Background}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Route Constraints}{7}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Stochastic Routing Methodology}{9}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Algorithms}{9}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}\gls {scramd}}{10}{subsubsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.2}Routing-Based Metrology}{11}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Cost Differential}{13}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Station Centrality}{16}{section.5}%
+\contentsline {section}{\numberline {A}Appendix: Stochastic Optimization Example - Crop Allocation}{22}{appendix.A}%
+\contentsline {section}{\numberline {B}Appendix: Generic Routing Algorithm Formulations}{22}{appendix.B}%
