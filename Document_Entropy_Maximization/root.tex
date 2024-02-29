@@ -19,7 +19,6 @@
 \usepackage[english]{babel}
 \usepackage[acronym,nomain]{glossaries} % list of acronyms
 \usepackage{xurl}
-\usepackage{cite} % math and engineering style citations
 \usepackage{multicol}
 \usepackage{multirow}
 \usepackage{mathptmx}
@@ -54,40 +53,40 @@
 \input{gloss}
 \makeglossaries
 
+\usepackage[%
+backend=bibtex,     % biber or bibtex
+%style=authoryear,    % Alphabeticalsch
+style=numeric-comp,  % numerical-compressed
+sorting=none,        % no sorting
+sortcites=true,      % some other example options ...
+block=none,
+indexing=false,
+citereset=none,
+isbn=true,
+url=true,
+doi=true,           % prints doi
+natbib=true,         % if you need natbib functions
+]{biblatex}
+\addbibresource{./sources/sources.bib,}  % better than \bibliography
+
 \begin{document}
 
 \maketitle
 
 \tableofcontents
 
-\include{introduction}
+\input{introduction}
 
-\include{Information Theory}
+\input{information_theory}
 
-\include{Graph Theory}
+\section{Graph Theory}
 
-\include{Information Centrality}
+\input{information_centrality}
 
-\include{Topographical Entropy Maximization}
+\input{topographical_entropy_maximization}
 
-\include{Redundancy-Sensitive Optimal Charger Locations}
+\input{evse_entropy_maximization}
 
-%\include{graphs}
-%
-%\include{routing}
-%
-%\include{stochastic_routing}
-%
-%\include{centrality}
-
-%\bigskip
-
-%\noindent{\Huge More to come ...}
-%
-%\subsection*{Charger Availability Value-of-Information}
-
-%\appendix
-
-%\include{appendix}
+\printbibliography
 
 \end{document}
