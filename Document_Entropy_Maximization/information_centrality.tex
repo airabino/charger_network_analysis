@@ -111,3 +111,20 @@ The methods of computing centrality are compared for the simple graph shown in F
 
 Concerning the isomorphs in Figure \ref{fig:simple_graph}, intuition would say that nodes $A$ and $B$ are most central and this is supported by all centrality measures presented. The principle effects of considering edge weights are that the shortest paths between $C$ and $D$ no longer utilize $(C, D)$, all shortest paths include $A$ or $B$, and 3 include $(A, B)$. The differences are not attested to by degree centrality which is identical among isomorphs. The increased reliance of the network on $A$ and $B$ is reflected in the remaining centrality metrics. The lower diversity of paths for the weighted graph is reflected in lower nodal information content.
 
+The manner in which the example graph edges are weighted leads to an interesting result. Without explicit weights all edges are weighted equal and, thus, the likelihood of a path is modeled as the inverse of the number of edges weighted. Numerically, the unweighted case is equivalent to a weighted case where all weights are 1. When the weights of greater than 1 are added the graph entropy is seen to increase. This is a result of the assumption that path likelihood is inversely correlated with path distance. Because the average path distance increased with the explicit weights the system entropy went up even though the weights serve to limit the viability of alternate paths. In order to avoid this issue weights can be normalized by the sum of weights in the graph. Using normalized edge weights a more apt comparison between the graphs can be made as shown in Table \ref{tab:normalized_information_centrality}.
+
+\begin{table}[H]
+	\centering
+	\caption{Normalized-weight information centrality for simple undirected and weighted example graph}
+	\label{tab:normalized_information_centrality}
+	\begin{tabular}{|C{.2\linewidth}|C{.2\linewidth}|C{.2\linewidth}|}
+		\hline Node & Unweighted graph & Weighted graph \\
+		\hline A & 0.296 & 0.139 \\
+		\hline B & 0.296 & 0.139 \\
+		\hline C & 0.235 & 0.112 \\
+		\hline D & 0.235 & 0.112 \\
+		\hline E & 0.229 & 0.135 \\
+		\hline Sum & 1.291 & 0.635 \\
+		\hline
+	\end{tabular}
+\end{table}

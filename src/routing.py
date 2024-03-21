@@ -26,57 +26,40 @@ default_objectives = [
     }
 ]
 
-class Charger():
+def multiply_and_resample(x, y, seed = None):
 
-    def __init__(self, **kwargs):
+    rng = np.random.default_rng(seed)
 
-        self.n_cases = kwargs.get('n_cases', 1)
+    xg, yg = np.atleast_2d(x, y)
 
-        self.reset_function = kwargs.get(
-            'reset_function', lambda x: np.array([1] * self.n_cases))
-        self.rate_function = kwargs.get(
-            'rate_function', lambda x: np.array([1] * self.n_cases))
-        self.delay_function = kwargs.get(
-            'delay_function', lambda x: np.array([0] * self.n_cases))
-        self.price_function = kwargs.get(
-            'price_function', lambda x: np.array([0] * self.n_cases))
+    xy = (xg.T @ yg).flatten()
 
-        self.range_field = kwargs.get('range_field', 'range')
-        self.time_field = kwargs.get('time_field', 'time')
-        self.price_field = kwargs.get('price_field', 'price')
+    return rng.choice(xy, size = x.shape, replace = False)
 
-        self.rng = kwargs.get('rng',np.random.default_rng(None))
+# def add_and_resample(x, y, seed = None):
 
-        self.random_state()
+#     rng = np.random.default_rng(seed)
 
-    def random_state(self):
+#     xg, yg = np.atleast_2d(x, y)
 
-        rn = self.rng.random((self.n_cases, ))
-        # print(rn)
+#     xy = (xg.T + yg).flatten()
 
-        self.reset = self.reset_function(rn)
-        self.rate = self.rate_function(rn)
-        self.delay = self.delay_function(rn)
-        self.price = self.price_function(rn)
+#     return rng.choice(xy, size = x.shape, replace = False)
 
-        # print(self.rate, self.delay)
+def add_and_resample(x, y, seed = None):
+    # print(x, y)
 
-    def update(self, cost):
+    rng = np.random.default_rng(seed)
 
-        reset_indices = cost[self.range_field] < self.reset
-            
-        cost[self.time_field][reset_indices] += (
-            (self.reset[reset_indices] - cost[self.range_field][reset_indices]) /
-            self.rate[reset_indices] +
-            self.delay[reset_indices])
+    xy = x + rng.permutation(np.atleast_1d(y))
 
-        cost[self.price_field][reset_indices] += (
-            (self.reset[reset_indices] - cost[self.range_field][reset_indices]) *
-            self.price[reset_indices])
+    return xy
 
-        cost[self.range_field][reset_indices] = self.reset[reset_indices]
+def add_simple(x, y, **kwargs):
 
-        return cost
+    xy = x + y
+
+    return xy
 
 def dijkstra(graph, origins, **kwargs):  
     """
@@ -244,6 +227,7 @@ def dijkstra(graph, origins, **kwargs):
 
         # Popping the lowest cost unseen node from the heap
         (cost, values,  _, source) = heappop(heap)
+        # print(values)
 
         if source in path_values:
 
@@ -273,12 +257,12 @@ def dijkstra(graph, origins, **kwargs):
 
                 # Updating objective for link
                 current_values[key] = info['update'](
-                    current_values[key], link.get(info['field'], 1)
+                    current_values, link
                     )
 
                 # Adding the target node cost
                 current_values[key] = info['update'](
-                    current_values[key], current.get(info['field'], 1)
+                    current_values, current
                     )
             
             cost = 0
@@ -295,23 +279,18 @@ def dijkstra(graph, origins, **kwargs):
                 # Checking if link traversal is possible
                 feasible *= info(current_values)
 
-            # print(feasible)
-
             if not feasible:
 
                 continue
                 
             # Charging if availabe
-            if 'charger' in current:
+            if 'functions' in current:
 
-                # print('a',current_values)
+                for key, function in current['functions'].items():
 
-                current_values = current['charger'].update(current_values)
-                # print('b',current_values)
+                    function(current_values)
 
-            # not_visited = target not in visited
             savings = cost < visited.get(target, np.inf)
-            # print(savings)
 
             if savings:
 

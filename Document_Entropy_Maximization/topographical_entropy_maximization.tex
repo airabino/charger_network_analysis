@@ -11,7 +11,7 @@ Entropy maximization can be readily applied to transportation planning. Take, fo
 	\label{fig:divided_network}
 \end{figure}
 
-The example city is, roughly, bifurcated by a river and the east and west bank areas are connected by a solitary bridge (J, K). It is evident that this bridge will feature in all shortest paths for O/D pairs on opposite sides of the river and is, thus both congested and a single point of failure for the network. Planners, thus, want to add at least one more bridge and have proposed the dashed links (I, N), (I, K), and (J, L). Information centrality for the network subject to the proposed additional brides is listed in Table \ref{tab:bridge_information_centrality}.
+The example city is, roughly, bifurcated by a river and the east and west bank areas are connected by a solitary bridge (J, K). It is evident that this bridge will feature in all shortest paths for O/D pairs on opposite sides of the river and is, thus both congested and a single point of failure for the network. Planners, thus, want to add at least one more bridge and have proposed the dashed links (I, N), (I, K), and (J, L). Information centrality for the network subject to the proposed additional bridges is listed in Table \ref{tab:bridge_information_centrality}.
 
 \begin{table}[H]
 	\centering
@@ -19,27 +19,29 @@ The example city is, roughly, bifurcated by a river and the east and west bank a
 	\label{tab:bridge_information_centrality}
 	\begin{tabular}{|C{.2\linewidth}|C{.2\linewidth}|C{.2\linewidth}|C{.2\linewidth}|C{.2\linewidth}|}
 		\hline Node & Baseline & (I, N) & (I, K) & (J, L) \\
-		\hline A & 0.040 & 0.043 & 0.042 & 0.044 \\
-		\hline F & 0.058 & 0.065 & 0.062 & 0.068 \\
-		\hline B & 0.035 & 0.037 & 0.036 & 0.038 \\
-		\hline G & 0.048 & 0.052 & 0.051 & 0.055 \\
-		\hline C & 0.040 & 0.043 & 0.042 & 0.044 \\
-		\hline D & 0.030 & 0.032 & 0.031 & 0.033 \\
-		\hline E & 0.051 & 0.064 & 0.061 & 0.058 \\
-		\hline H & 0.057 & 0.066 & 0.063 & 0.067 \\
-		\hline I & 0.053 & 0.075 & 0.073 & 0.062 \\
-		\hline J & 0.072 & 0.083 & 0.079 & 0.088 \\
-		\hline K & 0.069 & 0.078 & 0.079 & 0.079 \\
-		\hline L & 0.056 & 0.062 & 0.063 & 0.082 \\
-		\hline N & 0.054 & 0.075 & 0.060 & 0.060 \\
-		\hline O & 0.039 & 0.042 & 0.042 & 0.049 \\
-		\hline P & 0.039 & 0.042 & 0.042 & 0.049 \\
-		\hline M & 0.030 & 0.031 & 0.031 & 0.035 \\
-		\hline R & 0.038 & 0.047 & 0.041 & 0.040 \\
-		\hline Q & 0.038 & 0.047 & 0.041 & 0.040 \\
-		\hline \textbf{Sum} & \textbf{0.844} & \textbf{0.981} & \textbf{0.937} & \textbf{0.992} \\
+		\hline A & 0.0089 & 0.0083 & 0.0085 & 0.0088 \\
+		\hline F & 0.0131 & 0.0127 & 0.0128 & 0.0137 \\
+		\hline B & 0.0078 & 0.0072 & 0.0074 & 0.0076 \\
+		\hline G & 0.0108 & 0.0102 & 0.0104 & 0.0109 \\
+		\hline C & 0.0089 & 0.0083 & 0.0085 & 0.0088 \\
+		\hline D & 0.0068 & 0.0062 & 0.0064 & 0.0065 \\
+		\hline E & 0.0114 & 0.0124 & 0.0126 & 0.0117 \\
+		\hline H & 0.0128 & 0.0129 & 0.0129 & 0.0133 \\
+		\hline I & 0.0120 & 0.0146 & 0.0149 & 0.0123 \\
+		\hline \textbf{J} & \textbf{0.0162} & \textbf{0.0162} & \textbf{0.0161} & \textbf{0.0177} \\
+		\hline \textbf{K} & \textbf{0.0155} & \textbf{0.0153} & \textbf{0.0162} & \textbf{0.0157} \\
+		\hline L & 0.0126 & 0.0122 & 0.0128 & 0.0164 \\
+		\hline N & 0.0121 & 0.0147 & 0.0123 & 0.0119 \\
+		\hline O & 0.0087 & 0.0081 & 0.0085 & 0.0099 \\
+		\hline P & 0.0087 & 0.0081 & 0.0085 & 0.0099 \\
+		\hline M & 0.0066 & 0.0061 & 0.0064 & 0.0071 \\
+		\hline R & 0.0085 & 0.0092 & 0.0083 & 0.0081 \\
+		\hline Q & 0.0085 & 0.0092 & 0.0083 & 0.0081 \\
+		\hline \textbf{Sum} & \textbf{0.1899} & \textbf{0.1920} & \textbf{0.1917} & \textbf{0.1984} \\
 		\hline
 	\end{tabular}
 \end{table}
 
-Besides the obvious conclusion that adding a second bridge increases entropy, a few interesting observations can be made. First, that the (J, L) bridge increases entropy more than the (I, N) bridge both for the network in general and for node J in particular. Second that bridge (I, N) similarly outperforms bridge (I, K). Both can be explained by looking at the structure of the network in the east bank area. Because node I is fairly isolated compared to node J, extra bridges from node I are less impactful than those from node J. The same can be said for nodes N and K. Thus, as presently structured (trees connected at the tip or the "traffic broccoli") adding bridges from one of the central nodes is most effective.
+Besides the obvious conclusion that adding a second bridge increases entropy, a few interesting observations can be made. First, that the (J, L) bridge increases overall entropy more than the (I, N) bridge both for the network in general and for node J in particular. Second that bridge (I, N) similarly outperforms bridge (I, K). Both can be explained by looking at the structure of the network in the east bank area. Because node I is fairly isolated compared to node J, extra bridges from node I provide less optionality than those from node J. The same can be said for nodes N and K.
+
+Recall that entropy is the expectation of information for a set of events. Entropy is greater for a larger number of less likely events compared to a smaller number of more likely events. For example, the entropy of a "fair" coin flip is 1 bit while the entropy of a "fair" dice roll is 2.585 bits. The intuition of the results of the road network example is that bridge (J, L) was most effective in creating sub-optimal but plausible alternative routes thus reducing the load on (J, K). The maximal case of entropy in the network would occur if each node was incident to each other node by the same distance but this is not possible because the network nodes are at physical locations.

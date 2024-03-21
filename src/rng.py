@@ -10,7 +10,7 @@ def random_graph(n, **kwargs):
 	reference_distance = kwargs.get('reference_distance', 1)
 	link_bounds = kwargs.get('link_bounds', (0, np.inf))
 	link_speeds = kwargs.get('link_speeds', [1])
-	seed= kwargs.get('seed', None)
+	seed = kwargs.get('seed', None)
 	range_multiplier = kwargs.get('range_multiplier', -1)
 
 	
@@ -78,21 +78,21 @@ def random_graph(n, **kwargs):
 
 	return graph_from_nlg({'nodes': nodes, 'links': links})
 
-def random_chargers(graph, n_chargers, charger_kw, rng = np.random.default_rng(None)):
+def random_attribute_assignment(graph, key, values, rng = np.random.default_rng(None)):
 
-	charger_nodes = list(
+	assigned_nodes = list(
 		rng.choice(
 			list(range(len(graph.nodes))),
-			n_chargers,
+			len(values),
 			replace = False,
 		),
 	)
 
-	for node in charger_nodes:
+	for idx, node in enumerate(assigned_nodes):
 
-		graph._node[node]['charger'] = Charger(**charger_kw)
+		graph._node[node][key] = values[idx]
 
-	return graph, charger_nodes
+	return graph, assigned_nodes
 
 def highly_valent_chargers(graph, n_chargers, charger, seed = None):
 

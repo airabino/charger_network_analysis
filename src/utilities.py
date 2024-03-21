@@ -13,10 +13,21 @@ def super_quantile(x, alpha, discretization = .01):
 
     return sq
 
+def super_quantile_normal(x, alpha, discretization = .01):
+    
+    # q = np.arange(alpha, .99, discretization)
+    # # print(q)
+    
+    # sq = 1/(1 - alpha) * (np.quantile(x, q) * discretization).sum()
+
+    return x.mean() + alpha * x.std()
+
 '''
 Calculates Gini coefficient (inequality)
 '''
 def gini(x):
+
+    x = np.array(x)
 
     total = 0
 

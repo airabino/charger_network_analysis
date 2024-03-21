@@ -49,17 +49,17 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 
 	field = kwargs.get('field', 'time')
 
-	if 'max_val' in kwargs:
+	# if 'max_val' in kwargs:
 
-		max_val = kwargs['max_val']
+	# 	max_val = kwargs['max_val']
 
-	else:
+	# else:
 
-		max_val = 0
+	# 	max_val = 0
 
-		for node in path_values.values():
+	# 	for node in path_values.values():
 
-				max_val = max([max_val, node[field]])
+	# 			max_val = max([max_val, node[field]])
 
 	for source, node in graph._node.items():
 
@@ -82,7 +82,7 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 			'color': 'lightgray',
 		},
 		'colorbar': {
-			'label': 'Time to Node [h]',
+			'label': kwargs.get('field_name', 'Time to Node [h]'),
 		}
 	}
 

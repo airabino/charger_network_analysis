@@ -69,6 +69,10 @@ natbib=true,         % if you need natbib functions
 ]{biblatex}
 \addbibresource{./sources/sources.bib,}  % better than \bibliography
 
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
 \begin{document}
 
 \maketitle
