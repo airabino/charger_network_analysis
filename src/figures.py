@@ -38,6 +38,7 @@ colormaps={
 	'default_prop_cycle': default_prop_cycle,
 }
 
+
 def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, **kwargs):
 
 	return_fig = False
@@ -48,18 +49,6 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 		return_fig = True
 
 	field = kwargs.get('field', 'time')
-
-	# if 'max_val' in kwargs:
-
-	# 	max_val = kwargs['max_val']
-
-	# else:
-
-	# 	max_val = 0
-
-	# 	for node in path_values.values():
-
-	# 			max_val = max([max_val, node[field]])
 
 	for source, node in graph._node.items():
 

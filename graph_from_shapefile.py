@@ -9,7 +9,7 @@ import pandas as pd
 
 
 import src
-from src.utilities import CondPrint
+from src.utilities import cprint
 
 str_color = '\033[1m\033[38;5;34m\033[48;5;0m'
 
@@ -72,14 +72,14 @@ if __name__ == "__main__":
 	t0 = time.time()
 
 	args = vars(parser.parse_args(sys.argv[1:]))
-	CondPrint(str_color + '\n' + 'Module graph_from_shapefile' + '\n', args['verbose'])
+	cprint(str_color + '\n' + 'Module graph_from_shapefile' + '\n', args['verbose'])
 
 	args['node_attributes']=eval(args['node_attributes'])
 	args['link_attributes']=eval(args['link_attributes'])
 
 	if args['parameters_file'] is not None:
 
-		CondPrint('Loading parameters file', args['verbose'])
+		cprint('Loading parameters file', args['verbose'])
 
 		with open(args['parameters_file'], 'r') as file:
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
 			args[key] = parameters[key]
 
-	CondPrint('Loading graph from shapefile', args['verbose'])
+	cprint('Loading graph from shapefile', args['verbose'])
 	graph = src.graph.graph_from_shapefile(
 		args['input_file'],
 		node_attributes = args['node_attributes'],
@@ -97,9 +97,9 @@ if __name__ == "__main__":
 		)
 
 	#Writing to file
-	CondPrint('Writing to file', args['verbose'])
+	cprint('Writing to file', args['verbose'])
 	src.graph.graph_to_json(graph, args['output_file'])
 
-	CondPrint(
+	cprint(
 		'\n' + f'Done: {time.time()-t0:.3f} seconds' +
 		'\033[0m\n', args['verbose'])

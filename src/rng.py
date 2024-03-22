@@ -1,8 +1,66 @@
 import numpy as np
 
+from scipy.special import factorial
+from scipy.stats import rv_histogram
+
 from .graph import graph_from_nlg
 from .utilities import pythagorean, top_n_indices
-from .routing import Charger
+# from .routing import Charger
+
+def multiply_and_resample(x, y, rng = np.random.default_rng(None)):
+
+    xg, yg = np.atleast_2d(x, y)
+
+    xy = (xg.T @ yg).flatten()
+
+    return rng.choice(xy, size = x.shape, replace = False)
+
+def queuing_time(l, m, c):
+
+    rho = l / (c * m)
+
+    k = np.arange(0, c, 1)
+
+    p_0 = 1 / (
+        sum([(c * rho) ** k / factorial(k) for k in k]) +
+        (c * rho) ** c / (factorial(c) * (1 - rho))
+    )
+
+    l_q = (p_0 * (l / m) ** c * rho) / (factorial(c) * (1 - rho))
+
+    w_q = l_q / l
+
+    return w_q
+
+class Queuing_Time_Distribution():
+
+	def __init__(self, arrival, service, servicers, seed = None, bins = 50, shape = (100, )):
+
+		self.arrival = arrival
+		self.service = service
+		self.servicers = servicers
+		self.seed = seed
+		self.bins = bins
+		self.shape = shape
+
+		self.Compute()
+
+	def Compute(self):
+
+		arrival_frequency = 1 / self.arrival.rvs(size = self.shape, random_state = self.seed)
+		service_frequency = 1 / self.service.rvs(size = self.shape, random_state = self.seed)
+
+		afg, sfg = np.meshgrid(arrival_frequency, service_frequency, indexing  = 'ij')
+
+		queuing_time_values = queuing_time(afg.flatten(), sfg.flatten(), self.servicers)
+
+		self.queuing_time = rv_histogram(
+			np.histogram(queuing_time_values, bins = self.bins)
+			)
+
+	def __call__(self, **kwargs):
+
+		return self.queuing_time.rvs(**kwargs)
 
 def random_graph(n, **kwargs):
 

@@ -26,9 +26,7 @@ default_objectives = [
     }
 ]
 
-def multiply_and_resample(x, y, seed = None):
-
-    rng = np.random.default_rng(seed)
+def multiply_and_resample(x, y, rng = np.random.default_rng(None)):
 
     xg, yg = np.atleast_2d(x, y)
 
@@ -36,9 +34,7 @@ def multiply_and_resample(x, y, seed = None):
 
     return rng.choice(xy, size = x.shape, replace = False)
 
-# def add_and_resample(x, y, seed = None):
-
-#     rng = np.random.default_rng(seed)
+# def add_and_resample(x, y, rng = np.random.default_rng(None)):
 
 #     xg, yg = np.atleast_2d(x, y)
 
@@ -46,10 +42,8 @@ def multiply_and_resample(x, y, seed = None):
 
 #     return rng.choice(xy, size = x.shape, replace = False)
 
-def add_and_resample(x, y, seed = None):
+def add_and_resample(x, y, rng = np.random.default_rng(None)):
     # print(x, y)
-
-    rng = np.random.default_rng(seed)
 
     xy = x + rng.permutation(np.atleast_1d(y))
 

@@ -192,7 +192,9 @@ def graph_from_nlg(nlg, **kwargs):
 
 def nlg_from_graph(nlg, **kwargs):
 
-	return nx.node_link_data(nlg, **kwargs)
+	nlg = nx.node_link_data(nlg, **kwargs)
+
+	return nlg
 
 # Functions for loading graphs from shapefiles
 
@@ -212,11 +214,16 @@ def graph_from_shapefile(filepath, node_attributes = {}, link_attributes = {}, *
 	See reformat_graph for description of node_attributes and link_attributes
 	'''
 	contains_links = kwargs.get('contains_links', True)
+	conditions = kwargs.get('conditions', [])
 
 	if contains_links:
 
 		# Loading the road map shapefile into a GeoDataFrame
 		gdf = gpd.read_file(filepath)
+
+		for condition in conditions:
+
+			gdf = gdf[eval(condition)]
 
 		# Making sure that cartographic crs is used so
 		# Haversine distances can be accurately computed
