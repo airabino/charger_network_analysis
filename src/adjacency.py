@@ -15,7 +15,7 @@ import numpy as np
 from scipy.spatial import KDTree
 
 from .progress_bar import ProgressBar
-from .dijkstra import dijkstra
+from .dijkstra_simple import dijkstra
 
 # Routing functions and related objects
 
@@ -160,7 +160,7 @@ def adjacency(atlas, graph, weights, **kwargs):
 	targets = [graph_to_atlas[n] for n in list(graph.nodes)]
 
 	# Collecting status of all nodes in graph
-	statuses = np.array([n['status'] for n in graph._node.values()])
+	statuses = np.array([n.get('status', 0) for n in graph._node.values()])
 
 	# Creating sources based on statuses and compute_all
 	if kwargs['compute_all']:

@@ -17,16 +17,9 @@ from heapq import heappop, heappush
 from itertools import count
 from sys import float_info, maxsize
 
-default_objectives = [
-    {
-        'field': 'network_distance',
-        'initial': [0],
-        'update': lambda x, v: [xi + v for xi in x],
-        'cost': lambda x: sum(x) / len(x),
-    }
-]
+from .progress_bar import ProgressBar
 
-def multiply_and_resample(x, y, rng = np.random.default_rng(None)):
+def multiply_and_resample_factorial(x, y, rng = np.random.default_rng(None)):
 
     xg, yg = np.atleast_2d(x, y)
 
@@ -34,16 +27,21 @@ def multiply_and_resample(x, y, rng = np.random.default_rng(None)):
 
     return rng.choice(xy, size = x.shape, replace = False)
 
-# def add_and_resample(x, y, rng = np.random.default_rng(None)):
+def add_and_resample_factorial(x, y, rng = np.random.default_rng(None)):
 
-#     xg, yg = np.atleast_2d(x, y)
+    xg, yg = np.atleast_2d(x, y)
 
-#     xy = (xg.T + yg).flatten()
+    xy = (xg.T + yg).flatten()
 
-#     return rng.choice(xy, size = x.shape, replace = False)
+    return rng.choice(xy, size = x.shape, replace = False)
+
+def multiply_and_resample(x, y, rng = np.random.default_rng(None)):
+
+    xy = x * rng.permutation(np.atleast_1d(y))
+
+    return xy
 
 def add_and_resample(x, y, rng = np.random.default_rng(None)):
-    # print(x, y)
 
     xy = x + rng.permutation(np.atleast_1d(y))
 
@@ -55,7 +53,7 @@ def add_simple(x, y, **kwargs):
 
     return xy
 
-def dijkstra(graph, origins, **kwargs):  
+def dijkstra(graph, origins, **kwargs):
     """
     Uses Dijkstra's algorithm to find weighted shortest paths
 
@@ -168,7 +166,7 @@ def dijkstra(graph, origins, **kwargs):
     """
 
     destinations = kwargs.get('destinations', [])
-    states = kwargs.get('states', default_objectives)
+    states = kwargs.get('states', {'network_distance': {'update': lambda x: x+1}})
     constraints = kwargs.get('constraints', [])
     objectives = kwargs.get('objectives', [])
     return_paths = kwargs.get('return_paths', False)
@@ -215,12 +213,12 @@ def dijkstra(graph, origins, **kwargs):
 
             values[key] = info['initial']
 
-        heappush(heap, (0, values, next(c), origin))
+        heappush(heap, (0, next(c), values, origin))
 
     while heap: # Iterating while there are accessible unseen nodes
 
         # Popping the lowest cost unseen node from the heap
-        (cost, values,  _, source) = heappop(heap)
+        (cost, _, values, source) = heappop(heap)
         # print(values)
 
         if source in path_values:
@@ -290,10 +288,202 @@ def dijkstra(graph, origins, **kwargs):
 
                 visited[target] = cost
 
-                heappush(heap, (cost, current_values, next(c), target))
+                heappush(heap, (cost, next(c), current_values, target))
 
                 if paths is not None:
 
                     paths[target] = paths[source] + [target]
 
     return path_costs, path_values, paths
+
+def super_quantile(x, risk_attitude, n = 10):
+    
+    q = np.linspace(risk_attitude[0], risk_attitude[1], n)
+    # print(q)
+    
+    sq = 1/(risk_attitude[1] - risk_attitude[0]) * (np.quantile(x, q) * (q[1] - q[0])).sum()
+
+    return sq
+
+def in_range(x, lower, upper):
+
+    return (x >= lower) & (x <= upper)
+
+class Vehicle():
+
+    def __init__(self, **kwargs):
+
+        self.n_cases = kwargs.get('n_cases', 1) # [-]
+        self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # [-]
+        self.cutoff = kwargs.get('cutoff', np.inf) # [m]
+
+        if self.n_cases == 1:
+
+            self.populate_deterministic()
+
+        else:
+
+            self.populate_stochastic()
+
+    def all_pairs(self, graph, nodes = [], **kwargs):
+
+        expectations_all_pairs = {}
+
+        if not nodes:
+
+            nodes = list(graph.nodes)
+
+        for node in ProgressBar(nodes, **kwargs.get('progress_bar', {})):
+
+            expectations, _, _ = self.routes(graph, [node], destinations = nodes)
+
+            expectations_all_pairs[node] = (
+                {key: val for key, val in expectations.items() if key in nodes}
+                )
+
+        return expectations_all_pairs
+
+    def routes(self, graph, origins, destinations = [], return_paths = False):
+
+        expectations, values, paths = dijkstra(
+            graph,
+            origins,
+            destinations = destinations,
+            states = self.states,
+            constraints = self.constraints,
+            objectives = self.objectives,
+            return_paths = return_paths,
+            )
+
+        return expectations, values, paths
+
+    def populate_deterministic(self):
+
+        self.objectives = {
+            'time': lambda x: x['time'],
+        }
+
+        self.constraints = {
+            'distance': lambda x: x['distance'] <= self.cutoff
+            # 'distance': lambda x: in_range(x['distance'], *self.cutoff)
+        }
+
+        self.states = {
+            'time': {
+                'field': 'time',
+                'initial': 0,
+                'update': lambda x, v: add_simple(
+                    x['time'], v.get('time', 0)),
+            },
+            'distance': {
+                'field': 'distance',
+                'initial': 0,
+                'update': lambda x, v: add_simple(
+                    x['distance'], v.get('distance', 0)),
+            },
+        }
+
+    def populate_stochastic(self):
+
+        self.objectives = {
+            'time': lambda x: super_quantile(x['time'], self.risk_attitude),
+        }
+
+        self.constraints = {
+            'distance': lambda x: (
+                super_quantile(x['distance'], self.risk_attitude) <= self.cutoff
+            )
+        }
+
+        self.states = {
+            'time': {
+                'field': 'time',
+                'initial': np.array([0.] * self.n_cases),
+                'update': lambda x, v: add_simple(
+                    x['time'], v.get('time', 0)),
+            },
+            'distance': {
+                'field': 'distance',
+                'initial': np.array([0.] * self.n_cases),
+                'update': lambda x, v: add_simple(
+                    x['distance'], v.get('distance', 0)),
+            },
+        }
+
+class ConstrainedVehicle(Vehicle):
+
+    def __init__(self, **kwargs):
+
+        self.n_cases = kwargs.get('n_cases', 30) # [-]
+        self.capacity = kwargs.get('ess_capacity', 80 * 3.6e6) # [J]
+        self.efficiency = kwargs.get('efficiency', 500) # [J/m]
+        self.rate = kwargs.get('rate', 80e3) # [W]
+        self.initial_soc = kwargs.get('initial_soc', 1) # [-]
+        self.max_soc = kwargs.get('max_soc', 1) # [-]
+        self.min_soc = kwargs.get('min_soc', .2) # [-]
+        self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # [-]
+
+        self.populate()
+
+    def routes(self, graph, origins, destinations = [], return_paths = False):
+
+        expectations, values, paths = dijkstra(
+            graph,
+            origins,
+            destinations = destinations,
+            states = self.states,
+            constraints = self.constraints,
+            objectives = self.objectives,
+            return_paths = return_paths,
+            )
+
+        return expectations, values, paths
+
+    def populate(self):
+
+        self.objectives = {
+            'time': lambda x: super_quantile(x['time'], self.risk_attitude),
+        }
+
+        self.constraints = {
+            'soc': (
+                lambda x: (
+                    in_range(
+                        super_quantile(x['soc'], self.risk_attitude),
+                        self.min_soc, self.max_soc
+                    )
+                )
+            ),
+        }
+
+        self.states = {
+            'soc': {
+                'field': 'soc',
+                'initial': np.array([self.initial_soc] * self.n_cases),
+                'update': lambda x, v: add_simple(
+                    x['soc'], -v['distance'] * self.efficiency /  self.capacity) ,
+            },
+            'time': {
+                'field': 'time',
+                'initial': np.array([0.] * self.n_cases),
+                'update': lambda x, v: add_simple(
+                    x['time'], v['time']),
+            },
+            'time_nc': {
+                'field': 'time_nc',
+                'initial': np.array([0.] * self.n_cases),
+                'update': lambda x, v: add_simple(
+                    x['time_nc'], v['time']),
+            },
+            'distance': {
+                'field': 'distance',
+                'initial': np.array([0.] * self.n_cases),
+                'update': lambda x, v: add_simple(
+                    x['distance'], v['distance']),
+            },
+            'price': {
+                'field': 'price',
+                'initial': np.array([0.] * self.n_cases),
+                'update': lambda x, v: add_simple(x['price'], v['price']),
+            },
+        }
