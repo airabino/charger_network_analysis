@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{mathptmx}
+\usepackage{float}
+\usepackage[cmex10]{amsmath}
+\usepackage{amsthm,amssymb}
+\usepackage{url}
+\urlstyle{same} 
+\def\UrlBreaks{\do\/\do-}
+\usepackage{breakurl}
+\usepackage{fancybox}
+\usepackage{breqn}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{comment}
+\usepackage[english]{babel}
+\usepackage[acronym,nomain]{glossaries} % list of acronyms
+\usepackage{xurl}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{mathptmx}
+\usepackage{float}
+\usepackage{lipsum}
+\usepackage{framed}
+\usepackage[T1]{fontenc}
+\usepackage[pdfpagelabels,pdfusetitle,colorlinks=false,pdfborder={0 0 0}]{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tabularx}
+\usepackage{wrapfig}
+
+% draw a frame around given text
+\newcommand{\framedtext}[1]{%
+	\par%
+	\noindent\fbox{%
+		\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{#1}%
+	}%
+}
+
+\renewcommand{\arraystretch}{1.2}
+
+\sloppy
+
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1-2\tabcolsep}}
+
+\usepackage[%
+backend=bibtex,     % biber or bibtex
+%style=authoryear,    % Alphabeticalsch
+style=numeric-comp,  % numerical-compressed
+sorting=none,        % no sorting
+sortcites=true,      % some other example options ...
+block=none,
+indexing=false,
+citereset=none,
+isbn=true,
+url=true,
+doi=true,           % prints doi
+natbib=true,         % if you need natbib functions
+]{biblatex}
+\addbibresource{./sources/sources.bib,}  % better than \bibliography
+
+\title{Impact of EVSE Deployment on Electrified Road Transportation Access for Long Trips}
+\author{Aaron I. Rabinowitz, Vaishnavi Karanam, Radhika Gupta, others}
+\date{}
+
+\input{gloss}
+\makeglossaries
+
+\begin{document}
+
+\maketitle
+
+\section*{Abstract}
+
+A well designed transportation system provides sufficient access from origins to destinations to accommodate household and business demand in an economy.  Increasingly, climate action goals require that more transportation load be shifted to less \gls{ghg} intensive modes among which are \glspl{bev}. While \glspl{bev} use the same roads as \glspl{icev} they draw energy from a separate network of stations which neither as robust as nor coincident to the \gls{icev} fueling network, a consequence of the different current and historical economics of both. Insufficiency and unreliability of public DC \gls{evse} which is primarily used for charging on long itineraries mean that \gls{bev} drivers, depending on vehicle range and risk attitude, may opt for less direct paths with lower charging risk, opt for a more \gls{ghg} intensive mode, or abandon an itinerary. Holistically, the transportation system provides less access to \glspl{bev} for distant pairs. This project develops methods and tools to optimize deployment of future \gls{evse} to mitigate the issue. Methods herein are based on range and charging risk sensitive optimal routing between O/D pairs subject to the locations and usability rates of \gls{evse}. These methods and tools may be used by policy makers to directly evaluate the impact of proposed stations on \gls{bev} transportation access.
+
+\section*{Introduction}
+
+Developed economies rely on their transportation sectors to move persons and goods in astounding volumes underpinning multi-trillion dollar yearly outputs and setting the conditions for households and individuals. The concept of transportation access can roughly be considered as the inverse of the difficulty of reaching selected destinations from selected origins. More efficient transportation allows for individuals and businesses to access more opportunities for the same expenditure in time and/or money. Transportation access is, thus, a nuanced and multi-dimensional concept which must vary, at least, by location, entity, and scope. Further complexity is added by the reality that all elements of the global transportation system are, to a greater or lesser degree, connected. How one selects \gls{od} pairs and the entities which must transit them will color one's analysis. It is, thus, important to carefully define the scope of analysis.
+
+Transportation researchers and planners have introduced the concept of transportation accessibility primarily as it applies to routine household behavior. From the personal transportation perspective, access is defined as the ease with which individuals can reach the destinations they need or desire, considering both the distribution of destinations and the various transportation options available \cite{Handy_2020}. Accessibility is influenced by several key factors. Land-use dynamics determine the distribution and demand for amenities like jobs and services across different locations, while transportation factors such as travel time, costs, and infrastructure availability also play a significant role \cite{Geurs_2004}. Temporal considerations reflect the availability of opportunities throughout the day, and individual characteristics such as age, income, and education predict access to transportation modes and opportunities \cite{Miller_2018}.
+
+The access provided by a road transportation system for \glspl{bev} is different than that for \glspl{icev} due to vehicular and supply network characteristics as well as individual and household characteristics. Modern \glspl{bev} possess sufficient practical ranges to accomplish much daily travel [SOURCE - or maybe derive this from NHTS]. However, for long itineraries \glspl{icev} offer greater accessibility compared to \glspl{bev} due to the extensive availability of fueling stations in contrast to charging stations. Fueling stations are widely distributed across urban, suburban, and rural areas, ensuring that drivers have convenient access to refueling points wherever they travel. In contrast, the \gls{evse} network is less developed and distributed. This infrastructure gap poses challenges for \gls{bev} drivers, especially in remote or less densely populated areas, leading to concerns about range anxiety and limitations on travel options. Inadequate access for \gls{bev} may result in trip cancellations or mode switches, often favoring \gls{icev} or air travel.
+
+While incentives for \gls{evse} deployment can help mitigate this issue, it may not fully resolve the disparities which result from the different economic models. Gas pumping equipment requires lower up-front costs than DC \gls{evse} and is cheaper to operate \cite{Gamage_2023}. It is, nevertheless, the case that gas is often sold at low markup or a slight loss with stations making most profit on convenience items [SOURCE]. Nearly all light-duty \gls{icev} drivers source all of their fuel from public fueling stations regardless of travel behavior [SOURCE]. \gls{bev} drivers are expected to, and currently do, source much of their electricity from AC supply equipment during long dwells, often at private chargers \cite{Hardman_2018}. Thus DC \gls{evse} is subject to higher capital expenditure and lower revenue potential while simultaneously benefiting less from historical investment. Public investments in EV supply infrastructure, thus, must be made judiciously. Evaluation methods for potential charging stations should consider their network-wide impact on accessibility, considering vehicle types, charging outcomes, and driver risk attitudes.
+
+This study introduces a novel methodology to assess the impacts of vehicle electrification on the accessibility of road transportation systems subject to supply networks. The methodology will measure \gls{icev} and \gls{bev} accessibility by computing optimal-feasible travel routes of \gls{od} pairs using a Monte-Carlo Dijkstra routing algorithm subject to vehicle range limitations, infrastructure constraints and driver risk attitudes. Additionally, a case study is presented for the state of California showing a comparison between \glspl{icev} and \glspl{bev} access for important \gls{od} pairs. The methodology introduced, as well as the open-source code provided in the supplemental information will be an invaluable tool for planners and policymakers in originating and evaluating \gls{evse} deployment policies.
+
+\printbibliography
+
+\end{document}
