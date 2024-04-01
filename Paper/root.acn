@@ -11,9 +11,9 @@
 \glossaryentry{EVSE?\glossentry{evse}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{O/D?\glossentry{od}|setentrycounter[]{page}"\glsnumberformat}{1}
-\glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{2}
-\glossaryentry{ICEV?\glossentry{icev}|setentrycounter[]{page}"\glsnumberformat}{2}
-\glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{2}
+\glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{ICEV?\glossentry{icev}|setentrycounter[]{page}"\glsnumberformat}{1}
+\glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{1}
 \glossaryentry{ICEV?\glossentry{icev}|setentrycounter[]{page}"\glsnumberformat}{2}
 \glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{2}
 \glossaryentry{EVSE?\glossentry{evse}|setentrycounter[]{page}"\glsnumberformat}{2}
@@ -32,3 +32,11 @@
 \glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{2}
 \glossaryentry{O/D?\glossentry{od}|setentrycounter[]{page}"\glsnumberformat}{2}
 \glossaryentry{EVSE?\glossentry{evse}|setentrycounter[]{page}"\glsnumberformat}{2}
+\glossaryentry{O/D?\glossentry{od}|setentrycounter[]{page}"\glsnumberformat}{2}
+\glossaryentry{O/D?\glossentry{od}|setentrycounter[]{page}"\glsnumberformat}{2}
+\glossaryentry{ESNG?\glossentry{esng}|setentrycounter[]{page}"\glsnumberformat}{3}
+\glossaryentry{ESS?\glossentry{ess}|setentrycounter[]{page}"\glsnumberformat}{3}
+\glossaryentry{O/D?\glossentry{od}|setentrycounter[]{page}"\glsnumberformat}{3}
+\glossaryentry{ESS?\glossentry{ess}|setentrycounter[]{page}"\glsnumberformat}{3}
+\glossaryentry{ESS?\glossentry{ess}|setentrycounter[]{page}"\glsnumberformat}{3}
+\glossaryentry{ESNG?\glossentry{esng}|setentrycounter[]{page}"\glsnumberformat}{3}

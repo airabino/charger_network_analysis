@@ -4,6 +4,10 @@
 \glossentry{bev}{\glossaryentrynumbers{\relax 
 		\setentrycounter[]{page}\glsnumberformat{1\delimN 2}}}\glsgroupskip
 \glsgroupheading{E}\relax \glsresetentrylist %
+\glossentry{esng}{\glossaryentrynumbers{\relax 
+		\setentrycounter[]{page}\glsnumberformat{3}}}%
+\glossentry{ess}{\glossaryentrynumbers{\relax 
+		\setentrycounter[]{page}\glsnumberformat{3}}}%
 \glossentry{evse}{\glossaryentrynumbers{\relax 
 		\setentrycounter[]{page}\glsnumberformat{1\delimN 2}}}\glsgroupskip
 \glsgroupheading{G}\relax \glsresetentrylist %
@@ -14,5 +18,5 @@
 		\setentrycounter[]{page}\glsnumberformat{1\delimN 2}}}\glsgroupskip
 \glsgroupheading{O}\relax \glsresetentrylist %
 \glossentry{od}{\glossaryentrynumbers{\relax 
-		\setentrycounter[]{page}\glsnumberformat{1\delimN 2}}}%
+		\setentrycounter[]{page}\glsnumberformat{1\delimR 3}}}%
 \end{theglossary}\glossarypostamble

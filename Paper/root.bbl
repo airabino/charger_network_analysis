@@ -345,5 +345,539 @@
   Environment}
     \field{year}{2018}
   \endentry
+
+  \entry{Ravenstein_1885}{article}{}
+    \name{author}{1}{}{%
+      {{hash=REG}{%
+         family={Ravenstein},
+         familyi={R\bibinitperiod},
+         given={E.\bibnamedelima G.},
+         giveni={E\bibinitperiod\bibinitdelim G\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Royal Statistical Society}%
+    }
+    \strng{namehash}{REG1}
+    \strng{fullhash}{REG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{2}
+    \field{pages}{167\bibrangedash 235}
+    \field{title}{The Laws of Migration}
+    \field{volume}{48}
+    \field{journaltitle}{Journal of the Statistical Society of London}
+    \field{year}{1885}
+  \endentry
+
+  \entry{Handy_1997}{article}{}
+    \name{author}{2}{}{%
+      {{hash=HSL}{%
+         family={Handy},
+         familyi={H\bibinitperiod},
+         given={S\bibnamedelima L},
+         giveni={S\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=NDA}{%
+         family={Niemeier},
+         familyi={N\bibinitperiod},
+         given={D\bibnamedelima A},
+         giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HSLNDA1}
+    \strng{fullhash}{HSLNDA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1068/a291175
+    \endverb
+    \field{number}{7}
+    \field{pages}{1175\bibrangedash 1194}
+    \field{title}{Measuring Accessibility: An Exploration of Issues and
+  Alternatives}
+    \field{volume}{29}
+    \field{journaltitle}{Environment and Planning A: Economy and Space}
+    \field{year}{1997}
+  \endentry
+
+  \entry{Kwan_1998}{article}{}
+    \name{author}{1}{}{%
+      {{hash=KMP}{%
+         family={Kwan},
+         familyi={K\bibinitperiod},
+         given={Mei-Po},
+         giveni={M\bibinithyphendelim P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KMP1}
+    \strng{fullhash}{KMP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1111/j.1538-4632.1998.tb00396.x
+    \endverb
+    \field{pages}{191 \bibrangedash  216}
+    \field{title}{Space-Time and Integral Measures of Individual Accessibility:
+  A Comparative Analysis Using a Point-Based Framework}
+    \field{volume}{30}
+    \field{journaltitle}{Geographical Analysis}
+    \field{month}{07}
+    \field{year}{1998}
+  \endentry
+
+  \entry{Wachs_1973}{article}{}
+    \name{author}{2}{}{%
+      {{hash=WM}{%
+         family={Wachs},
+         familyi={W\bibinitperiod},
+         given={Martin},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=KTG}{%
+         family={Kumagai},
+         familyi={K\bibinitperiod},
+         given={T.\bibnamedelima Gordon},
+         giveni={T\bibinitperiod\bibinitdelim G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WMKTG1}
+    \strng{fullhash}{WMKTG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{5}
+    \field{pages}{437\bibrangedash 456}
+    \field{title}{Physical accessibility as a social indicator}
+    \verb{url}
+    \verb https://EconPapers.repec.org/RePEc:eee:soceps:v:7:y:1973:i:5:p:437-45
+    \verb 6
+    \endverb
+    \field{volume}{7}
+    \field{journaltitle}{Socio-Economic Planning Sciences}
+    \field{year}{1973}
+  \endentry
+
+  \entry{Vickerman_1974}{article}{}
+    \name{author}{1}{}{%
+      {{hash=VR}{%
+         family={Vickerman},
+         familyi={V\bibinitperiod},
+         given={Roger},
+         giveni={R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{VR1}
+    \strng{fullhash}{VR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    Some confusion seems to have developed over the relationship between
+  accessibility and travel patterns. Various concepts of attraction,
+  accessibility, and potential are examined with the object of reaching a more
+  satisfactory definition. Multivariate analysis of data relating to an urban
+  area suggests that the influences of conventional accessibility indices are
+  concealed by collinear socioeconomic variations; when these are separated
+  there is a more pronounced relationship. It is shown that such a relationship
+  has important consequences for urban planning.%
+    }
+    \field{number}{6}
+    \field{pages}{675\bibrangedash 691}
+    \field{title}{Accessibility, Attraction, and Potential: A Review of Some
+  Concepts and Their Use in Determining Mobility}
+    \verb{url}
+    \verb https://EconPapers.repec.org/RePEc:sae:envira:v:6:y:1974:i:6:p:675-69
+    \verb 1
+    \endverb
+    \field{volume}{6}
+    \field{journaltitle}{Environment and Planning A}
+    \field{year}{1974}
+  \endentry
+
+  \entry{Stouffer_1940}{article}{}
+    \name{author}{1}{}{%
+      {{hash=SSA}{%
+         family={Stouffer},
+         familyi={S\bibinitperiod},
+         given={Samuel\bibnamedelima A.},
+         giveni={S\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {American Sociological Association}%
+    }
+    \strng{namehash}{SSA1}
+    \strng{fullhash}{SSA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{issn}{00031224}
+    \field{number}{6}
+    \field{pages}{845\bibrangedash 867}
+    \field{title}{Intervening Opportunities: A Theory Relating Mobility and
+  Distance}
+    \verb{url}
+    \verb http://www.jstor.org/stable/2084520
+    \endverb
+    \field{volume}{5}
+    \field{journaltitle}{American Sociological Review}
+    \field{year}{1940}
+    \field{urlday}{31}
+    \field{urlmonth}{03}
+    \field{urlyear}{2024}
+  \endentry
+
+  \entry{Easa_1993}{article}{}
+    \name{author}{1}{}{%
+      {{hash=ESM}{%
+         family={Easa},
+         familyi={E\bibinitperiod},
+         given={Said\bibnamedelima M.},
+         giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ESM1}
+    \strng{fullhash}{ESM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1061/(ASCE)0733-947X(1993)119:6(793)
+    \endverb
+    \field{number}{6}
+    \field{pages}{793\bibrangedash 815}
+    \field{title}{Urban Trip Distribution in Practice. I: Conventional
+  Analysis}
+    \field{volume}{119}
+    \field{journaltitle}{Journal of Transportation Engineering}
+    \field{year}{1993}
+  \endentry
+
+  \entry{Hou_2019}{article}{}
+    \name{author}{5}{}{%
+      {{hash=HY}{%
+         family={Hou},
+         familyi={H\bibinitperiod},
+         given={Yi},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=GV}{%
+         family={Garikapati},
+         familyi={G\bibinitperiod},
+         given={Venu},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=NA}{%
+         family={Nag},
+         familyi={N\bibinitperiod},
+         given={Ambarish},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=YSE}{%
+         family={Young},
+         familyi={Y\bibinitperiod},
+         given={Stanley\bibnamedelima E.},
+         giveni={S\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+      {{hash=GT}{%
+         family={Grushka},
+         familyi={G\bibinitperiod},
+         given={Tom},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HY+1}
+    \strng{fullhash}{HYGVNAYSEGT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1177/0361198119848705
+    \endverb
+    \field{number}{10}
+    \field{pages}{141\bibrangedash 152}
+    \field{title}{Novel and Practical Method to Quantify the Quality of
+  Mobility: Mobility Energy Productivity Metric}
+    \field{volume}{2673}
+    \field{journaltitle}{Transportation Research Record}
+    \field{year}{2019}
+  \endentry
+
+  \entry{Noulas_2012}{article}{}
+    \name{author}{5}{}{%
+      {{hash=NA}{%
+         family={Noulas},
+         familyi={N\bibinitperiod},
+         given={Anastasios},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=SS}{%
+         family={Scellato},
+         familyi={S\bibinitperiod},
+         given={Salvatore},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=LR}{%
+         family={Lambiotte},
+         familyi={L\bibinitperiod},
+         given={Renaud},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=PM}{%
+         family={Pontil},
+         familyi={P\bibinitperiod},
+         given={Massimiliano},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=MC}{%
+         family={Mascolo},
+         familyi={M\bibinitperiod},
+         given={Cecilia},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Public Library of Science}%
+    }
+    \strng{namehash}{NA+1}
+    \strng{fullhash}{NASSLRPMMC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    null%
+    }
+    \verb{doi}
+    \verb 10.1371/annotation/ca85bf7a-7922-47d5-8bfb-bcdf25af8c72
+    \endverb
+    \field{number}{9}
+    \field{pages}{null}
+    \field{title}{Correction: A Tale of Many Cities: Universal Patterns in
+  Human Urban Mobility}
+    \verb{url}
+    \verb https://doi.org/10.1371/annotation/ca85bf7a-7922-47d5-8bfb-bcdf25af8c
+    \verb 72
+    \endverb
+    \field{volume}{7}
+    \field{journaltitle}{PLOS ONE}
+    \field{month}{09}
+    \field{year}{2012}
+  \endentry
+
+  \entry{Jung_2008}{article}{}
+    \name{author}{3}{}{%
+      {{hash=JWS}{%
+         family={Jung},
+         familyi={J\bibinitperiod},
+         given={Woo-Sung},
+         giveni={W\bibinithyphendelim S\bibinitperiod},
+      }}%
+      {{hash=WF}{%
+         family={Wang},
+         familyi={W\bibinitperiod},
+         given={Fengzhong},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=SHE}{%
+         family={Stanley},
+         familyi={S\bibinitperiod},
+         given={H.\bibnamedelima Eugene},
+         giveni={H\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{JWSWFSHE1}
+    \strng{fullhash}{JWSWFSHE1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    We investigate the traffic flows of the Korean highway system, which
+  contains both public and private transportation information. We find that the
+  traffic flow Tij between city i and j forms a gravity model, the metaphor of
+  physical gravity as described in Newton's law of gravity, PiPj/rij2, where Pi
+  represents the population of city i and rij the distance between cities i and
+  j. It is also shown that the highway network has a heavy tail even though the
+  road network is a rather uniform and homogeneous one. Compared to the highway
+  network, air and public ground transportation establish inhomogeneous systems
+  and have power law behaviors.%
+    }
+    \verb{doi}
+    \verb 10.1209/0295-5075/81/48005
+    \endverb
+    \field{number}{4}
+    \field{pages}{48005}
+    \field{title}{Gravity model in the Korean highway}
+    \verb{url}
+    \verb https://dx.doi.org/10.1209/0295-5075/81/48005
+    \endverb
+    \field{volume}{81}
+    \field{journaltitle}{Europhysics Letters}
+    \field{year}{2008}
+    \warn{\item Invalid format of field 'month'}
+  \endentry
+
+  \entry{Hansen_1959}{article}{}
+    \name{author}{1}{}{%
+      {{hash=HWG}{%
+         family={Hansen},
+         familyi={H\bibinitperiod},
+         given={Walter\bibnamedelima G.},
+         giveni={W\bibinitperiod\bibinitdelim G\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Routledge}%
+    }
+    \strng{namehash}{HWG1}
+    \strng{fullhash}{HWG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1080/01944365908978307
+    \endverb
+    \field{number}{2}
+    \field{pages}{73\bibrangedash 76}
+    \field{title}{How Accessibility Shapes Land Use}
+    \field{volume}{25}
+    \field{journaltitle}{Journal of the American Institute of Planners}
+    \field{year}{1959}
+  \endentry
+
+  \entry{Ben_Akiva_1985}{book}{}
+    \name{author}{2}{}{%
+      {{hash=BAME}{%
+         family={Ben-Akiva},
+         familyi={B\bibinithyphendelim A\bibinitperiod},
+         given={Moshe\bibnamedelima E},
+         giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+      {{hash=LSR}{%
+         family={Lerman},
+         familyi={L\bibinitperiod},
+         given={Steven\bibnamedelima R},
+         giveni={S\bibinitperiod\bibinitdelim R\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {MIT press}%
+    }
+    \strng{namehash}{BAMELSR1}
+    \strng{fullhash}{BAMELSR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Discrete choice analysis: theory and application to travel
+  demand}
+    \field{volume}{9}
+    \field{year}{1985}
+  \endentry
+
+  \entry{Cevero_1995}{article}{}
+    \name{author}{3}{}{%
+      {{hash=CR}{%
+         family={Cervero},
+         familyi={C\bibinitperiod},
+         given={Robert},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=RT}{%
+         family={Rood},
+         familyi={R\bibinitperiod},
+         given={Timothy},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=AB}{%
+         family={Appleyard},
+         familyi={A\bibinitperiod},
+         given={Bruce},
+         giveni={B\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CRRTAB1}
+    \strng{fullhash}{CRRTAB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Job accessibility as a performance indicator: An analysis of
+  trends and their social policy implications in the San Francisco Bay Area}
+    \field{year}{1995}
+  \endentry
+
+  \entry{Shen_1998}{article}{}
+    \name{author}{1}{}{%
+      {{hash=SQ}{%
+         family={Shen},
+         familyi={S\bibinitperiod},
+         given={Q},
+         giveni={Q},
+      }}%
+    }
+    \strng{namehash}{SQ1}
+    \strng{fullhash}{SQ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1068/b250345
+    \endverb
+    \field{number}{3}
+    \field{pages}{345\bibrangedash 365}
+    \field{title}{Location Characteristics of Inner-City Neighborhoods and
+  Employment Accessibility of Low-Wage Workers}
+    \field{volume}{25}
+    \field{journaltitle}{Environment and Planning B: Planning and Design}
+    \field{year}{1998}
+  \endentry
+
+  \entry{Karst_2003}{article}{}
+    \name{author}{2}{}{%
+      {{hash=KT}{%
+         family={Karst},
+         familyi={K\bibinitperiod},
+         given={T},
+         giveni={T},
+      }}%
+      {{hash=vEJRR}{%
+         prefix={van},
+         prefixi={v\bibinitperiod},
+         family={Eck},
+         familyi={E\bibinitperiod},
+         given={Jan R\bibnamedelima Ritsema},
+         giveni={J\bibinitperiod\bibinitdelim R\bibinitperiod\bibinitdelim
+  R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KTEJRRv1}
+    \strng{fullhash}{KTEJRRv1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1068/b12940
+    \endverb
+    \field{number}{1}
+    \field{pages}{69\bibrangedash 87}
+    \field{title}{Evaluation of Accessibility Impacts of Land-Use Scenarios:
+  The Implications of Job Competition, Land-Use, and Infrastructure
+  Developments for the Netherlands}
+    \field{volume}{30}
+    \field{journaltitle}{Environment and Planning B: Planning and Design}
+    \field{year}{2003}
+  \endentry
+
+  \entry{Handy_1996}{article}{}
+    \name{author}{1}{}{%
+      {{hash=HSL}{%
+         family={Handy},
+         familyi={H\bibinitperiod},
+         given={Susan\bibnamedelima L.},
+         giveni={S\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HSL1}
+    \strng{fullhash}{HSL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1177/0739456X9601500303
+    \endverb
+    \field{number}{3}
+    \field{pages}{183\bibrangedash 198}
+    \field{title}{Understanding the Link Between Urban Form and Nonwork Travel
+  Behavior}
+    \field{volume}{15}
+    \field{journaltitle}{Journal of Planning Education and Research}
+    \field{year}{1996}
+  \endentry
 \enddatalist
 \endinput

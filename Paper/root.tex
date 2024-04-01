@@ -1,6 +1,13 @@
-\documentclass[12pt]{article}
+\documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage[
+	letterpaper,
+	left = .5in,
+	right = .5in,
+	top = 1in,
+	bottom  = 1in
+]{geometry}
+\setlength{\columnsep}{.25in}
 \usepackage{graphicx}
 \usepackage{mathptmx}
 \usepackage{float}
@@ -63,7 +70,7 @@ natbib=true,         % if you need natbib functions
 \addbibresource{./sources/sources.bib,}  % better than \bibliography
 
 \title{Impact of EVSE Deployment on Electrified Road Transportation Access for Long Trips}
-\author{Aaron I. Rabinowitz, Vaishnavi Karanam, Radhika Gupta, others}
+\author{Aaron I. Rabinowitz, Vaishnavi Karanam, Radhika Gupta, others (Gil?, Alan?, Susan?)}
 \date{}
 
 \input{gloss}
@@ -76,6 +83,9 @@ natbib=true,         % if you need natbib functions
 \section*{Abstract}
 
 A well designed transportation system provides sufficient access from origins to destinations to accommodate household and business demand in an economy.  Increasingly, climate action goals require that more transportation load be shifted to less \gls{ghg} intensive modes among which are \glspl{bev}. While \glspl{bev} use the same roads as \glspl{icev} they draw energy from a separate network of stations which neither as robust as nor coincident to the \gls{icev} fueling network, a consequence of the different current and historical economics of both. Insufficiency and unreliability of public DC \gls{evse} which is primarily used for charging on long itineraries mean that \gls{bev} drivers, depending on vehicle range and risk attitude, may opt for less direct paths with lower charging risk, opt for a more \gls{ghg} intensive mode, or abandon an itinerary. Holistically, the transportation system provides less access to \glspl{bev} for distant pairs. This project develops methods and tools to optimize deployment of future \gls{evse} to mitigate the issue. Methods herein are based on range and charging risk sensitive optimal routing between O/D pairs subject to the locations and usability rates of \gls{evse}. These methods and tools may be used by policy makers to directly evaluate the impact of proposed stations on \gls{bev} transportation access.
+\medskip
+
+\begin{multicols}{2}
 
 \section*{Introduction}
 
@@ -89,6 +99,35 @@ While incentives for \gls{evse} deployment can help mitigate this issue, it may 
 
 This study introduces a novel methodology to assess the impacts of vehicle electrification on the accessibility of road transportation systems subject to supply networks. The methodology will measure \gls{icev} and \gls{bev} accessibility by computing optimal-feasible travel routes of \gls{od} pairs using a Monte-Carlo Dijkstra routing algorithm subject to vehicle range limitations, infrastructure constraints and driver risk attitudes. Additionally, a case study is presented for the state of California showing a comparison between \glspl{icev} and \glspl{bev} access for important \gls{od} pairs. The methodology introduced, as well as the open-source code provided in the supplemental information will be an invaluable tool for planners and policymakers in originating and evaluating \gls{evse} deployment policies.
 
+\section*{Transportation Accessibility}
+
+Transportation access has been studied as a tool for urban and regional planners since the middle of the 20\textsuperscript{th} century with theoretical origins in the theory of population migration proposed by Ravenstein in 1885 \cite{Ravenstein_1885}. The movement of people over a given time-scale is driven by demand (opportunities) and impedance (difficulty of traversal). In effect, an accessibility measure is one which quantifies impedance weighed by demand. The accepted definition of transportation access is the ease with which individuals can access opportunities subject to the transportation system in the relevant area. Thus, accessibility is a framework which encompasses land use, transportation system design, opportunity temporal availability, and personal preference \cite{Geurs_2004}. Literature provides four essential frameworks for computing access as surveyed in \cite{Handy_1997, Kwan_1998, Geurs_2004, Miller_2018, Handy_2020} and discussed below.
+
+The simplest methods are based on proximity to an opportunity type \cite{Wachs_1973, Vickerman_1974}. Proximity methods consider that a person has a level of access to a given need (a grocery store for example) determined by that person's proximity to the closest grocery store. These methods do not account for heterogeneity within an opportunity category nor for the benefits of redundancy within an opportunity category. The inverse is the isochrone method wherein a person is said to have access to the number of opportunities available within a given iso-cost polygon. This method has the drawback of considering the differences in traversal cost for \gls{od} pairs within the iso-cost region. There has been continuous disagreement over which version is more realistic for as long as either has been used \cite{Stouffer_1940} but these methods have been used widely \cite{Easa_1993} due to their computational lightness and form the basis for modern big-data methods such as th US DOE's Mobility Energy Productivity metric \cite{Hou_2019}.
+
+The second type of method is the gravity/entropy method \cite{Noulas_2012, Jung_2008}. These methods are so called as they concern the cumulative effect of opportunities for a given origin on the basis of demand over proximity (gravity) or information content (entropy). Such methods were first formalized into a quantitative framework by Hansen in 1959 \cite{Hansen_1959} as a generalization of previous methodology for quantifying the efficiency of urban land use. Hansen defined accessibility as the intensity of the possibility for interaction thus focusing on the numerator (demand for opportunities) and the denominator (difficulty of traversal for \gls{od} pairs). Hansen's method considers the cumulative effect of equivalent opportunities at different locations for each origin with their impact weighed by their proximity. Implicit in the formulation of gravity/entropy methods is that every opportunity has some effect on every individual even if this is, often, negligible and the effect of any one opportunity is determined by its individual proximity and those of all others. Gravity/entropy methods, thus, address a key shortcoming of proximity methods.
+
+Proximity and gravity/entropy methods rely on the assumption that traversal cost is the primary factor determining individuals decision to select one opportunity from among a set of similar entities. While this is certainly true if the difference in traversal cost is large enough it is not, altogether, obvious what the threshold of disambiguation is or if this is similar among the population. Thus, researchers have proposed to use Discreet Choice Modeling \cite{Ben_Akiva_1985} to explain revealed choices wherein ease-of-access is one of several possible factors in determining the utility of a given opportunity for an individual \cite{Cevero_1995, Shen_1998, Karst_2003}.
+
+There are, thus, a variety of methods which can be used to quantify the accessibility of a given region with varying computational and data requirements. The relationship between land-use, transportation, and demography is circular rather than linear. Which method one chooses for an analysis reflects the scope and purpose of that analysis. Definition of scope can be difficult and can lead to self-defeating policies \cite{Handy_1996}. This study is concerned with the effects of electrification on accessibility for users of road vehicles. This very specific scope neglects to specify the demand element. Rather, for a given set of demand locations, the methodology introduced quantifies the difference in access for a driver by vehicle powertrain type as a function of the vehicle and the supply network. This methodology is developed in the following section.
+
+\section*{Methods}
+
+\subsection*{Vehicle Equivalent Sub-Network Graph}
+
+Critical to this analysis is the definition of the \gls{esng} for a given vehicle. Powered vehicles are range-limited due to the finite capacity of their \glspl{ess}. In order to traverse an \gls{od} pair whose energy requirement is greater than the capacity of the \gls{ess} a vehicle must stop at a supply station. The above applies equally to road vehicles of all powertrain types, the difference being the qualities of the respective supply networks which are neither equivalent nor isomorphic.
+
+For a network $G = \{V, E\}$ where $V$ is the set of nodes and $E$ is the set of edges, an equivalent sub-network $\hat{G} = \{\hat{V}, \hat{E}\}$ can be computed where $\hat{V} \subseteq V$ and $\hat{E}$ is the set of paths between all nodes in $\hat{V}$. In other words, the cardinality of $V$ is reduced but the relationships between the nodes in $\hat{V}$ are maintained by considering multi-edge paths which contained nodes not in $\hat{V}$ as single edges. For a road vehicle with \gls{ess} capacity $C$ located at an origin node $v_i \in O \subseteq V$ $\hat{V}$ contains $O$ and opportunity nodes $D \subseteq V$ where the edge traversal cost $f((o, d)) \leq C$. The set of origins $O$ consists of the vehicle's current location and locations where the vehicle may be supplied energy. Where a destination is in range from the vehicle starting position a direct path will be seen on the \gls{esng} and will be the shortest path. Otherwise, an indirect path utilizing at least one supply station may be the shortest path. Finally no feasible path will exist where the destination cannot be reached. An example source and equivalent sub-network are shown in Figure [REF].
+
+ 
+
+
+
+
+
+
 \printbibliography
+
+\end{multicols}
 
 \end{document}
