@@ -17,6 +17,8 @@ from heapq import heappop, heappush
 from itertools import count
 from sys import float_info, maxsize
 
+from scipy.stats import t as t_dist
+
 from .progress_bar import ProgressBar
 
 def multiply_and_resample_factorial(x, y, rng = np.random.default_rng(None)):
@@ -282,6 +284,7 @@ def dijkstra(graph, origins, **kwargs):
 
                     function(current_values)
 
+            # savings = improvement(cost, visited.get(target, np.array([np.inf])))
             savings = cost < visited.get(target, np.inf)
 
             if savings:
@@ -304,6 +307,30 @@ def super_quantile(x, risk_attitude, n = 10):
     sq = 1/(risk_attitude[1] - risk_attitude[0]) * (np.quantile(x, q) * (q[1] - q[0])).sum()
 
     return sq
+
+def improvement(x, y, alpha):
+
+    x_n = len(x)
+    y_n = len(y)
+
+    x_mu = x.mean()
+    y_mu = y.mean()
+
+    x_sigma = x.std()
+    y_sigma = y.std()
+
+    x_se = x_sigma / np.sqrt(x_n)
+    y_se = y_sigma / np.sqrt(y_n)
+
+    x_y_se = np.sqrt(x_se ** 2 + y_se ** 2)
+
+    t = (x_mu - y_mu) / x_y_se
+
+    df = x_n + y_n
+
+    p = (1 - t_dist.cdf(np.abs(t), df))*2
+
+    return p <= alpha
 
 def in_range(x, lower, upper):
 

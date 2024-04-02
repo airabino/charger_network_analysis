@@ -130,7 +130,7 @@ For a network $G = \{V, E\}$ where $V$ is the set of nodes and $E$ is the set of
 
 The method requires several models which serve to inform optimal routing. Vehicular, infrastructural, and individual parameters effect the ultimate solution.
 
-\subsection*{Vehicles}
+\subsubsection*{Vehicles}
 
 Vehicles contribute to routing parameters related to their \glspl{ess} as listed in Table \ref{tab:param_veh}.
 
@@ -140,15 +140,15 @@ Vehicles contribute to routing parameters related to their \glspl{ess} as listed
 	\label{tab:param_veh}
 	\begin{tabular}{|C{\linewidth*3/8}|C{\linewidth*3/8}|C{\linewidth*2/8}|}
 		\hline Parameter & Description & Unit \\
-		\hline \gls{ess} Capacity & Accessible energy storage capacity for vehicle & kWh \\
-		\hline Energy Consumption & Energy required to move the vehicle a given unit of distance & kJ/km \\
-		\hline Energizing Rate & Rate at which energy can be added to the \gls{ess} at a supply location & kW \\
-		\hline DC Charge Limits & Lower and upper \gls{soc} bounds for DC charging & Unitless \\
+		\hline \gls{ess} Capacity & Accessible energy storage capacity for vehicle & [kWh] \\
+		\hline Energy Consumption & Energy required to move the vehicle a given unit of distance & [kJ/km] \\
+		\hline Energizing Rate & Rate at which energy can be added to the \gls{ess} at a supply location & [kW] \\
+		\hline DC Charge Limits & Lower and upper \gls{soc} bounds for DC charging & [-] \\
 		\hline
 	\end{tabular}
 \end{table}
 
-\subsection*{Infrastructure}
+\subsubsection*{Supply Stations}
 
 Supply infrastructure impacts routing by providing the ability for trips greater than a vehicle's usable range to be completed. Utilizing a supply station resets the vehicle's \gls{soc} to a set level but costs money and time. The cost of the energy supplied is a station level parameter and may vary by location and time. The time added due to energizing is a function of the vehicle and supply equipment maximum energizing rate, the total energy added, and the time spent prior to energizing due to queuing if no equipment is immediately available. The amount of time that a vehicle can expect to queue is a function of the arrival rate of vehicles at a given station, the time taken to energize by those vehicles, the number of supply equipment at the station, and the probability of usability for said equipment. Expected queuing time distributions for different arrival rates and numbers of equipment for DC \gls{ev} chargers are shown in Figure \ref{fig:expected_delay}.
 
@@ -159,11 +159,72 @@ Supply infrastructure impacts routing by providing the ability for trips greater
 	\label{fig:expected_delay}
 \end{figure}
 
-Expected queuing time is highly determined by variable factors like arrival rate, which must be estimated, and numbers of usable equipment, which is a function of installed equipment and reliability. The amounts of energy purchased are less variable station-to-station for the same powertrain type. The queuing times shown in Figure \ref{fig:expected_delay} were computed using the expected waiting time formula for a M/M/c queue. This is, at best, approximate but is necessary as long trips will begin well before there can be certainty about queues at distant stations.
+Expected queuing time is highly determined by variable factors like arrival rate, which must be estimated, and numbers of usable equipment, which is a function of installed equipment and reliability. The amounts of energy purchased are less variable station-to-station for the same powertrain type. The queuing times shown in Figure \ref{fig:expected_delay} were computed using the expected waiting time formula for a M/M/c queue. This approximation is reflective of reality as long trips will begin well before there can be certainty about queues at distant stations. Supply station parameters are listed in Table \ref{tab:param_supply}.
 
+\begin{table}[H]
+	\centering
+	\caption{Supply Station Parameters for Routing}
+	\label{tab:param_supply}
+	\begin{tabular}{|C{\linewidth*3/8}|C{\linewidth*3/8}|C{\linewidth*2/8}|}
+		\hline Parameter & Description & Unit \\
+		\hline Inter-Arrival Time & Time between arrivals at the station & [s] \\
+		\hline Service Time & Time taken to supply energy to vehicles & [s] \\
+		\hline Servicers & Number of vehicles which can be simultanously serviced & [-] \\
+		\hline Usability & Percentage of the time that a given servicer will be usable (accessible and functional) & [-] \\ 
+		\hline
+	\end{tabular}
+\end{table}
 
-\subsection*{Drivers}
+\subsubsection*{Drivers}
 
+Given the same physical circumstances, different drivers will evaluate route costs differently. In a basic sense, drivers will weight several factors such as time, money cost, distance, and complexity. Where any important factor is not known precisely drivers will consider a range of outcomes and decide based on an expectation. Driver risk attitude concerns what range of outcomes will be used to compute expected cost. Risk attitude is modeled using a superquantile risk function [SOURCE] defined as
+
+\begin{equation}
+	S(D, p_0, p_1) = \frac{1}{p_1 - p_0}\int_{p_0}^{p_1}Q(D, \alpha)\ d\alpha \label{eq:superquantile}
+\end{equation}
+
+where $D$ is a distribution, $p_0$ and $p_1$ are the boundaries of the range of probabilities considered in the expectation, and $Q$ is the quantile function of $D$. The superquantile is, thus, the mean value of a distributed quantity within a range of probability. Drivers with an aggressive risk attitude will consider a low range of probabilities, drivers with a neutral attitude will consider a central range, and drivers with a cautious attitude will consider a high range. Thus, a driver's perceived route cost is computed via taking the superquantile of a weighted sum of route costs. Driver parameters are listed in Table \ref{tab:param_driver}.
+
+\begin{table}[H]
+	\centering
+	\caption{Supply Station Parameters for Routing}
+	\label{tab:param_driver}
+	\begin{tabular}{|C{\linewidth*3/8}|C{\linewidth*3/8}|C{\linewidth*2/8}|}
+		\hline Parameter & Description & Unit \\
+		\hline Route Cost Weights $W$ & Set of multipliers for route costs to be used in computation of weighted sum & [-] \\
+		\hline Probability Range $(p_0, p_1)$ & Range of probabilities for superquantile function & [-] \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\subsection*{Routing}
+
+The purpose of optimal routing is to find the "shortest-paths" from a given origin $o \in V$ to a set of destinations $D \in V$ on a graph $G = \{V, E\}$. The output of the routing algorithm is multigraph $R$ containing the shortest paths as edges. The objective of routing between $i$ and $j$ is
+
+\begin{equation}
+	\min_{U \in \overline({U}_{i,j})}\ \mathbb{E}[J(S_0, U)]
+\end{equation}
+
+where
+
+\begin{equation}
+	J(U) = \sum_{k = 0}^M w_k\phi_k(s_{0,k}, U)
+\end{equation}
+
+s.t.
+
+\begin{equation}	
+	b^w_l \leq \mathbb{E}\left[\int_0^t \Phi_w(S_0, U)dt\right] \leq b^w_u\quad \forall t \in T
+\end{equation}
+
+where $S_0$ is the vector of route states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi_w$ is the cost function for route weight $w \in W$, and $\mathbb{E}$ denotes an expectation and is computed as in \eqref{eq:superquantile}. The optimal routes may be found using a stochastic implementation of Dijkstra routing [SOURCE] or Bellman-Ford routing [SOURCE]. In either case route states $S$ are initialized and stored as vectors containing $N$ discreet variables. An empirical distribution $D$ for a state vector can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if the expected values of all states remain within set bounds. Comparison between routes is accomplished with a significance test such that routes are only eliminated should their costs be significantly higher than another route. The significance test is a two-way T-test where means are computed as
+\eqref{eq:superquantile} and standard deviations are computed as in \eqref{eq:superquantile_sd}.
+
+\begin{equation}
+	V(D, p_0, p_1) = \sqrt{\frac{\int_{p_0}^{p_1}\left[ Q(D, \alpha)\ d\alpha - S(D, p_0, p_1)\right]^2}{p_1 - p_0} \label{eq:superquantile_sd}}
+\end{equation}
+
+Thus, depending on the confidence value of the T-test, multiple similarly costly routes may be present in $R$.
 
 
 
