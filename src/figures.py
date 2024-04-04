@@ -62,8 +62,9 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 		'show_links': kwargs.get('show_links', True),
 		'node_field': 'travel_time',
 		'scatter': {
-			's': 100,
+			's': 200,
 			'ec': 'k',
+			# 'cmap': colormap('cividis'),
 		},
 		'plot': {
 			'lw': .8,
@@ -72,7 +73,8 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 		},
 		'colorbar': {
 			'label': kwargs.get('field_name', 'Time to Node [h]'),
-		}
+		},
+		# 'cmap': colormap('ocean'),
 	}
 
 	plot_graph(graph, ax = ax, **kwargs)
@@ -80,11 +82,11 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 	kwargs = {
 		'show_links': False,
 		'scatter': {
-			's': 300,
+			's': 200,
 			'ec': 'k',
 			'fc': 'none',
 			'marker': '*',
-			'lw': 2,
+			# 'lw': 2,
 			'label': 'Origin',
 		},
 	}

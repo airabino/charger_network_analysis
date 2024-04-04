@@ -1,4 +1,5 @@
 import numpy as np
+import networkx as nx
 
 from scipy.special import factorial
 from scipy.stats import rv_histogram
@@ -9,28 +10,28 @@ from .utilities import pythagorean, top_n_indices
 
 def multiply_and_resample(x, y, rng = np.random.default_rng(None)):
 
-    xg, yg = np.atleast_2d(x, y)
+	xg, yg = np.atleast_2d(x, y)
 
-    xy = (xg.T @ yg).flatten()
+	xy = (xg.T @ yg).flatten()
 
-    return rng.choice(xy, size = x.shape, replace = False)
+	return rng.choice(xy, size = x.shape, replace = False)
 
 def queuing_time(l, m, c):
 
-    rho = l / (c * m)
+	rho = l / (c * m)
 
-    k = np.arange(0, c, 1)
+	k = np.arange(0, c, 1)
 
-    p_0 = 1 / (
-        sum([(c * rho) ** k / factorial(k) for k in k]) +
-        (c * rho) ** c / (factorial(c) * (1 - rho))
-    )
+	p_0 = 1 / (
+		sum([(c * rho) ** k / factorial(k) for k in k]) +
+		(c * rho) ** c / (factorial(c) * (1 - rho))
+	)
 
-    l_q = (p_0 * (l / m) ** c * rho) / (factorial(c) * (1 - rho))
+	l_q = (p_0 * (l / m) ** c * rho) / (factorial(c) * (1 - rho))
 
-    w_q = l_q / l
+	w_q = l_q / l
 
-    return w_q
+	return w_q
 
 class Queuing_Time_Distribution():
 
@@ -62,20 +63,58 @@ class Queuing_Time_Distribution():
 
 		return self.queuing_time.rvs(**kwargs)
 
+def random_graph_nx(n, p, **kwargs):
+
+	k = kwargs.get('k', None)
+	scale = kwargs.get('scale', (1, 1))
+	link_speeds = kwargs.get('link_speeds', [1])
+	seed = kwargs.get('seed', None)
+
+	rng = np.random.default_rng(seed)
+
+	
+	g = nx.fast_gnp_random_graph(n, p, seed = seed)
+	d = nx.spring_layout(g, k = k, seed = seed)
+
+	for k, v in g._node.items():
+
+		v['x'] = d[k][0] * scale[0]
+		v['y'] = d[k][1] * scale[1]
+		v['distance'] = 0
+		v['time'] = 0
+		v['range'] = 0
+		v['price'] = 0
+
+	for s, a in g._adj.items():
+		for t, l in a.items():
+
+			link_distance = pythagorean(
+				g._node[s]['x'],
+				g._node[s]['y'],
+				g._node[t]['x'],
+				g._node[t]['y'],
+			)
+
+			link_time = link_distance / rng.choice(link_speeds)
+
+			l['distance'] = link_distance
+			l['time'] = link_time
+			l['price'] = 0
+
+	return g
+
 def random_graph(n, **kwargs):
 
 	scale = kwargs.get('scale', (1, 1))
 	reference_distance = kwargs.get('reference_distance', 1)
-	link_bounds = kwargs.get('link_bounds', (0, np.inf))
 	link_speeds = kwargs.get('link_speeds', [1])
 	seed = kwargs.get('seed', None)
-	range_multiplier = kwargs.get('range_multiplier', -1)
 
 	
 	rng = np.random.default_rng(seed)
 
-	x = rng.random(n) * scale[0]
-	y = rng.random(n) * scale[1]
+	x = (rng.random(n) - .5) * scale[0]
+	y = (rng.random(n) - .5) * scale[1]
 	
 	nodes = []
 
@@ -87,7 +126,6 @@ def random_graph(n, **kwargs):
 			'y': y[idx],
 			'distance': 0,
 			'time': 0,
-			'range': 0,
 			'price': 0,
 		})
 
@@ -108,20 +146,10 @@ def random_graph(n, **kwargs):
 
 			p = np.exp(-link_distance / reference_distance)
 			r = rng.random()
-			# if r <= p:
-				# print(idx_s, idx_t, p, r, link_distance)
 
-			dont_add_link = np.any((
-				(link_distance < link_bounds[0]),
-				(link_distance > link_bounds[1]),
-				r > p,
-				))
-
-			if dont_add_link:
+			if r > p:
 
 				continue
-
-			# print(idx_s, idx_t, p, r, link_distance)
 
 			link_time = link_distance / rng.choice(link_speeds)
 
@@ -130,7 +158,6 @@ def random_graph(n, **kwargs):
 				'target': target,
 				'distance': link_distance,
 				'time': link_time,
-				'range': link_distance * range_multiplier,
 				'price': 0,
 			})
 

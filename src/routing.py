@@ -18,8 +18,10 @@ from itertools import count
 from sys import float_info, maxsize
 
 from scipy.stats import t as t_dist
+from scipy.stats import uniform, norm
 
 from .progress_bar import ProgressBar
+from.rng import Queuing_Time_Distribution
 
 def multiply_and_resample_factorial(x, y, rng = np.random.default_rng(None)):
 
@@ -206,7 +208,7 @@ def dijkstra(graph, origins, **kwargs):
 
     for origin in origins:
 
-        visited[origin] = 0 # Source is seen at the start of iteration and at 0 cost
+        visited[origin] = np.array([0]) # Source is seen at the start of iteration and at 0 cost
 
         # Adding the source tuple to the heap (initial cost, count, id)
         values = {}
@@ -221,7 +223,7 @@ def dijkstra(graph, origins, **kwargs):
 
         # Popping the lowest cost unseen node from the heap
         (cost, _, values, source) = heappop(heap)
-        # print(values)
+        print(source, end = '\r')
 
         if source in path_values:
 
@@ -239,6 +241,8 @@ def dijkstra(graph, origins, **kwargs):
         if destinations_visited >= destinations_to_visit:
 
             break
+
+        # print('b')
 
         # Iterating through the current source node's adjacency
         for target, link in adjacency[source].items():
@@ -266,12 +270,16 @@ def dijkstra(graph, origins, **kwargs):
                 # Updating the weighted cost for the path
                 cost += info(current_values)
 
+            # print(values['soc'], -super_quantile(-values['soc'], (0, .5)))
+
             feasible = True
 
             for key, info in constraints.items():
 
                 # Checking if link traversal is possible
                 feasible *= info(current_values)
+
+            # print(feasible)
 
             if not feasible:
 
@@ -284,8 +292,13 @@ def dijkstra(graph, origins, **kwargs):
 
                     function(current_values)
 
-            # savings = improvement(cost, visited.get(target, np.array([np.inf])))
+            
+            # print(visited)
+            # print(cost, visited.get(target, np.array([maxsize])))
+            # savings = improvement(cost, visited.get(target, np.array([maxsize])), .00000000005)
+            # savings = False
             savings = cost < visited.get(target, np.inf)
+            # savings = cost < visited.get(target, np.inf) * 1
 
             if savings:
 
@@ -296,6 +309,7 @@ def dijkstra(graph, origins, **kwargs):
                 if paths is not None:
 
                     paths[target] = paths[source] + [target]
+        # break
 
     return path_costs, path_values, paths
 
@@ -316,6 +330,11 @@ def improvement(x, y, alpha):
     x_mu = x.mean()
     y_mu = y.mean()
 
+    if x_mu >= y_mu:
+        # print('a')
+
+        return False
+
     x_sigma = x.std()
     y_sigma = y.std()
 
@@ -330,11 +349,99 @@ def improvement(x, y, alpha):
 
     p = (1 - t_dist.cdf(np.abs(t), df))*2
 
+    print(t, df, p <= alpha)
+
     return p <= alpha
 
 def in_range(x, lower, upper):
 
     return (x >= lower) & (x <= upper)
+
+class Charger():
+
+    def __init__(self, vehicle, **kwargs):
+
+        self.vehicle = vehicle
+        self.arrival = kwargs.get('arrival', uniform(loc = 600, scale = 3600))
+        self.service = kwargs.get(
+            'service', norm(loc = 60 * 3.6e6 / 80e3, scale = 15 * 3.6e6 / 80e3)
+            )
+        self.n = kwargs.get('n', 1)
+        self.reliability = kwargs.get('reliability', 1)
+        self.energy_price = kwargs.get('energy_price', .5 / 3.6e6)
+        self.seed = kwargs.get('seed', None)
+        self.rng = np.random.default_rng(self.seed)
+
+        self.populate()
+
+    def populate(self):
+
+        self.qtd = Queuing_Time_Distribution(
+            self.arrival, self.service, self.n, seed = self.seed
+        )
+
+        self.functions = {
+            'time': lambda x: self.time(x),
+            'delay': lambda x: self.delay(x),
+            'price': lambda x: self.price(x),
+            'soc': lambda x: self.soc(x),
+        }
+
+
+    def functionality(self, n):
+
+        return self.rng.random(n) <= 1 - (1 - self.reliability) ** self.n
+
+    def time(self, x):
+
+        # try:
+
+        self.functional = self.functionality(len(x['soc']))
+        
+
+        time = (
+            (self.vehicle.capacity * (1 - x['soc']) / self.vehicle.rate) *
+            self.functional
+            )
+
+        x['time'] += time
+
+        # print('b', time)
+
+        # except:
+
+            # print(self.vehicle.__dict__().keys())
+
+
+        return x
+
+    def delay(self, x):
+        # print(self.qtd(size = self.vehicle.n_cases) / 3600 * self.functional)
+
+        time = self.qtd(size = self.vehicle.n_cases) * self.functional
+
+        x['time'] += time
+
+        # print('a', time)
+
+        return x
+
+    def price(self, x):
+
+        price = (
+            (self.vehicle.capacity * (1 - x['soc']) * self.energy_price) *
+            self.functional
+            )
+
+        x['price'] += price
+
+        return x
+
+    def soc(self, x):
+
+        x['soc'] += (1 - x['soc']) * self.functional
+
+        return x
 
 class Vehicle():
 
@@ -476,7 +583,8 @@ class ConstrainedVehicle(Vehicle):
             'soc': (
                 lambda x: (
                     in_range(
-                        super_quantile(x['soc'], self.risk_attitude),
+                        super_quantile(x['soc'],
+                            (1 - self.risk_attitude[0], 1 - self.risk_attitude[1])),
                         self.min_soc, self.max_soc
                     )
                 )

@@ -112,7 +112,7 @@ def multiple_source_dijkstra(atlas, sources, targets, weights, **kwargs):
 
 	return results
 
-def node_assignment(atlas, graph):
+def node_assignment1(atlas, graph):
 	'''
 	Maps closest nodes from atlas to graph and graph to atlas - assumes 2D graph
 	'''
@@ -140,6 +140,36 @@ def node_assignment(atlas, graph):
 
 		graph_to_atlas[graph_nodes[idx]] = result[1][idx]
 		atlas_to_graph[result[1][idx]] = graph_nodes[idx]
+
+	return graph_to_atlas, atlas_to_graph
+
+def node_assignment(atlas, graph):
+
+	x, y = np.array(
+		[[val['x'], val['y']] for key, val in graph._node.items()]
+		).T
+
+	graph_nodes = np.array(
+		[key for key, val in graph._node.items()]
+		).T
+
+	atlas_nodes = closest_nodes_from_coordinates(atlas, x, y)
+
+	graph_to_atlas = (
+		{graph_nodes[idx]: atlas_nodes[idx]['id'] for idx in range(len(graph_nodes))}
+		)
+	
+	atlas_to_graph = {}
+
+	for key, val in graph_to_atlas.items():
+
+		if val in atlas_to_graph.keys():
+
+			atlas_to_graph[val] += [key]
+
+		else:
+
+			atlas_to_graph[val] = [key]
 
 	return graph_to_atlas, atlas_to_graph
 
@@ -175,18 +205,41 @@ def adjacency(atlas, graph, weights, **kwargs):
 
 		graph._node[n]['status'] = 1
 
+	# sources = [graph_to_atlas['Chico']]
+
 	# Computing routes between selected sources and all targets
 	results = multiple_source_dijkstra(atlas, sources, targets, weights, **kwargs)
+
+	# print('aa', results)
 
 	# Compiling edge information from results into 3-tuple for adding to graph
 	edges = []
 
+	i = 0
+
 	for result in results:
+		# i+=1
+		# print(result)
 
-		source = atlas_to_graph[result.pop('source')]
-		target = atlas_to_graph[result.pop('target')]
+		# print(atlas_to_graph[result['source']])
+		# print(atlas_to_graph[result['target']])
 
-		edges.append((source, target, result))
+		sources = atlas_to_graph[result.pop('source')]
+		targets = atlas_to_graph[result.pop('target')]
+
+
+
+		# source = atlas_to_graph[result['source']]
+		# target = atlas_to_graph[result['target']]
+		for source in sources:
+			for target in targets:
+
+				edges.append((source, target, result))
+
+		# if i >= 5:
+		# 	break
+	
+	# print(edges)
 
 	# Adding edges to graph
 	graph.add_edges_from(edges)

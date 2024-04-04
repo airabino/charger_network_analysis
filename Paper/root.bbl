@@ -493,38 +493,6 @@
     \field{year}{1974}
   \endentry
 
-  \entry{Stouffer_1940}{article}{}
-    \name{author}{1}{}{%
-      {{hash=SSA}{%
-         family={Stouffer},
-         familyi={S\bibinitperiod},
-         given={Samuel\bibnamedelima A.},
-         giveni={S\bibinitperiod\bibinitdelim A\bibinitperiod},
-      }}%
-    }
-    \list{publisher}{1}{%
-      {American Sociological Association}%
-    }
-    \strng{namehash}{SSA1}
-    \strng{fullhash}{SSA1}
-    \field{labelnamesource}{author}
-    \field{labeltitlesource}{title}
-    \field{issn}{00031224}
-    \field{number}{6}
-    \field{pages}{845\bibrangedash 867}
-    \field{title}{Intervening Opportunities: A Theory Relating Mobility and
-  Distance}
-    \verb{url}
-    \verb http://www.jstor.org/stable/2084520
-    \endverb
-    \field{volume}{5}
-    \field{journaltitle}{American Sociological Review}
-    \field{year}{1940}
-    \field{urlday}{31}
-    \field{urlmonth}{03}
-    \field{urlyear}{2024}
-  \endentry
-
   \entry{Easa_1993}{article}{}
     \name{author}{1}{}{%
       {{hash=ESM}{%
@@ -597,6 +565,38 @@
     \field{volume}{2673}
     \field{journaltitle}{Transportation Research Record}
     \field{year}{2019}
+  \endentry
+
+  \entry{Stouffer_1940}{article}{}
+    \name{author}{1}{}{%
+      {{hash=SSA}{%
+         family={Stouffer},
+         familyi={S\bibinitperiod},
+         given={Samuel\bibnamedelima A.},
+         giveni={S\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {American Sociological Association}%
+    }
+    \strng{namehash}{SSA1}
+    \strng{fullhash}{SSA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{issn}{00031224}
+    \field{number}{6}
+    \field{pages}{845\bibrangedash 867}
+    \field{title}{Intervening Opportunities: A Theory Relating Mobility and
+  Distance}
+    \verb{url}
+    \verb http://www.jstor.org/stable/2084520
+    \endverb
+    \field{volume}{5}
+    \field{journaltitle}{American Sociological Review}
+    \field{year}{1940}
+    \field{urlday}{31}
+    \field{urlmonth}{03}
+    \field{urlyear}{2024}
   \endentry
 
   \entry{Noulas_2012}{article}{}
@@ -878,6 +878,30 @@
     \field{volume}{15}
     \field{journaltitle}{Journal of Planning Education and Research}
     \field{year}{1996}
+  \endentry
+
+  \entry{afdc_2023}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=AAFDC}{%
+         family={(AFDC)},
+         familyi={A\bibinitperiod},
+         given={Alternative Fuels Data\bibnamedelima Center},
+         giveni={A\bibinitperiod\bibinitdelim F\bibinitperiod\bibinitdelim
+  D\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Department of Energy}%
+    }
+    \strng{namehash}{AAFDC1}
+    \strng{fullhash}{AAFDC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Alternative fuels data center home page}
+    \verb{url}
+    \verb https://afdc.energy.gov/
+    \endverb
+    \field{year}{2023}
   \endentry
 \enddatalist
 \endinput

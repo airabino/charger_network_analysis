@@ -70,7 +70,7 @@ natbib=true,         % if you need natbib functions
 \addbibresource{./sources/sources.bib,}  % better than \bibliography
 
 \title{Impact of EVSE Deployment on Electrified Road Transportation Access for Long Trips}
-\author{Aaron I. Rabinowitz, Vaishnavi Karanam, Radhika Gupta, others (Gil?, Alan?, Susan? Yue Yue?)}
+\author{Aaron I. Rabinowitz, Vaishnavi Karanam, Radhika Gupta, others (Gil Tal?, Alan Jenn?, Susan Handy? Yue Yue Fan?)}
 \date{}
 
 \input{gloss}
@@ -177,7 +177,7 @@ Expected queuing time is highly determined by variable factors like arrival rate
 
 \subsubsection*{Drivers}
 
-Given the same physical circumstances, different drivers will evaluate route costs differently. In a basic sense, drivers will weight several factors such as time, money cost, distance, and complexity. Where any important factor is not known precisely drivers will consider a range of outcomes and decide based on an expectation. Driver risk attitude concerns what range of outcomes will be used to compute expected cost. Risk attitude is modeled using a superquantile risk function [SOURCE] defined as
+Given the same physical circumstances, different drivers will evaluate route costs differently. In a basic sense, drivers will weight several factors such as time, money cost, distance, and complexity. Where any important factor is not known precisely drivers will consider a range of outcomes and decide based on an expectation. Driver risk attitude concerns what range of outcomes will be used to compute expected cost. Risk attitude is modeled using a superquantile risk function defined as
 
 \begin{equation}
 	S(D, p_0, p_1) = \frac{1}{p_1 - p_0}\int_{p_0}^{p_1}Q(D, \alpha)\ d\alpha \label{eq:superquantile}
@@ -199,7 +199,7 @@ where $D$ is a distribution, $p_0$ and $p_1$ are the boundaries of the range of 
 
 \subsection*{Routing}
 
-The purpose of optimal routing is to find the "shortest-paths" from a given origin $o \in V$ to a set of destinations $D \in V$ on a graph $G = \{V, E\}$. The output of the routing algorithm is multigraph $R$ containing the shortest paths as edges. The objective of routing between $i$ and $j$ is
+The purpose of optimal routing is to find the "shortest-paths" from a given origin $o \in V$ to a set of destinations $D \in V$ on a graph $G = \{V, E\}$. The output of the routing algorithm is tree $R$ containing the shortest feasible paths from the origin to all destinations as edges. The objective of routing between $i$ and $j$ is
 
 \begin{equation}
 	\min_{U \in \overline({U}_{i,j})}\ \mathbb{E}[J(S_0, U)]
@@ -217,18 +217,100 @@ s.t.
 	b^w_l \leq \mathbb{E}\left[\int_0^t \Phi_w(S_0, U)dt\right] \leq b^w_u\quad \forall t \in T
 \end{equation}
 
-where $S_0$ is the vector of route states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi_w$ is the cost function for route weight $w \in W$, and $\mathbb{E}$ denotes an expectation and is computed as in \eqref{eq:superquantile}. The optimal routes may be found using a stochastic implementation of Dijkstra routing [SOURCE] or Bellman-Ford routing [SOURCE]. In either case route states $S$ are initialized and stored as vectors containing $N$ discreet variables. An empirical distribution $D$ for a state vector can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if the expected values of all states remain within set bounds. Comparison between routes is accomplished with a significance test such that routes are only eliminated should their costs be significantly higher than another route. The significance test is a two-way T-test where means are computed as
-\eqref{eq:superquantile} and standard deviations are computed as in \eqref{eq:superquantile_sd}.
+where $S_0$ is the vector of route states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi_w$ is the cost function for route weight $w \in W$, and $\mathbb{E}$ denotes an expectation and is computed as in \eqref{eq:superquantile}. The optimal routes may be found using a stochastic implementation of the Dijkstra or Bellman-Ford algorithms. In either case route states $S$ are initialized and stored as vectors containing $N$ discreet variables. An empirical distribution $D$ for a state vector can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if the expectations of all states remain within set bounds. Comparison between routes is performed using expectation of cost.
+
+\subsection*{Random Graph Example}
+
+The optimal routing method in this study accounts for factors which influence road vehicle accessibility and derive from vehicular, infrastructural, and behavioral parameters. Important vehicular parameter for accessibility is range which determines which locations can be reached with and without charging. Important infrastructural parameters such as the number and locations of charging stations, usability rates, and expected delay times. Important behavioral parameters include risk attitude parameters as in \eqref{eq:superquantile}. These factors influence routing individually and via interactions as demonstrated on a randomly generated graph.
+
+A random graph of 100 nodes, 15 containing charging stations within a 100 km by 100 km square was generated with a random node selected as the origin. Edge probabilities were defined relative to a characteristic distance using
 
 \begin{equation}
-	V(D, p_0, p_1) = \sqrt{\frac{\int_{p_0}^{p_1}\left[ Q(D, \alpha)\ d\alpha - S(D, p_0, p_1)\right]^2}{p_1 - p_0} \label{eq:superquantile_sd}}
+	P(e) = \exp(-L(e)/d)
 \end{equation}
 
-Thus, depending on the confidence value of the T-test, multiple similarly costly routes may be present in $R$.
+where $e$ is an edge, $L(e)$ is the distance of edge $e$, and $d$ is a characteristic distance set to 200 km for this example. In this example the vehicle has a range of 460 km and each charging station has one charger and a low vehicle arrival rate. Figure \ref{fig:interactions} show how $R$ is effected by different usability rates and risk attitudes.
 
+\end{multicols}
 
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}{.4\linewidth}
+		\centering\includegraphics[width = \linewidth]{figs/interactions_ha.png}
+		\captionsetup{width=.8\linewidth}
+		\caption{High charger usability and aggressive risk attitude}
+	\end{subfigure}%
+	\begin{subfigure}{.4\linewidth}
+		\centering\includegraphics[width = \linewidth]{figs/interactions_hc.png}
+		\captionsetup{width=.8\linewidth}
+		\caption{High charger usability and cautious risk attitude}
+	\end{subfigure}
+	\begin{subfigure}{.4\linewidth}
+		\centering\includegraphics[width = \linewidth]{figs/interactions_la.png}
+		\captionsetup{width=.8\linewidth}
+		\caption{Low charger usability and aggressive risk attitude}
+	\end{subfigure}%
+	\begin{subfigure}{.4\linewidth}
+		\centering\includegraphics[width = \linewidth]{figs/interactions_lc.png}
+		\captionsetup{width=.8\linewidth}
+		\caption{Low charger usability and cautious risk attitude}
+	\end{subfigure}
+	\caption{Single-origin expected travel time trees with varying charger reliability and driver risk tolerance}
+	\label{fig:interactions}
+\end{figure}
 
+\begin{multicols}{2}
 
+As the example shows, it is possible for the impact of several factors to be additive when made disadvantageous simultaneously. Where the driver has an aggressive risk attitude, chargers are reliable, or both, accessibility is high. Where neither is the case accessibility is low. The differential can be dramatic and this highlights the importance of considering vehicular, infrastructural, and behavioral factors simultaneously to get a complete picture.
+
+\section*{California Case Study}
+
+The state of California contains several large population centers distributed across the state and several important transportation corridors connecting said population centers and population centers in neighboring states. In this case study the accessibility of the road transportation system for light duty vehicles will be considered in terms of accessibility to 15 important locations. These locations are enumerated in Table \ref{tab:locations}.
+
+\begin{table}[H]
+	\centering
+	\caption{Locations Considered for Long Trip Accessibility}
+	\label{tab:locations}
+	\begin{tabular}{|C{\linewidth * 1 / 3}|C{\linewidth * 2 / 3}|}
+		\hline Index & Location \\
+		\hline 0 & Crescent City \\
+		\hline 1 & Yreka \\
+		\hline 2 & Redding \\
+		\hline 3 & Chico \\
+		\hline 4 & I-80 to Reno (State Line) \\
+		\hline 5 & Sacramento \\
+		\hline 6 & Stockton \\
+		\hline 7 & San Francisco \\
+		\hline 8 & San Jose \\
+		\hline 9 & Fresno \\
+		\hline 10 & I-15 to Las Vegas (State Line) \\
+		\hline 11 & Bakersfield \\
+		\hline 12 & Los Angeles \\
+		\hline 13 & I-15 to Las Vegas (State Line) \\
+		\hline 14 & San Diego \\
+		\hline
+	\end{tabular}
+\end{table}
+
+These locations were chosen eiher because they are, themselves, important destinations in California or because they are the closest points in California to important destinations in neighboring states. The selected locations as well as the 1906 DC charging stations scraped form \gls{afdc} \cite{afdc_2023} are mapped in Figure \ref{fig:california_atlas}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/California_Places_Chargers.png}
+	\caption{Selected locations and charging stations for California case study}
+	\label{fig:california_atlas}
+\end{figure}
+
+%Comparison between routes is accomplished with a significance test such that routes are only eliminated should their costs be significantly higher than another route. The significance test is a two-way T-test where means are computed as
+%\eqref{eq:superquantile} and standard deviations are computed as in \eqref{eq:superquantile_sd}.
+%
+%\begin{equation}
+%	V(D, p_0, p_1) = \sqrt{\frac{\int_{p_0}^{p_1}\left[ Q(D, \alpha)\ d\alpha - S(D, p_0, p_1)\right]^2}{p_1 - p_0} \label{eq:superquantile_sd}}
+%\end{equation}
+%
+%Thus, depending on the confidence value of the T-test, multiple similarly costly routes may be present in $R$.
+
+\newpage
 
 \printbibliography
 
