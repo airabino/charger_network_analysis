@@ -112,38 +112,7 @@ def multiple_source_dijkstra(atlas, sources, targets, weights, **kwargs):
 
 	return results
 
-def node_assignment1(atlas, graph):
-	'''
-	Maps closest nodes from atlas to graph and graph to atlas - assumes 2D graph
-	'''
-
-	# Pulling coordinates from atlas
-	xy_atlas = np.array([(n['x'], n['y']) for n in atlas._node.values()])
-	xy_atlas = xy_atlas.reshape((-1,2))
-
-	# Creating spatial KDTree for assignment
-	kd_tree = KDTree(xy_atlas)
-
-	# Pulling coordinates from graph
-	xy_graph = np.array([(n['x'], n['y']) for n in graph._node.values()])
-	xy_graph = xy_graph.reshape((-1,2))
-
-	graph_nodes=list(graph.nodes)
-
-	# Computing assignment
-	result = kd_tree.query(xy_graph)
-
-	graph_to_atlas = {}
-	atlas_to_graph = {}
-
-	for idx in range(len(xy_graph)):
-
-		graph_to_atlas[graph_nodes[idx]] = result[1][idx]
-		atlas_to_graph[result[1][idx]] = graph_nodes[idx]
-
-	return graph_to_atlas, atlas_to_graph
-
-def node_assignment(atlas, graph):
+def node_assignment(graph, atlas):
 
 	x, y = np.array(
 		[[val['x'], val['y']] for key, val in graph._node.items()]
@@ -184,7 +153,7 @@ def adjacency(atlas, graph, weights, **kwargs):
 	kwargs.setdefault('node_assignment_function', node_assignment)
 
 	# Maps closest nodes from atlas to graph and graph to atlas
-	graph_to_atlas, atlas_to_graph = kwargs['node_assignment_function'](atlas, graph)
+	graph_to_atlas, atlas_to_graph = kwargs['node_assignment_function'](graph, atlas)
 
 	# All nodes of graph are assumed to be targets
 	targets = [graph_to_atlas[n] for n in list(graph.nodes)]
@@ -205,12 +174,8 @@ def adjacency(atlas, graph, weights, **kwargs):
 
 		graph._node[n]['status'] = 1
 
-	# sources = [graph_to_atlas['Chico']]
-
 	# Computing routes between selected sources and all targets
 	results = multiple_source_dijkstra(atlas, sources, targets, weights, **kwargs)
-
-	# print('aa', results)
 
 	# Compiling edge information from results into 3-tuple for adding to graph
 	edges = []
@@ -218,28 +183,14 @@ def adjacency(atlas, graph, weights, **kwargs):
 	i = 0
 
 	for result in results:
-		# i+=1
-		# print(result)
-
-		# print(atlas_to_graph[result['source']])
-		# print(atlas_to_graph[result['target']])
 
 		sources = atlas_to_graph[result.pop('source')]
 		targets = atlas_to_graph[result.pop('target')]
 
-
-
-		# source = atlas_to_graph[result['source']]
-		# target = atlas_to_graph[result['target']]
 		for source in sources:
 			for target in targets:
 
 				edges.append((source, target, result))
-
-		# if i >= 5:
-		# 	break
-	
-	# print(edges)
 
 	# Adding edges to graph
 	graph.add_edges_from(edges)

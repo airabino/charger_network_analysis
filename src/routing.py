@@ -19,9 +19,10 @@ from sys import float_info, maxsize
 
 from scipy.stats import t as t_dist
 from scipy.stats import uniform, norm
+from scipy.special import factorial
 
 from .progress_bar import ProgressBar
-from.rng import Queuing_Time_Distribution
+from .rng import Queuing_Time_Distribution
 
 def multiply_and_resample_factorial(x, y, rng = np.random.default_rng(None)):
 
@@ -262,6 +263,8 @@ def dijkstra(graph, origins, **kwargs):
                 current_values[key] = info['update'](
                     current_values, current
                     )
+
+            # cost = objectives(current_values)
             
             cost = 0
 
@@ -270,16 +273,12 @@ def dijkstra(graph, origins, **kwargs):
                 # Updating the weighted cost for the path
                 cost += info(current_values)
 
-            # print(values['soc'], -super_quantile(-values['soc'], (0, .5)))
-
             feasible = True
 
             for key, info in constraints.items():
 
                 # Checking if link traversal is possible
-                feasible *= info(current_values)
-
-            # print(feasible)
+                feasible *= info(current_values, current)
 
             if not feasible:
 
@@ -292,13 +291,7 @@ def dijkstra(graph, origins, **kwargs):
 
                     function(current_values)
 
-            
-            # print(visited)
-            # print(cost, visited.get(target, np.array([maxsize])))
-            # savings = improvement(cost, visited.get(target, np.array([maxsize])), .00000000005)
-            # savings = False
             savings = cost < visited.get(target, np.inf)
-            # savings = cost < visited.get(target, np.inf) * 1
 
             if savings:
 
@@ -357,16 +350,17 @@ def in_range(x, lower, upper):
 
     return (x >= lower) & (x <= upper)
 
-class Charger():
+class Station():
 
     def __init__(self, vehicle, **kwargs):
 
         self.vehicle = vehicle
         self.arrival = kwargs.get('arrival', uniform(loc = 600, scale = 3600))
+        self.rate = kwargs.get('rate', 80e3)
         self.service = kwargs.get(
-            'service', norm(loc = 60 * 3.6e6 / 80e3, scale = 15 * 3.6e6 / 80e3)
+            'service', norm(loc = 60 * 3.6e6 / self.rate, scale = 15 * 3.6e6 / self.rate)
             )
-        self.n = kwargs.get('n', 1)
+        self.chargers = kwargs.get('servicers', 1)
         self.reliability = kwargs.get('reliability', 1)
         self.energy_price = kwargs.get('energy_price', .5 / 3.6e6)
         self.seed = kwargs.get('seed', None)
@@ -376,53 +370,60 @@ class Charger():
 
     def populate(self):
 
-        self.qtd = Queuing_Time_Distribution(
-            self.arrival, self.service, self.n, seed = self.seed
-        )
+        self.functional_chargers = self.functionality()
+        self.at_least_one_functional_charger = self.functional_chargers > 0
+
+        self.delay_time = np.zeros(self.vehicle.n_cases)
+
+        for idx in range(self.vehicle.n_cases):
+
+            self.delay_time[idx] = self.queuing_time(
+                1 / self.arrival.rvs(), 1 / self.service.rvs(), self.functional_chargers[idx]
+                )
 
         self.functions = {
             'time': lambda x: self.time(x),
-            'delay': lambda x: self.delay(x),
             'price': lambda x: self.price(x),
             'soc': lambda x: self.soc(x),
         }
 
+    def queuing_time(self, l, m, c):
 
-    def functionality(self, n):
+        rho = l / (c * m)
 
-        return self.rng.random(n) <= 1 - (1 - self.reliability) ** self.n
+        k = np.arange(0, c, 1)
+
+        p_0 = 1 / (
+            sum([(c * rho) ** k / factorial(k) for k in k]) +
+            (c * rho) ** c / (factorial(c) * (1 - rho))
+        )
+
+        l_q = (p_0 * (l / m) ** c * rho) / (factorial(c) * (1 - rho))
+
+        w_q = l_q / l
+
+        return np.nanmax([w_q, 0])
+
+    def functionality(self):
+
+        rn = self.rng.random(size = (self.chargers, self.vehicle.n_cases))
+
+        return (rn <= self.reliability).sum(axis = 0)
 
     def time(self, x):
-
-        # try:
-
-        self.functional = self.functionality(len(x['soc']))
         
-
         time = (
-            (self.vehicle.capacity * (1 - x['soc']) / self.vehicle.rate) *
-            self.functional
+            (self.vehicle.capacity * (1 - x['soc']) / self.vehicle.rate + self.delay_time) *
+            self.at_least_one_functional_charger
             )
 
         x['time'] += time
 
-        # print('b', time)
-
-        # except:
-
-            # print(self.vehicle.__dict__().keys())
-
-
         return x
 
     def delay(self, x):
-        # print(self.qtd(size = self.vehicle.n_cases) / 3600 * self.functional)
 
-        time = self.qtd(size = self.vehicle.n_cases) * self.functional
-
-        x['time'] += time
-
-        # print('a', time)
+        x['time'] += self.delay_time
 
         return x
 
@@ -430,7 +431,7 @@ class Charger():
 
         price = (
             (self.vehicle.capacity * (1 - x['soc']) * self.energy_price) *
-            self.functional
+            self.at_least_one_functional_charger
             )
 
         x['price'] += price
@@ -439,7 +440,7 @@ class Charger():
 
     def soc(self, x):
 
-        x['soc'] += (1 - x['soc']) * self.functional
+        x['soc'] += (1 - x['soc']) * self.at_least_one_functional_charger
 
         return x
 
@@ -553,9 +554,17 @@ class ConstrainedVehicle(Vehicle):
         self.efficiency = kwargs.get('efficiency', 500) # [J/m]
         self.rate = kwargs.get('rate', 80e3) # [W]
         self.initial_soc = kwargs.get('initial_soc', 1) # [-]
-        self.max_soc = kwargs.get('max_soc', 1) # [-]
+        self.max_soc = kwargs.get('max_soc', 1.) # [-]
         self.min_soc = kwargs.get('min_soc', .2) # [-]
         self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # [-]
+
+        if self.n_cases > 1:
+
+            self.expectation_function = super_quantile
+
+        else:
+
+            self.expectation_function = lambda x, a: x[0]
 
         self.populate()
 
@@ -576,16 +585,19 @@ class ConstrainedVehicle(Vehicle):
     def populate(self):
 
         self.objectives = {
-            'time': lambda x: super_quantile(x['time'], self.risk_attitude),
+            'time': lambda x: self.expectation_function(x['time'], self.risk_attitude),
         }
+
+        # self.objectives = lambda x: self.expectation_function(x['time'], self.risk_attitude)
 
         self.constraints = {
             'soc': (
-                lambda x: (
+                lambda x, n: (
                     in_range(
-                        super_quantile(x['soc'],
+                        self.expectation_function(x['soc'],
                             (1 - self.risk_attitude[0], 1 - self.risk_attitude[1])),
-                        self.min_soc, self.max_soc
+                        n.get('min_soc', self.min_soc),
+                        n.get('max_soc', self.max_soc)
                     )
                 )
             ),

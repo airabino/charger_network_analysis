@@ -39,7 +39,7 @@ colormaps={
 }
 
 
-def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, **kwargs):
+def dijkstra_output_cali(graph, path_values, sources, targets, chargers, ax = None, **kwargs):
 
 	return_fig = False
 
@@ -64,6 +64,7 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 		'scatter': {
 			's': 200,
 			'ec': 'k',
+			'lw': 2,
 			# 'cmap': colormap('cividis'),
 		},
 		'plot': {
@@ -74,7 +75,7 @@ def dijkstra_output(graph, path_values, sources, targets, chargers, ax = None, *
 		'colorbar': {
 			'label': kwargs.get('field_name', 'Time to Node [h]'),
 		},
-		# 'cmap': colormap('ocean'),
+		'cmap': colormap('viridis'),
 	}
 
 	plot_graph(graph, ax = ax, **kwargs)
@@ -168,6 +169,7 @@ def plot_graph(graph, ax = None, **kwargs):
 	link_field = kwargs.get('link_field', None)
 	show_links = kwargs.get('show_links', True)
 	show_colorbar = kwargs.get('show_colorbar', False)
+	colorbar_kw = kwargs.get('colorbar', {})
 	
 	return_fig = False
 
@@ -178,15 +180,24 @@ def plot_graph(graph, ax = None, **kwargs):
 
 	coords = np.array([[node['x'], node['y']] for node in graph._node.values()])
 
+	scatter_kw = kwargs.get('scatter', {})
+
 	if node_field is not None:
 
 		values = np.array([v[node_field] for v in graph._node.values()])
 
-		kwargs['scatter']['color'] = cmap(values / np.nanmax(values))
+		vmin = scatter_kw.get('vmin', np.nanmin(values))
+		vmax = scatter_kw.get('vmax', np.nanmax(values))
+
+		values_norm = (
+				(values - vmin) / (vmax - vmin)
+				)
+
+		kwargs['scatter']['color'] = cmap(values_norm)
 		# print(values)
 
-	ax.scatter(
-		coords[:, 0], coords[:, 1], **kwargs.get('scatter', {})
+	sc = ax.scatter(
+		coords[:, 0], coords[:, 1], ** scatter_kw
 		)
 
 	if show_links:
@@ -194,50 +205,22 @@ def plot_graph(graph, ax = None, **kwargs):
 		dx = []
 		dy = []
 
-		if link_field is not None:
-			
-			values = []
+		for source in graph._adj.keys():
 
-			for source in graph._adj.keys():
+			for target in graph._adj[source].keys():
 
-				for target in graph._adj[source].keys():
+				dx.append([graph._node[source]['x'], graph._node[target]['x']])
+				dy.append([graph._node[source]['y'], graph._node[target]['y']])
 
-					dx.append([graph._node[source]['x'], graph._node[target]['x']])
-					dy.append([graph._node[source]['y'], graph._node[target]['y']])
-
-					values.append(graph._adj[source][target][link_field])
-
-			values_norm = (
-				(values - np.nanmin(values)) / (np.nanmax(values) - np.nanmin(values))
-				)
-
-			for idx in range(len(dx)):
-
-				ax.plot(
-					dx[idx],
-					dy[idx],
-					color = cmap(values_norm[idx]),
-					**kwargs.get('plot', {})
-					)
-
-		else:
-
-			for source in graph._adj.keys():
-
-				for target in graph._adj[source].keys():
-
-					dx.append([graph._node[source]['x'], graph._node[target]['x']])
-					dy.append([graph._node[source]['y'], graph._node[target]['y']])
-
-			ax.plot(np.array(dx).T, np.array(dy).T, **kwargs.get('plot', {}))
+		ax.plot(np.array(dx).T, np.array(dy).T, **kwargs.get('plot', {}))
 
 	ax.set(**kwargs.get('axes', {}))
 
-	if show_colorbar or kwargs.get('colorbar', {}):
+	if show_colorbar or colorbar_kw:
 
 		norm = matplotlib.colors.Normalize(
-			vmin = np.nanmin(values),
-			vmax = np.nanmax(values)
+			vmin = scatter_kw.get('vmin', np.nanmin(values)),
+			vmax = scatter_kw.get('vmax', np.nanmax(values))
 			) 
 
 		sm = matplotlib.cm.ScalarMappable(cmap = cmap, norm = norm)    

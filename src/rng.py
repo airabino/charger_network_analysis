@@ -48,20 +48,26 @@ class Queuing_Time_Distribution():
 
 	def Compute(self):
 
-		arrival_frequency = 1 / self.arrival.rvs(size = self.shape, random_state = self.seed)
-		service_frequency = 1 / self.service.rvs(size = self.shape, random_state = self.seed)
+		if self.servicers == 0:
 
-		afg, sfg = np.meshgrid(arrival_frequency, service_frequency, indexing  = 'ij')
+			self.queuing_time = lambda **kwargs: 0
 
-		queuing_time_values = queuing_time(afg.flatten(), sfg.flatten(), self.servicers)
+		else:
 
-		self.queuing_time = rv_histogram(
-			np.histogram(queuing_time_values, bins = self.bins)
-			)
+			arrival_frequency = 1 / self.arrival.rvs(size = self.shape, random_state = self.seed)
+			service_frequency = 1 / self.service.rvs(size = self.shape, random_state = self.seed)
+
+			afg, sfg = np.meshgrid(arrival_frequency, service_frequency, indexing  = 'ij')
+
+			queuing_time_values = queuing_time(afg.flatten(), sfg.flatten(), self.servicers)
+
+			self.queuing_time = rv_histogram(
+				np.histogram(queuing_time_values, bins = self.bins)
+				).rvs
 
 	def __call__(self, **kwargs):
 
-		return self.queuing_time.rvs(**kwargs)
+		return self.queuing_time(**kwargs)
 
 def random_graph_nx(n, p, **kwargs):
 

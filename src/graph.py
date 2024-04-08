@@ -45,7 +45,7 @@ from scipy.spatial import KDTree
 
 from .utilities import pythagorean
 
-def graph_to_atlas(graph, atlas):
+def node_assignment(graph, atlas):
 
 	x, y = np.array(
 		[[val['x'], val['y']] for key, val in graph._node.items()]

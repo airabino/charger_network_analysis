@@ -286,13 +286,13 @@ The state of California contains several large population centers distributed ac
 		\hline 10 & I-15 to Las Vegas (State Line) \\
 		\hline 11 & Bakersfield \\
 		\hline 12 & Los Angeles \\
-		\hline 13 & I-15 to Las Vegas (State Line) \\
+		\hline 13 & I-10 to Phoenix (State Line) \\
 		\hline 14 & San Diego \\
 		\hline
 	\end{tabular}
 \end{table}
 
-These locations were chosen eiher because they are, themselves, important destinations in California or because they are the closest points in California to important destinations in neighboring states. The selected locations as well as the 1906 DC charging stations scraped form \gls{afdc} \cite{afdc_2023} are mapped in Figure \ref{fig:california_atlas}.
+These locations were chosen either because they are, themselves, important destinations in California or because they are the closest points in California to important destinations in neighboring states. The selected locations as well as the 1906 DC charging stations scraped form \gls{afdc} \cite{afdc_2023} are mapped in Figure \ref{fig:california_atlas}.
 
 \begin{figure}[H]
 	\centering
@@ -300,6 +300,46 @@ These locations were chosen eiher because they are, themselves, important destin
 	\caption{Selected locations and charging stations for California case study}
 	\label{fig:california_atlas}
 \end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/R_California_Model_3_Fresno.png}
+	\caption{Selected locations and charging stations for California case study}
+%	\label{fig:california_atlas}
+\end{figure}
+
+\begin{description}
+	\item[SC 1] Generic \gls{icev}
+	\item[SC 2] Tesla Model 3 with high charger usability (97\%), low arrival rate (10  - 60 min), and neutral risk attitude.
+	\item[SC 3] Chevrolet Bolt EV with high charger usability (75\%), low arrival rate (10  - 60 min), and aggressive risk attitude.
+	\item[SC 4] Chevrolet Bolt EV with high charger usability (75\%), low arrival rate (10  - 60 min), and cautious risk attitude.
+\end{description}
+
+
+\begin{table}[H]
+	\centering
+	\caption{Neutral expectation of hours to locations from Fresno for example scenarios}
+%	\label{tab:locations}
+	\begin{tabular}{|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|}
+		\hline Index & SC 1 & SC 2 & SC 3 & SC 4 \\
+		\hline 0 & 9.73 & 10.44 & 13.55 &  \\
+		\hline 1 & 7.51 & 7.95 &  &  \\
+		\hline 2 & 5.92 & 6.21 &  &  \\
+		\hline 3 & 4.91 & 5.04 &  &  \\
+		\hline 4 & 5.19 & 5.34 &  &  \\
+		\hline 5 & 3.13 & 3.13 &  &  \\
+		\hline 6 & 2.32 & 2.32 &  &  \\
+		\hline 7 & 3.41 & 3.54 &  &  \\
+		\hline 8 & 3.01 & 3.01 &  &  \\
+		\hline 9 & 0.00 & 0.00 &  &  \\
+		\hline 10 & 6.55 & 6.81 &  &  \\
+		\hline 11 & 1.82 & 1.82 &  &  \\
+		\hline 12 & 3.69 & 3.75 &  &  \\
+		\hline 13 & 7.56 & 8.00 &  &  \\
+		\hline 14 & 5.87 & 6.15 &  &  \\
+		\hline
+	\end{tabular}
+\end{table}
 
 %Comparison between routes is accomplished with a significance test such that routes are only eliminated should their costs be significantly higher than another route. The significance test is a two-way T-test where means are computed as
 %\eqref{eq:superquantile} and standard deviations are computed as in \eqref{eq:superquantile_sd}.

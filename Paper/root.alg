@@ -1,7 +1,7 @@
 This is makeindex, version 2.16 [MiKTeX 24.3].
 Scanning style file ./root.ist...........................done (27 attributes redefined, 0 ignored).
-Scanning input file root.acn....done (50 entries accepted, 0 rejected).
-Sorting entries....done (314 comparisons).
-Generating output file root.acr....done (31 lines written, 0 warnings).
+Scanning input file root.acn....done (51 entries accepted, 0 rejected).
+Sorting entries....done (300 comparisons).
+Generating output file root.acr....done (32 lines written, 0 warnings).
 Output written in root.acr.
 Transcript written in root.alg.
