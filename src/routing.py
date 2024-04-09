@@ -58,7 +58,7 @@ def add_simple(x, y, **kwargs):
 
     return xy
 
-def dijkstra(graph, origins, **kwargs):
+def dijkstra_dict(graph, origins, **kwargs):
     """
     Uses Dijkstra's algorithm to find weighted shortest paths
 
@@ -306,12 +306,130 @@ def dijkstra(graph, origins, **kwargs):
 
     return path_costs, path_values, paths
 
+def dijkstra(graph, origins, **kwargs):
+
+    destinations = kwargs.get('destinations', [])
+    states = kwargs.get('states', {'network_distance': {'update': lambda x: x+1}})
+    constraints = kwargs.get('constraints', [])
+    objectives = kwargs.get('objectives', [])
+    return_paths = kwargs.get('return_paths', False)
+
+    if return_paths:
+
+        paths = {origin: [origin] for origin in origins}
+
+    else:
+
+        paths = None
+
+    adjacency = graph._adj
+
+    path_values = {}  # dictionary of costs for paths
+
+    path_costs = {} # dictionary of objective values for paths
+
+    visited = {} # dictionary of costs-to-reach for nodes
+
+    destinations_visited = 0
+
+    if len(destinations) == 0:
+
+        # If no destinations are provided then search all nodes
+        destinations_to_visit = maxsize
+
+    else:
+
+        #If destinations are provided then search until all are seen
+        destinations_to_visit = len(destinations)
+
+    c = count() # use the count c to avoid comparing nodes (may not be able to)
+    heap = [] # heap is heapq with 3-tuples (cost, c, node)
+
+    for origin in origins:
+
+        # Source is seen at the start of iteration and at 0 cost
+        visited[origin] = np.array([0])
+
+        # Adding the source tuple to the heap (initial cost, count, id)
+        values = {}
+
+        values = states['initial']
+
+        heappush(heap, (0, next(c), values, origin))
+
+    while heap: # Iterating while there are accessible unseen nodes
+
+        # Popping the lowest cost unseen node from the heap
+        (cost, _, values, source) = heappop(heap)
+        print(source, end = '\r')
+
+        if source in path_values:
+
+            continue  # already searched this node.
+
+        path_values[source] = values
+        path_costs[source] = cost
+
+        # Checking if the current source is a search target
+        # If all targets are reached then the search is terminated
+        if source in destinations:
+
+            destinations_visited += 1
+
+        if destinations_visited >= destinations_to_visit:
+
+            break
+
+        # Charging if availabe
+        values = graph._node[source].get('update', lambda x: x)(values)
+
+        # Iterating through the current source node's adjacency
+        for target, link in adjacency[source].items():
+
+            node = graph._node[target]
+
+            current_values = deepcopy(values)            
+
+            # Updating objective for link
+            current_values = states['update'](
+                current_values, link
+                )
+
+            # Adding the target node cost
+            current_values = states['update'](
+                current_values, node
+                )
+
+            # Updating the weighted cost for the path
+            cost = objectives(current_values)
+
+            savings = cost < visited.get(target, np.inf)
+
+            if savings:
+
+                # Checking if link traversal is possible
+                feasible = constraints(current_values, node)
+
+                if feasible:
+
+                    visited[target] = cost
+
+                    heappush(heap, (cost, next(c), current_values, target))
+
+                    if paths is not None:
+
+                        paths[target] = paths[source] + [target]
+
+    return path_costs, path_values, paths
+
 def super_quantile(x, risk_attitude, n = 10):
     
     q = np.linspace(risk_attitude[0], risk_attitude[1], n)
     # print(q)
     
     sq = 1/(risk_attitude[1] - risk_attitude[0]) * (np.quantile(x, q) * (q[1] - q[0])).sum()
+
+    # sq = x.mean() + x.std()
 
     return sq
 
@@ -387,6 +505,14 @@ class Station():
             'soc': lambda x: self.soc(x),
         }
 
+    def update(self, x):
+
+        x = self.time(x)
+        x = self.price(x)
+        x = self.soc(x)
+
+        return x
+
     def queuing_time(self, l, m, c):
 
         rho = l / (c * m)
@@ -418,12 +544,6 @@ class Station():
             )
 
         x['time'] += time
-
-        return x
-
-    def delay(self, x):
-
-        x['time'] += self.delay_time
 
         return x
 
@@ -492,57 +612,41 @@ class Vehicle():
 
         return expectations, values, paths
 
+    def state_update(self, x, v):
+
+        x['time'] += v['time']
+        x['distance'] += v['distance']
+
+        return x
+
     def populate_deterministic(self):
 
-        self.objectives = {
-            'time': lambda x: x['time'],
-        }
+        self.objectives = lambda x: x['time'],
 
-        self.constraints = {
-            'distance': lambda x: x['distance'] <= self.cutoff
-            # 'distance': lambda x: in_range(x['distance'], *self.cutoff)
-        }
+        self.constraints = lambda x: x['distance'] <= self.cutoff
 
         self.states = {
-            'time': {
-                'field': 'time',
-                'initial': 0,
-                'update': lambda x, v: add_simple(
-                    x['time'], v.get('time', 0)),
+            'initial': {
+                'time': 0,
+                'distance': 0,
             },
-            'distance': {
-                'field': 'distance',
-                'initial': 0,
-                'update': lambda x, v: add_simple(
-                    x['distance'], v.get('distance', 0)),
-            },
+            'update': lambda x, v: self.state_update(x, v),
         }
 
     def populate_stochastic(self):
 
-        self.objectives = {
-            'time': lambda x: super_quantile(x['time'], self.risk_attitude),
-        }
+        self.objectives = lambda x: super_quantile(x['time'], self.risk_attitude),
 
-        self.constraints = {
-            'distance': lambda x: (
+        self.constraints = lambda x: (
                 super_quantile(x['distance'], self.risk_attitude) <= self.cutoff
             )
-        }
 
         self.states = {
-            'time': {
-                'field': 'time',
-                'initial': np.array([0.] * self.n_cases),
-                'update': lambda x, v: add_simple(
-                    x['time'], v.get('time', 0)),
+            'initial': {
+                'time': np.array([0.] * self.n_cases),
+                'distance': np.array([0.] * self.n_cases),
             },
-            'distance': {
-                'field': 'distance',
-                'initial': np.array([0.] * self.n_cases),
-                'update': lambda x, v: add_simple(
-                    x['distance'], v.get('distance', 0)),
-            },
+            'update': lambda x, v: self.state_update(x, v),
         }
 
 class ConstrainedVehicle(Vehicle):
@@ -553,7 +657,7 @@ class ConstrainedVehicle(Vehicle):
         self.capacity = kwargs.get('ess_capacity', 80 * 3.6e6) # [J]
         self.efficiency = kwargs.get('efficiency', 500) # [J/m]
         self.rate = kwargs.get('rate', 80e3) # [W]
-        self.initial_soc = kwargs.get('initial_soc', 1) # [-]
+        self.initial_soc = kwargs.get('initial_soc', 1.) # [-]
         self.max_soc = kwargs.get('max_soc', 1.) # [-]
         self.min_soc = kwargs.get('min_soc', .2) # [-]
         self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # [-]
@@ -582,55 +686,40 @@ class ConstrainedVehicle(Vehicle):
 
         return expectations, values, paths
 
+    def state_update(self, x, v):
+
+        x['soc'] -= v['distance'] * self.efficiency /  self.capacity
+        x['time'] += v['time']
+        x['time_nc'] += v['time']
+        x['distance'] += v['distance']
+        x['price'] += v['price']
+
+        return x
+
+    def constraint_test(self, x, v):
+
+        feasible = in_range(
+            self.expectation_function(x['soc'],
+                (1 - self.risk_attitude[0], 1 - self.risk_attitude[1])),
+            v.get('min_soc', self.min_soc),
+            v.get('max_soc', self.max_soc)
+        )
+
+        return feasible
+
     def populate(self):
 
-        self.objectives = {
-            'time': lambda x: self.expectation_function(x['time'], self.risk_attitude),
-        }
+        self.objectives = lambda x: self.expectation_function(x['time'], self.risk_attitude)
 
-        # self.objectives = lambda x: self.expectation_function(x['time'], self.risk_attitude)
-
-        self.constraints = {
-            'soc': (
-                lambda x, n: (
-                    in_range(
-                        self.expectation_function(x['soc'],
-                            (1 - self.risk_attitude[0], 1 - self.risk_attitude[1])),
-                        n.get('min_soc', self.min_soc),
-                        n.get('max_soc', self.max_soc)
-                    )
-                )
-            ),
-        }
+        self.constraints = lambda x, v: self.constraint_test(x, v)
 
         self.states = {
-            'soc': {
-                'field': 'soc',
-                'initial': np.array([self.initial_soc] * self.n_cases),
-                'update': lambda x, v: add_simple(
-                    x['soc'], -v['distance'] * self.efficiency /  self.capacity) ,
+            'initial': {
+                'soc': np.array([self.initial_soc] * self.n_cases),
+                'time': np.array([0.] * self.n_cases),
+                'time_nc': np.array([0.] * self.n_cases),
+                'distance': np.array([0.] * self.n_cases),
+                'price': np.array([0.] * self.n_cases),
             },
-            'time': {
-                'field': 'time',
-                'initial': np.array([0.] * self.n_cases),
-                'update': lambda x, v: add_simple(
-                    x['time'], v['time']),
-            },
-            'time_nc': {
-                'field': 'time_nc',
-                'initial': np.array([0.] * self.n_cases),
-                'update': lambda x, v: add_simple(
-                    x['time_nc'], v['time']),
-            },
-            'distance': {
-                'field': 'distance',
-                'initial': np.array([0.] * self.n_cases),
-                'update': lambda x, v: add_simple(
-                    x['distance'], v['distance']),
-            },
-            'price': {
-                'field': 'price',
-                'initial': np.array([0.] * self.n_cases),
-                'update': lambda x, v: add_simple(x['price'], v['price']),
-            },
+            'update': lambda x, v: self.state_update(x, v),
         }

@@ -38,6 +38,8 @@
 \usepackage{algpseudocode}
 \usepackage{tabularx}
 \usepackage{wrapfig}
+%\usepackage{enumitem}
+\usepackage{paralist}
 
 % draw a frame around given text
 \newcommand{\framedtext}[1]{%
@@ -50,6 +52,7 @@
 \renewcommand{\arraystretch}{1.2}
 
 \sloppy
+\raggedbottom
 
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1-2\tabcolsep}}
 
@@ -199,7 +202,7 @@ where $D$ is a distribution, $p_0$ and $p_1$ are the boundaries of the range of 
 
 \subsection*{Routing}
 
-The purpose of optimal routing is to find the "shortest-paths" from a given origin $o \in V$ to a set of destinations $D \in V$ on a graph $G = \{V, E\}$. The output of the routing algorithm is tree $R$ containing the shortest feasible paths from the origin to all destinations as edges. The objective of routing between $i$ and $j$ is
+The purpose of optimal routing is to find the "shortest-paths" from a given origin $o \in V$ to a set of destinations $D \in V$ on a graph $G = \{V, E\}$. The output of the routing algorithm is tree $P$ containing the shortest feasible paths from the origin to all destinations as edges. The objective of routing between $i$ and $j$ is
 
 \begin{equation}
 	\min_{U \in \overline({U}_{i,j})}\ \mathbb{E}[J(S_0, U)]
@@ -219,53 +222,25 @@ s.t.
 
 where $S_0$ is the vector of route states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi_w$ is the cost function for route weight $w \in W$, and $\mathbb{E}$ denotes an expectation and is computed as in \eqref{eq:superquantile}. The optimal routes may be found using a stochastic implementation of the Dijkstra or Bellman-Ford algorithms. In either case route states $S$ are initialized and stored as vectors containing $N$ discreet variables. An empirical distribution $D$ for a state vector can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if the expectations of all states remain within set bounds. Comparison between routes is performed using expectation of cost.
 
-\subsection*{Random Graph Example}
+\subsection*{Accessibility Metric}
 
-The optimal routing method in this study accounts for factors which influence road vehicle accessibility and derive from vehicular, infrastructural, and behavioral parameters. Important vehicular parameter for accessibility is range which determines which locations can be reached with and without charging. Important infrastructural parameters such as the number and locations of charging stations, usability rates, and expected delay times. Important behavioral parameters include risk attitude parameters as in \eqref{eq:superquantile}. These factors influence routing individually and via interactions as demonstrated on a randomly generated graph.
-
-A random graph of 100 nodes, 15 containing charging stations within a 100 km by 100 km square was generated with a random node selected as the origin. Edge probabilities were defined relative to a characteristic distance using
+In the presented framework accessibility can be computed in general for a region or in specific for a given origin within the region. In either case, the regional \gls{rsng}, travel mode, mode-specific infrastructure, and traveler must be modeled. For region $R$ with a set of $N$ selected nodes $O = \{O_1, O_2, \dots, O_N\}$ and corresponding set of importance weights $W = \{W_0, W_1, \dots, W_N\}$ and optimal path trees $P = \{P_1, P_2, \dots, P_N\}$, accessibility metric $A$ is the weighted mean
 
 \begin{equation}
-	P(e) = \exp(-L(e)/d)
+	A(R) = \frac{1}{N^2}\sum_{i = 0}^{N} \sum_{j = 0 }^{N} W_iW_jP_{i,j}
 \end{equation}
 
-where $e$ is an edge, $L(e)$ is the distance of edge $e$, and $d$ is a characteristic distance set to 200 km for this example. In this example the vehicle has a range of 460 km and each charging station has one charger and a low vehicle arrival rate. Figure \ref{fig:interactions} show how $R$ is effected by different usability rates and risk attitudes.
+where $P_{i,j}$ is the cost of the optimal path from $O_i$ to $O_j$. The specific accessibility metric $A(R, o)$ can be computed for region $R$ and origin $o$ by setting $W = \{W_o\}$ and $P = \{P_o\}$. Thus, a direct comparison in accessibility between regions, origins, travel modes, travelers, infrastructure deployments, or any of those mentioned in combination can be conducted.
 
-\end{multicols}
+The accessibility metric $A$ is of the proximity type concerned, primarily, with the expected cost to transit edges between pre-determined O/D pairs. In contrast with accessibility studies focused on routine travel behavior, this study is focused on non-routine long trips. It is assumed that travelers, when considering non-routine long trips have a specific destination in mind and would not consider roughly equidistant cities as fungible destinations. Rather, it is assumed that, having determined to travel to a given location, the traveler will then decide on mode with roughly equivalent cost modes being fungible.
 
-\begin{figure}[H]
-	\centering
-	\begin{subfigure}{.4\linewidth}
-		\centering\includegraphics[width = \linewidth]{figs/interactions_ha.png}
-		\captionsetup{width=.8\linewidth}
-		\caption{High charger usability and aggressive risk attitude}
-	\end{subfigure}%
-	\begin{subfigure}{.4\linewidth}
-		\centering\includegraphics[width = \linewidth]{figs/interactions_hc.png}
-		\captionsetup{width=.8\linewidth}
-		\caption{High charger usability and cautious risk attitude}
-	\end{subfigure}
-	\begin{subfigure}{.4\linewidth}
-		\centering\includegraphics[width = \linewidth]{figs/interactions_la.png}
-		\captionsetup{width=.8\linewidth}
-		\caption{Low charger usability and aggressive risk attitude}
-	\end{subfigure}%
-	\begin{subfigure}{.4\linewidth}
-		\centering\includegraphics[width = \linewidth]{figs/interactions_lc.png}
-		\captionsetup{width=.8\linewidth}
-		\caption{Low charger usability and cautious risk attitude}
-	\end{subfigure}
-	\caption{Single-origin expected travel time trees with varying charger reliability and driver risk tolerance}
-	\label{fig:interactions}
-\end{figure}
-
-\begin{multicols}{2}
-
-As the example shows, it is possible for the impact of several factors to be additive when made disadvantageous simultaneously. Where the driver has an aggressive risk attitude, chargers are reliable, or both, accessibility is high. Where neither is the case accessibility is low. The differential can be dramatic and this highlights the importance of considering vehicular, infrastructural, and behavioral factors simultaneously to get a complete picture.
+A transportation accessibility metric should have land-use, transportation, temporal, and individual components \cite{Karst_2003}. Metric $A$ contains all listed components. The land-use within a region has two principle effects on $A$. (1) For a multi-city region, specific accessibility should vary within the region with peripheral cities experiencing worse regional access than central cities. (2) Geographically large and/or sparse regions should experience worse accessibility than compact regions. The transportation infrastructure determines the efficacy of various modes. Where only vehicular travel is concerned, the mode choice is reduced to vehicle choice. Vehicle mode-specific infrastructure is not necessarily the same for all vehicles of a given fuel type but is necessarily different between fuel types thus making mode determinative even if all modes are vehicular. The temporal component of $A$ arises from the schedules of public transportation services and road traffic patterns. Finally the individual component is the traveler risk attitude as in \eqref{eq:superquantile}.
 
 \section*{California Case Study}
 
-The state of California contains several large population centers distributed across the state and several important transportation corridors connecting said population centers and population centers in neighboring states. In this case study the accessibility of the road transportation system for light duty vehicles will be considered in terms of accessibility to 15 important locations. These locations are enumerated in Table \ref{tab:locations}.
+\subsection*{Background}
+
+The state of California contains large population centers distributed across the state with major road transportation corridors forming connections between them and with population centers in adjacent states. This case study concerns the accessibility of California for non-routine long road trips. For the purposes of analysis, 15 important cities in California and adjacent states were selected. For the purposes of scope limitation, the non-California locations are represented by the most-likely departure locations at the California state line. These locations are enumerated in Table \ref{tab:locations}.
 
 \begin{table}[H]
 	\centering
@@ -277,22 +252,22 @@ The state of California contains several large population centers distributed ac
 		\hline 1 & Yreka \\
 		\hline 2 & Redding \\
 		\hline 3 & Chico \\
-		\hline 4 & I-80 to Reno (State Line) \\
+		\hline 4 & Reno (State Line) \\
 		\hline 5 & Sacramento \\
 		\hline 6 & Stockton \\
 		\hline 7 & San Francisco \\
 		\hline 8 & San Jose \\
 		\hline 9 & Fresno \\
-		\hline 10 & I-15 to Las Vegas (State Line) \\
+		\hline 10 & Las Vegas (State Line) \\
 		\hline 11 & Bakersfield \\
 		\hline 12 & Los Angeles \\
-		\hline 13 & I-10 to Phoenix (State Line) \\
+		\hline 13 & Phoenix (State Line) \\
 		\hline 14 & San Diego \\
 		\hline
 	\end{tabular}
 \end{table}
 
-These locations were chosen either because they are, themselves, important destinations in California or because they are the closest points in California to important destinations in neighboring states. The selected locations as well as the 1906 DC charging stations scraped form \gls{afdc} \cite{afdc_2023} are mapped in Figure \ref{fig:california_atlas}.
+These locations were chosen either because they are, themselves, important destinations in California or because they are the closest points in California to important destinations in neighboring states. For long trips, \glspl{bev} will rely on DC charging stations. The locations of all DC charging stations in California were scraped from AFDC \cite{afdc_2023} and include proprietary stations such as Tesla Superchargers and the Rivian Adventure network as well as non-proprietary stations such as those operated by ChargePoint, Electrify America, eVgo, and others. The selected locations and DC charging stations are mapped in Figure \ref{fig:california_atlas}.
 
 \begin{figure}[H]
 	\centering
@@ -301,54 +276,89 @@ These locations were chosen either because they are, themselves, important desti
 	\label{fig:california_atlas}
 \end{figure}
 
+The proprietary and non-proprietary networks in California are not equivalent and should not be treated as such. There are 403 Tesla and 78 Rivian DC charging stations in the state as compared to 1,425 non-proprietary DC charging stations. The non-Tesla overwhelmingly use combination CCS/ChaDeMo plugs as defined by SAE J1772 [SOURCE] which reflect the ports on the overwhelming number of non-Tesla \glspl{bev}. By contrast, Tesla chargers and vehicles use the NACS standard as defined by SAE J3400 [SOURCE]. The Tesla and non-Tesla systems are increasingly interoperable with the aid of adapters and may become natively so as standard in the future but should be considered separately in the present. Tesla drivers use Tesla chargers almost exclusively [SOURCE] and CCS/ChaDeMo to NACS adapters are more common than their counterparts [SOURCE]. The Rivian Adventure network is technically interoperable with other J1772 vehicles but is set aside for the exclusive use of Rivian vehicles. The purpose of the Rivian Adventure network is to allow for Rivian vehicles to charge in remote locations and is not intended to be the only network used by them.
+
+The difference between the Tesla DC charging network and the non-proprietary network extends from function to form. Built out as an investment to entice sales of Tesla vehicles and, until recently, exclusive to them, the Tesla network is technically superior with higher rate [SOURCE] and more often functional [SOURCE] chargers. Non-proprietary networks have, so far, been subsidy driven [SOURCE] and have responded to incentives to form a widely distributed but thin presence. A stark contrast is seen when examining the ratio of chargers to stations. In California there are 403 Tesla DC charging stations with a total of 6,277 DC chargers for an average of 15.6 chargers per station. Among non-proprietary networks there are a total of 1,425 stations with 3,667 chargers for an average of 2.6 per station. The distributions of chargers per station for Tesla and non-proprietary networks are shown in Figure \ref{fig:network_histograms}.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{figs/R_California_Model_3_Fresno.png}
-	\caption{Selected locations and charging stations for California case study}
-%	\label{fig:california_atlas}
+	\includegraphics[width = \linewidth]{figs/California_Charger_Network_Histograms.png}
+	\caption{Distributions of chargers per station for Tesla and non-proprietary networks in California.}
+	\label{fig:network_histograms}
 \end{figure}
 
-\begin{description}
-	\item[SC 1] Generic \gls{icev}
-	\item[SC 2] Tesla Model 3 with high charger usability (97\%), low arrival rate (10  - 60 min), and neutral risk attitude.
-	\item[SC 3] Chevrolet Bolt EV with high charger usability (75\%), low arrival rate (10  - 60 min), and aggressive risk attitude.
-	\item[SC 4] Chevrolet Bolt EV with high charger usability (75\%), low arrival rate (10  - 60 min), and cautious risk attitude.
-\end{description}
+As demonstrated in Figure \ref{fig:expected_delay}, the number of chargers at a station has a major effect on expected delay time as well as determining the importance of individual equipment failure. It should also be mentioned that \glspl{icev} utilize a third and completely separate network of supply stations. There are estimated to be over 8,000 gasoline stations in California [SOURCE - https://www.energy.ca.gov/data-reports/energy-almanac/transportation-energy/california-retail-fuel-outlet-annual-reporting] and these are widely and proportionally distributed. Because no public database for the locations of gasoline stations in the state exists, and due to their ubiquity it is assumed in this study that \gls{icev} driver optimal paths will not be effected by fueling station availability and that such stations will be available wherever needed. For this reason, \glspl{icev} are assumed to take the "direct" path between cities where \glspl{bev} need to find optimal paths on the California \gls{rsng}.
+
+\subsection*{Example}
+
+Consider, as an example, the following four scenarios for a driver based out of Fresno:
+
+
+\begin{compactenum}
+	\item Risk neutral driver using a generic \gls{icev}.
+	\item Risk neutral driver using a Tesla Model 3 with an 80 kWh battery capable of charging at a max rate of 170 kW. The driver uses the Tesla DC station network exclusively and this network has high charger up-time (97\%). Vehicles are expected to arrive at stations on the order of once every 10 to 30 minutes.
+	\item Risk-cautious driver using a Chevrolet Bolt EV with an 65 kWh battery capable of charging at a max rate of 55 kW. The driver uses various non-proprietary networks and these networks have low charger up-time (75\%). Vehicles are expected to arrive at stations on the order of once every 10 to 60 minutes.
+	\item Risk-aggressive driver using a Chevrolet Bolt EV with an 65 kWh battery capable of charging at a max rate of 55 kW. The driver uses various non-proprietary networks and these networks have low charger up-time (75\%). Vehicles are expected to arrive at stations on the order of once every 10 to 60 minutes.
+\end{compactenum}
+
+Each of these drivers will have a different experience of California's road transportation system for long trips. The neutral-expectations of time to reach each of the selected locations are provided in Table \ref{tab:scenarios} (driver is required to arrive at each destination with  at least 50\% \gls{soc}).
 
 
 \begin{table}[H]
 	\centering
-	\caption{Neutral expectation of hours to locations from Fresno for example scenarios}
-%	\label{tab:locations}
-	\begin{tabular}{|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|}
-		\hline Index & SC 1 & SC 2 & SC 3 & SC 4 \\
-		\hline 0 & 9.73 & 10.44 & 13.55 &  \\
-		\hline 1 & 7.51 & 7.95 &  &  \\
-		\hline 2 & 5.92 & 6.21 &  &  \\
-		\hline 3 & 4.91 & 5.04 &  &  \\
-		\hline 4 & 5.19 & 5.34 &  &  \\
-		\hline 5 & 3.13 & 3.13 &  &  \\
-		\hline 6 & 2.32 & 2.32 &  &  \\
-		\hline 7 & 3.41 & 3.54 &  &  \\
-		\hline 8 & 3.01 & 3.01 &  &  \\
-		\hline 9 & 0.00 & 0.00 &  &  \\
-		\hline 10 & 6.55 & 6.81 &  &  \\
-		\hline 11 & 1.82 & 1.82 &  &  \\
-		\hline 12 & 3.69 & 3.75 &  &  \\
-		\hline 13 & 7.56 & 8.00 &  &  \\
-		\hline 14 & 5.87 & 6.15 &  &  \\
+	\caption{Neutral expectation of hours to locations from Fresno for example scenarios.}
+	\label{tab:scenarios}
+	\begin{tabular}{|C{.17\linewidth}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{.23\linewidth}|}
+		\hline Index & \gls{icev} & Model 3 Neutral & Bolt Cautious & Bolt Aggressive \\
+		\hline 0 & 9.02 & 9.89 & NaN & 15.27 \\
+		\hline 1 & 7.16 & 7.47 & NaN & 10.24 \\
+		\hline 2 & 5.71 & 6.14 & NaN & 9.09 \\
+		\hline 3 & 4.46 & 4.69 & 9.63 & 6.72 \\
+		\hline 4 & 4.67 & 5.00 & 8.83 & 7.03 \\
+		\hline 5 & 2.82 & 2.82 & 4.52 & 4.42 \\
+		\hline 6 & 2.09 & 2.09 & 2.09 & 2.09 \\
+		\hline 7 & 3.32 & 3.29 & 5.05 & 4.71 \\
+		\hline 8 & 2.71 & 2.71 & 4.86 & 4.54 \\
+		\hline 9 & 0.00 & 0.00 & 0.00 & 0.00 \\
+		\hline 10 & 5.86 & 6.29 & NaN & 9.93 \\
+		\hline 11 & 1.64 & 1.64 & 1.64 & 1.64 \\
+		\hline 12 & 3.32 & 3.65 & 5.78 & 5.71 \\
+		\hline 13 & 6.81 & 7.52 & 14.69 & 11.52 \\
+		\hline 14 & 5.28 & 5.72 & 10.26 & 8.74 \\
 		\hline
 	\end{tabular}
 \end{table}
 
-%Comparison between routes is accomplished with a significance test such that routes are only eliminated should their costs be significantly higher than another route. The significance test is a two-way T-test where means are computed as
-%\eqref{eq:superquantile} and standard deviations are computed as in \eqref{eq:superquantile_sd}.
-%
-%\begin{equation}
-%	V(D, p_0, p_1) = \sqrt{\frac{\int_{p_0}^{p_1}\left[ Q(D, \alpha)\ d\alpha - S(D, p_0, p_1)\right]^2}{p_1 - p_0} \label{eq:superquantile_sd}}
-%\end{equation}
-%
-%Thus, depending on the confidence value of the T-test, multiple similarly costly routes may be present in $R$.
+The example drivers have very different experiences and perceived experiences. While the \gls{icev} driver can take the "direct" path (not deviating to find a station), the \gls{bev} drivers have to deviate from the "direct" path and require substantial time to charge. However, there is quite significant disparity within the set of proposed \gls{bev} drivers. For destinations which are within full-charge range, there is no difference. However, due to the lower range, lower max charge rate, and lower infrastructure reliability for the Bolt, the differentials between it and the Model 3 can be tremendous, especially for remote locations. For 4 remote locations (Crescent City, Yreka, Redding, and Las Vegas (State Line)) the cautious Bolt driver would consider an out-of-charge event sufficiently probable to make the journey not feasible, while the aggressive Bold driver would consider the journey arduous. It is worth noting, also, that the \gls{icev} and Model 3 are able to take more direct routes although the differences are not as pronounced. Table \ref{tab:scenarios_nc} shows the optimal route times with charging/fueling times removed.
+
+\begin{table}[H]
+	\centering
+	\caption{Neutral expectation of hours to locations from Fresno for example scenarios without charging/fueling time.}
+	\label{tab:scenarios_nc}
+	\begin{tabular}{|C{.17\linewidth}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{.23\linewidth}|}
+		\hline Index & \gls{icev} & Model 3 Neutral & Bolt Cautious & Bolt Aggressive \\
+		\hline 0 & 8.61 & 8.76 & NaN & 9.03 \\
+		\hline 1 & 6.63 & 6.79 & NaN & 6.79 \\
+		\hline 2 & 5.14 & 5.74 & NaN & 5.33 \\
+		\hline 3 & 4.31 & 4.39 & 5.03 & 4.49 \\
+		\hline 4 & 4.59 & 4.67 & 4.66 & 4.80 \\
+		\hline 5 & 2.71 & 2.82 & 2.81 & 2.82 \\
+		\hline 6 & 2.00 & 2.09 & 2.09 & 2.09 \\
+		\hline 7 & 2.96 & 3.07 & 3.21 & 3.11 \\
+		\hline 8 & 2.53 & 2.71 & 3.15 & 2.94 \\
+		\hline 9 & 0.00 & 0.00 & 0.00 & 0.00 \\
+		\hline 10 & 5.82 & 5.87 & NaN & 5.91 \\
+		\hline 11 & 1.61 & 1.64 & 1.64 & 1.64 \\
+		\hline 12 & 3.26 & 3.32 & 3.32 & 3.32 \\
+		\hline 13 & 6.67 & 6.81 & 7.16 & 7.01 \\
+		\hline 14 & 5.25 & 5.28 & 5.28 & 5.36 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+The differences in expected travel time between the \gls{icev} and Model 3 are relatively small and in the range of 5-10\% of travel time, a testament to Tesla's DC station network. Some would argue that this difference is unimportant as Tesla drivers can charge their vehicles while stopping for meals or during other natural breaks. This logic has been used to show that \glspl{bev} may approach convenience parity with \glspl{icev} in good circumstances [SOURCE - ease of being green]. However, where such breaks are optional for \gls{icev} drivers, they are mandatory for \gls{bev} drivers and must be taken at specific points throughout the trip to coincide with charging. The loss of optionality must be accounted an inconvenience even if breaks would be taken in any event.
+
+
 
 \newpage
 
@@ -357,3 +367,47 @@ These locations were chosen either because they are, themselves, important desti
 \end{multicols}
 
 \end{document}
+
+%\subsection*{Random Graph Example}
+%
+%The optimal routing method in this study accounts for factors which influence road vehicle accessibility and derive from vehicular, infrastructural, and behavioral parameters. Important vehicular parameter for accessibility is range which determines which locations can be reached with and without charging. Important infrastructural parameters such as the number and locations of charging stations, usability rates, and expected delay times. Important behavioral parameters include risk attitude parameters as in \eqref{eq:superquantile}. These factors influence routing individually and via interactions as demonstrated on a randomly generated graph.
+%
+%A random graph of 100 nodes, 15 containing charging stations within a 100 km by 100 km square was generated with a random node selected as the origin. Edge probabilities were defined relative to a characteristic distance using
+%
+%\begin{equation}
+%	P(e) = \exp(-L(e)/d)
+%\end{equation}
+%
+%where $e$ is an edge, $L(e)$ is the distance of edge $e$, and $d$ is a characteristic distance set to 200 km for this example. In this example the vehicle has a range of 460 km and each charging station has one charger and a low vehicle arrival rate. Figure \ref{fig:interactions} show how $R$ is effected by different usability rates and risk attitudes.
+%
+%\end{multicols}
+%
+%\begin{figure}[H]
+%	\centering
+%	\begin{subfigure}{.4\linewidth}
+	%		\centering\includegraphics[width = \linewidth]{figs/interactions_ha.png}
+	%		\captionsetup{width=.8\linewidth}
+	%		\caption{High charger usability and aggressive risk attitude}
+	%	\end{subfigure}%
+%	\begin{subfigure}{.4\linewidth}
+	%		\centering\includegraphics[width = \linewidth]{figs/interactions_hc.png}
+	%		\captionsetup{width=.8\linewidth}
+	%		\caption{High charger usability and cautious risk attitude}
+	%	\end{subfigure}
+%	\begin{subfigure}{.4\linewidth}
+	%		\centering\includegraphics[width = \linewidth]{figs/interactions_la.png}
+	%		\captionsetup{width=.8\linewidth}
+	%		\caption{Low charger usability and aggressive risk attitude}
+	%	\end{subfigure}%
+%	\begin{subfigure}{.4\linewidth}
+	%		\centering\includegraphics[width = \linewidth]{figs/interactions_lc.png}
+	%		\captionsetup{width=.8\linewidth}
+	%		\caption{Low charger usability and cautious risk attitude}
+	%	\end{subfigure}
+%	\caption{Single-origin expected travel time trees with varying charger reliability and driver risk tolerance}
+%	\label{fig:interactions}
+%\end{figure}
+%
+%\begin{multicols}{2}
+%
+%As the example shows, it is possible for the impact of several factors to be additive when made disadvantageous simultaneously. Where the driver has an aggressive risk attitude, chargers are reliable, or both, accessibility is high. Where neither is the case accessibility is low. The differential can be dramatic and this highlights the importance of considering vehicular, infrastructural, and behavioral factors simultaneously to get a complete picture.
