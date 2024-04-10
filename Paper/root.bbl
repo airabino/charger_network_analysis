@@ -903,5 +903,315 @@
     \endverb
     \field{year}{2023}
   \endentry
+
+  \entry{SAE_J1772}{manual}{}
+    \name{author}{1}{}{%
+      {{hash=CHE}{%
+         family={Committee},
+         familyi={C\bibinitperiod},
+         given={Hybrid\bibnamedelima EV},
+         giveni={H\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CHE1}
+    \strng{fullhash}{CHE1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    This SAE Standard covers the general physical, electrical, functional, and
+  performance requirements to facilitate conductive charging of EV/PHEV
+  vehicles in North America. This document defines a common EV/PHEV and supply
+  equipment vehicle conductive charging method, including operational
+  requirements and the functional and dimensional requirements for the vehicle
+  inlet and mating connector.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.4271/J1772_202401
+    \endverb
+    \field{title}{SAE Electric Vehicle and Plug-in Hybrid Electric Vehicle
+  Conductive Charge Coupler}
+    \field{year}{2024}
+    \warn{\item Invalid format of field 'month'}
+  \endentry
+
+  \entry{SAE_J3400}{manual}{}
+    \name{author}{1}{}{%
+      {{hash=CHE}{%
+         family={Committee},
+         familyi={C\bibinitperiod},
+         given={Hybrid\bibnamedelima EV},
+         giveni={H\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CHE1}
+    \strng{fullhash}{CHE1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    This Recommended Practice covers the general physical, electrical,
+  functional, safety, and performance requirements for conductive power
+  transfer to an electric vehicle using a connector, which can be hand-mated
+  and is capable of transferring either DC or AC single-phase power using two
+  current-carrying contacts.%
+    }
+    \field{title}{North American Charging System (NACS) for Electric Vehicles}
+    \field{year}{2024}
+    \warn{\item Invalid format of field 'month'}
+  \endentry
+
+  \entry{Visaria_2022}{article}{}
+    \name{author}{4}{}{%
+      {{hash=VAA}{%
+         family={Visaria},
+         familyi={V\bibinitperiod},
+         given={Anant\bibnamedelima Atul},
+         giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=JAF}{%
+         family={Jensen},
+         familyi={J\bibinitperiod},
+         given={Anders\bibnamedelima Fjendbo},
+         giveni={A\bibinitperiod\bibinitdelim F\bibinitperiod},
+      }}%
+      {{hash=TM}{%
+         family={Thorhauge},
+         familyi={T\bibinitperiod},
+         given={Mikkel},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=MSE}{%
+         family={Mabit},
+         familyi={M\bibinitperiod},
+         given={Stefan\bibnamedelima Eriksen},
+         giveni={S\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \keyw{Electric vehicles, Charging, Stated choice, Discrete choice
+  modelling, Valuation}
+    \strng{namehash}{VAA+1}
+    \strng{fullhash}{VAAJAFTMMSE1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    This paper analyses user preferences related to electric vehicle (EV)
+  charging decisions. The analysis includes both a qualitative as well as a
+  quantitative assessment. The qualitative assessment consists of a literature
+  review of existing studies about EV charging behaviour and an analysis of
+  semi-structured interviews with Danish EV users. This assessment identifies
+  the most relevant factors for charging. In addition, it highlights that the
+  time horizon of the charging decision is an essential factor. We use this to
+  design two stated-choice (SC) experiments explicitly taking these findings
+  into account. The first SC experiment looks into long-term decisions related
+  to regular charging practices. The second SC experiment captures decisions
+  related to occasional charging needs on longer trips. The SC data consist of
+  three responses from 558 EV owners for each of the two experiments. We model
+  the data using mixed logit models to allow for unobserved heterogeneity and
+  the repeated nature of the SC data. The main findings indicate a high
+  preference for all-inclusive/flat fee pricing structures. Moreover, they show
+  that respondents value interoperability between charging networks, both
+  nationally and internationally. Related to occasional charging, we find
+  willingness-to-pay measures describing the detour respondents are willing to
+  drive to obtain lower costs, a higher likelihood of available chargers, and
+  facilities at the charging location. Overall the analyses highlight many
+  factors that influence the charging decisions of consumers that are relevant
+  for policymakers and charging operators. In addition, they highlight the
+  barriers in a charging context, such as network roaming, lack of charging
+  etiquette, and congestion at chargers.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.tra.2022.08.013
+    \endverb
+    \field{issn}{0965-8564}
+    \field{pages}{120\bibrangedash 143}
+    \field{title}{User preferences for EV charging, pricing schemes, and
+  charging infrastructure}
+    \field{volume}{165}
+    \field{journaltitle}{Transportation Research Part A: Policy and Practice}
+    \field{year}{2022}
+  \endentry
+
+  \entry{Rempel_2023}{article}{}
+    \name{author}{4}{}{%
+      {{hash=RD}{%
+         family={Rempel},
+         familyi={R\bibinitperiod},
+         given={David},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=CC}{%
+         family={Cullen},
+         familyi={C\bibinitperiod},
+         given={Carleen},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=BMM}{%
+         family={Bryan},
+         familyi={B\bibinitperiod},
+         given={Mary\bibnamedelima Matteson},
+         giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=CGV}{%
+         family={Cezar},
+         familyi={C\bibinitperiod},
+         given={Gustavo\bibnamedelima Vianna},
+         giveni={G\bibinitperiod\bibinitdelim V\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RD+1}
+    \strng{fullhash}{RDCCBMMCGV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1177/00187208231215242
+    \endverb
+    \field{number}{0}
+    \field{pages}{00187208231215242}
+    \field{title}{Reliability of Open Public Electric Vehicle Direct Current
+  Fast Chargers}
+    \field{volume}{0}
+    \field{journaltitle}{Human Factors}
+    \field{year}{0}
+  \endentry
+
+  \entry{Kozumplik_2022}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=KBJ}{%
+         family={Kozumplik},
+         familyi={K\bibinitperiod},
+         given={Brian\bibnamedelima J.},
+         giveni={B\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KBJ1}
+    \strng{fullhash}{KBJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    As more consumers and operators adopt electric vehicles (EVs) as personal
+  and fleet vehicles, questions regarding recharge time, reliability, and
+  interoperability of EV supply equipment and charging systems currently in use
+  across North America and Europe remain. The current lack of understanding has
+  led to consumer anxiety and, in some cases, inadvertent abuse and mishandling
+  of electric supply equipment. Electric Vehicle Recharge Time, Reliability,
+  and Interoperability navigates issues such as charging equipment reliability;
+  the complexity Interoperability concerning charging networks, EVs, and
+  payment systems; various public and private charging network issues; and
+  lagging regulations and standards. While many challenges need to be
+  addressed, this report also identifies the improvements made since early
+  adoption of EV charging technology as well as ongoing efforts to improve it
+  further. Click here to access the full SAE EDGETM Research Report portfolio.%
+    }
+    \field{issn}{2640-3536}
+    \field{title}{Electric Vehicle Recharge Time, Reliability, and
+  Interoperability}
+    \field{year}{2022}
+    \warn{\item Invalid format of field 'month'}
+  \endentry
+
+  \entry{CEC_2022}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=CCEC}{%
+         family={(CEC)},
+         familyi={C\bibinitperiod},
+         given={California Energy\bibnamedelima Commission},
+         giveni={C\bibinitperiod\bibinitdelim E\bibinitperiod\bibinitdelim
+  C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CCEC1}
+    \strng{fullhash}{CCEC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{California Retail Fuel Outlet Annual Reporting (CEC-A15)
+  Results}
+    \verb{url}
+    \verb https://www.energy.ca.gov/data-reports/energy-almanac/transportation-
+    \verb energy/california-retail-fuel-outlet-annual-reporting
+    \endverb
+    \field{year}{2022}
+  \endentry
+
+  \entry{Dixon_2020}{article}{}
+    \name{author}{4}{}{%
+      {{hash=DJ}{%
+         family={Dixon},
+         familyi={D\bibinitperiod},
+         given={James},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=APB}{%
+         family={Andersen},
+         familyi={A\bibinitperiod},
+         given={Peter\bibnamedelima Bach},
+         giveni={P\bibinitperiod\bibinitdelim B\bibinitperiod},
+      }}%
+      {{hash=BK}{%
+         family={Bell},
+         familyi={B\bibinitperiod},
+         given={Keith},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=TC}{%
+         family={Træholt},
+         familyi={T\bibinitperiod},
+         given={Chresten},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \keyw{Electric vehicles, Charging, Convenience, E-mobility}
+    \strng{namehash}{DJ+1}
+    \strng{fullhash}{DJAPBBKTC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    This paper presents a quantitative investigation of the inconvenience of
+  electric vehicle (EV) charging relative to internal combustion engine vehicle
+  (ICEV) fuelling in terms of the time penalty likely to be experienced by
+  drivers. A heuristic approach to deriving idealised charging schedules from
+  over 39,000 week-long travel diaries from the UK National Travel Survey is
+  presented in order to quantify the expected convenience parity — the point
+  at which EV charging and ICEV fuelling are of comparable convenience — for
+  combinations of battery capacity, charger power and access to charging at
+  different locations (home, workplace and public destinations). It was found
+  that although the majority — up to 95% — of individuals who can charge at
+  home are expected to be able to reach convenience parity with battery sizes
+  currently available in EV models at the ‘affordable’ end of the market,
+  this is significantly less likely for those who rely on workplace or public
+  charging — and particularly for those who must rely solely on en route
+  charging. These individuals are expected to suffer considerable inconvenience
+  associated with EV charging relative to ICEV fuelling, and although greater
+  battery capacities and charger power ratings are expected to lessen this
+  inconvenience, there remains a significant gap in the convenience of EV
+  ownership between those who can charge while parked at home and those who
+  cannot. Further analysis is carried out to long journeys that cannot be made
+  on a single charge; ‘range anxiety’ being a major obstacle to widespread
+  EV adoption. It was found that if drivers are compliant with the UK Highway
+  Code in taking regular breaks on long journeys, fewer than 0.01% of trips are
+  expected to be delayed by charging when using battery capacities of 40–60
+  kWh.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.apenergy.2019.114090
+    \endverb
+    \field{issn}{0306-2619}
+    \field{pages}{114090}
+    \field{title}{On the ease of being green: An investigation of the
+  inconvenience of electric vehicle charging}
+    \field{volume}{258}
+    \field{journaltitle}{Applied Energy}
+    \field{year}{2020}
+  \endentry
+
+  \entry{AFDC_EVs_2023}{misc}{}
+    \list{publisher}{1}{%
+      {Alternative Fuels Data Center (AFDC)}%
+    }
+    \field{labeltitlesource}{title}
+  \field{note}{\url{https://afdc.energy.gov/vehicles/search/download.pdf?year=2023}}
+    \field{title}{Model Year 2023 Alternative Fuel and Advanced Technology
+  Vehicles}
+    \field{journaltitle}{Alternative Fuels Data Center (AFDC)}
+    \field{year}{2023}
+  \endentry
 \enddatalist
 \endinput

@@ -361,7 +361,7 @@ def dijkstra(graph, origins, **kwargs):
 
         # Popping the lowest cost unseen node from the heap
         (cost, _, values, source) = heappop(heap)
-        print(source, end = '\r')
+        # print(source, end = '\r')
 
         if source in path_values:
 
@@ -380,15 +380,14 @@ def dijkstra(graph, origins, **kwargs):
 
             break
 
-        # Charging if availabe
-        values = graph._node[source].get('update', lambda x: x)(values)
-
         # Iterating through the current source node's adjacency
         for target, link in adjacency[source].items():
 
             node = graph._node[target]
 
-            current_values = deepcopy(values)            
+            current_values = deepcopy(values)
+
+            # print('a', current_values['time'])         
 
             # Updating objective for link
             current_values = states['update'](
@@ -400,25 +399,32 @@ def dijkstra(graph, origins, **kwargs):
                 current_values, node
                 )
 
+            # print('b', current_values['time']) 
+
+            # Checking if link traversal is possible
+            feasible, current_values = constraints(current_values, node)
+
+            # Charging if availabe
+            if 'update' in node.keys():
+
+                current_values = node['update'](current_values)
+
+            # print('c', current_values['time']) 
+
             # Updating the weighted cost for the path
             cost = objectives(current_values)
 
             savings = cost < visited.get(target, np.inf)
 
-            if savings:
+            if feasible and savings:
+               
+                visited[target] = cost
 
-                # Checking if link traversal is possible
-                feasible = constraints(current_values, node)
+                heappush(heap, (cost, next(c), current_values, target))
 
-                if feasible:
+                if paths is not None:
 
-                    visited[target] = cost
-
-                    heappush(heap, (cost, next(c), current_values, target))
-
-                    if paths is not None:
-
-                        paths[target] = paths[source] + [target]
+                    paths[target] = paths[source] + [target]
 
     return path_costs, path_values, paths
 
@@ -468,35 +474,92 @@ def in_range(x, lower, upper):
 
     return (x >= lower) & (x <= upper)
 
+def make_tree(graph, origin):
+
+    node_origin = graph._node[origin]
+
+    for source in graph._node.keys():
+
+        keep = {}
+
+        for target, link in graph._adj[source].items():
+
+            node_source = graph._node[source]
+            node_target = graph._node[target]
+
+            dist_source = (
+                (node_origin['x'] - node_source['x']) ** 2 +
+                (node_origin['y'] - node_source['y']) ** 2
+                )
+
+            dist_target = (
+                (node_origin['x'] - node_target['x']) ** 2 +
+                (node_origin['y'] - node_target['y']) ** 2
+                )
+
+            if dist_target >= dist_source * .95:
+
+                keep[target] = link
+        
+        graph._adj[source] = keep
+
+    return graph
+
 class Station():
 
     def __init__(self, vehicle, **kwargs):
 
         self.vehicle = vehicle
-        self.arrival = kwargs.get('arrival', uniform(loc = 600, scale = 3600))
-        self.rate = kwargs.get('rate', 80e3)
-        self.service = kwargs.get(
-            'service', norm(loc = 60 * 3.6e6 / self.rate, scale = 15 * 3.6e6 / self.rate)
-            )
-        self.chargers = kwargs.get('servicers', 1)
+
+        self.seed = kwargs.get('seed', None)
+        self.rng = kwargs.get('rng', np.random.default_rng())
+        self.chargers = kwargs.get('chargers', 1)
+
+        self.arrival_param = kwargs.get('arrival_param', (1, .5))
+        self.arrival_limits = kwargs.get('arrival_limits', (.1, 1.9))
+
+        self.service_param = kwargs.get('service_param', (60, 15))
+        self.service_limits = kwargs.get('service_limits', (10, 110))
+        
         self.reliability = kwargs.get('reliability', 1)
         self.energy_price = kwargs.get('energy_price', .5 / 3.6e6)
-        self.seed = kwargs.get('seed', None)
-        self.rng = np.random.default_rng(self.seed)
 
         self.populate()
+
+    def recompute(self, **kwargs):
+
+        for key, val in kwargs.items():
+
+            setattr(self, key, val)
+
+        self.populate()
+
+    def clip_norm(self, param, limits):
+
+        return np.clip(norm(*param).rvs(self.vehicle.n_cases), *limits)
 
     def populate(self):
 
         self.functional_chargers = self.functionality()
         self.at_least_one_functional_charger = self.functional_chargers > 0
 
+        self.arrival = (
+            3600 / (self.chargers * self.clip_norm(self.arrival_param, self.arrival_limits))
+            )
+
+        self.service = (
+            self.clip_norm(self.service_param, self.service_limits) *
+            3.6e6 / self.vehicle.rate
+            )
+
         self.delay_time = np.zeros(self.vehicle.n_cases)
 
         for idx in range(self.vehicle.n_cases):
 
             self.delay_time[idx] = self.queuing_time(
-                1 / self.arrival.rvs(), 1 / self.service.rvs(), self.functional_chargers[idx]
+                1 / self.arrival[idx],
+                1 / self.service[idx],
+                self.functional_chargers[idx]
                 )
 
         self.functions = {
@@ -543,6 +606,10 @@ class Station():
             self.at_least_one_functional_charger
             )
 
+        # print('a', self.vehicle.capacity * (1 - x['soc']) / self.vehicle.rate)
+        # print('b', self.delay_time)
+        # print('c', time)
+
         x['time'] += time
 
         return x
@@ -582,7 +649,10 @@ class Vehicle():
 
     def all_pairs(self, graph, nodes = [], **kwargs):
 
-        expectations_all_pairs = {}
+        expectations = {}
+        values = {}
+        paths = {}
+
 
         if not nodes:
 
@@ -590,13 +660,33 @@ class Vehicle():
 
         for node in ProgressBar(nodes, **kwargs.get('progress_bar', {})):
 
-            expectations, _, _ = self.routes(graph, [node], destinations = nodes)
+            if kwargs.get('tree', False):
 
-            expectations_all_pairs[node] = (
-                {key: val for key, val in expectations.items() if key in nodes}
+                sg = make_tree(graph, node)
+
+            else:
+
+                sg = graph
+
+            expectations_n, values_n, paths_n = self.routes(
+                sg, [node], destinations = nodes, **kwargs,
                 )
 
-        return expectations_all_pairs
+            expectations[node] = (
+                {key: val for key, val in expectations_n.items() if key in nodes}
+                )
+
+            values[node] = (
+                {key: val for key, val in values_n.items() if key in nodes}
+                )
+
+            if kwargs.get('return_paths', False):
+
+                paths[node] = (
+                    {key: val for key, val in paths_n.items() if key in nodes}
+                    )
+
+        return expectations, values, paths
 
     def routes(self, graph, origins, destinations = [], return_paths = False):
 
@@ -654,13 +744,14 @@ class ConstrainedVehicle(Vehicle):
     def __init__(self, **kwargs):
 
         self.n_cases = kwargs.get('n_cases', 30) # [-]
-        self.capacity = kwargs.get('ess_capacity', 80 * 3.6e6) # [J]
+        self.capacity = kwargs.get('capacity', 80 * 3.6e6) # [J]
         self.efficiency = kwargs.get('efficiency', 500) # [J/m]
         self.rate = kwargs.get('rate', 80e3) # [W]
         self.initial_soc = kwargs.get('initial_soc', 1.) # [-]
         self.max_soc = kwargs.get('max_soc', 1.) # [-]
         self.min_soc = kwargs.get('min_soc', .2) # [-]
         self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # [-]
+        self.out_of_charge_penalty = kwargs.get('out_of_charge_penalty', 3*3600) # [s]
 
         if self.n_cases > 1:
 
@@ -672,7 +763,7 @@ class ConstrainedVehicle(Vehicle):
 
         self.populate()
 
-    def routes(self, graph, origins, destinations = [], return_paths = False):
+    def routes(self, graph, origins, destinations = [], return_paths = False, **kwargs):
 
         expectations, values, paths = dijkstra(
             graph,
@@ -705,7 +796,9 @@ class ConstrainedVehicle(Vehicle):
             v.get('max_soc', self.max_soc)
         )
 
-        return feasible
+        x['time'] += self.out_of_charge_penalty * (not feasible)
+
+        return True, x
 
     def populate(self):
 

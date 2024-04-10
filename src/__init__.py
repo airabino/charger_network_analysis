@@ -11,3 +11,4 @@ from . import adjacency # Computation of adjacency for graphs
 # from . import in_polygon
 from . import rng
 from . import routing
+from . import experiment
