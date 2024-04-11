@@ -73,7 +73,7 @@ natbib=true,         % if you need natbib functions
 \addbibresource{./sources/sources.bib,}  % better than \bibliography
 
 \title{Impact of EVSE Deployment on Electrified Road Transportation Access for Long Trips}
-\author{Aaron I. Rabinowitz, Vaishnavi Karanam, Radhika Gupta, others (Gil Tal?, Alan Jenn?, Susan Handy? Yue Yue Fan?)}
+\author{Aaron I. Rabinowitz, Vaishnavi Karanam, Radhika Gupta\\(Gil Tal?, Alan Jenn?, Susan Handy? Yueyue Fan?)}
 \date{}
 
 \input{gloss}
@@ -378,7 +378,41 @@ In order to gain a broader understanding of the effects of vehicular, infrastruc
 
 The rationale behind the selection of levels is as follows. As mentioned previously, the Tesla and non-proprietary DC charging networks are, presently, effectively separate and unequal entities. The base vehicle models in this study are the Chevrolet Bolt and Tesla Model 3 both of which are low-end vehicles for their category with more expensive models coming with higher battery capacities and charge rates \cite{AFDC_EVs_2023}. The range of reliability rates was taken from references \cite{Rempel_2023} with an aspirational high reliability rate added. Finally, risk attitudes were modeled on the theoretical basis outlined in the Methods section using \eqref{eq:superquantile} with Cautious ($p_0 = .5,\ p_1 = 1$), Neutral ($p_0 = 0,\ p_1 = 1$), and Aggressive ($p_0 = 0,\ p_1 = .5$) drivers.
 
-The metric used for comparison is accessibility as in \eqref{eq:a} relative to an \gls{icev}. In each case the optimal-path tree $P$ is computed using the constrained implementation of Dijkstra's method as described in the Methods section with sample vectors of length 30.
+The metric used for comparison is accessibility as in \eqref{eq:a} where the cost is total route time. In each case the optimal-path tree $P$ is computed using the constrained implementation of Dijkstra's method as described in the Methods section with sample vectors of length 100. On average the difference between the accessibility score $A$ for the Model 3 and Bolt was 2.39 hours in favor of the Model 3 for the same combinations of experiment parameters. this difference is due to the superior range, charge rate, and charging infrastructure enjoyed by the Model 3. Linear regression was performed on the experimental parameters and interactions and results. Significant parameters ($\alpha = 0.05$) for the Bolt and Model 3 are listed in Tables \ref{tab:sp_bolt} and \ref{tab:sp_model_3} respectively.
+
+\begin{table}[H]
+	\centering
+	\caption{Significant terms from linear regression for Bolt.}
+	\label{tab:sp_bolt}
+	\begin{tabular}{|C{.6\linewidth}|C{.2\linewidth}|C{.2\linewidth}|}
+		\hline Parameter & $\beta$ & p-value \\
+		\hline {\small Intercept } & 7.684  & 0.000 \\
+		\hline {\small Multiplier } & -0.971  & 0.000 \\
+		\hline {\small Attitude[T.Neutral] } & 2.766  & 0.000 \\
+		\hline {\small Attitude[T.Cautious] } & 3.579  & 0.000 \\
+		\hline {\small Multiplier:Attitude[T.Neutral] }  & -5.417 & 0.000 \\
+		\hline {\small Multiplier:Attitude[T.Cautious] }  & -3.891 & 0.001 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{Significant terms from linear regression for Model 3.}
+	\label{tab:sp_model_3}
+	\begin{tabular}{|C{.6\linewidth}|C{.2\linewidth}|C{.2\linewidth}|}
+		\hline Parameter & $\beta$ & p-value \\
+		\hline {\small Intercept } & 6.486 & 0.000 \\
+		\hline {\small Multiplier } & -0.128 & 0.000 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+The regression results support the intuitive conclusion that vehicle range is important in determining accessibility and that a longer range vehicle will have more accessibility for a region of a set size. It is somewhat surprising that charger reliability was significant for neither vehicle/supply network combination (it would be significant for the Bolt at an $\alpha = 0.1$ level but not for the Model 3). The lack of significance of reliability in the experimental range is due to the redundancy present in both supply networks. Where the Tesla DC charger network consists of stations with many chargers the non-proprietary network consists of smaller stations in closer proximity to one-another. Because there are more chargers total in the Tesla network and because these are redundant within stations rather than between stations the effect of non-functional chargers on user experience is less. A consequence of the more distributed non-proprietary network is that charger non-availability can catch a driver out and require a costly event relocation or even a tow. For this reason, driver risk attitude is more important for non-Tesla drivers for whom the trade-off between more direct routes with higher risk and less direct routes with lower risk is substantial. Overall the results indicate that the reliability of individual chargers is less important than their distribution and that the non-proprietary supply network is currently inferior to the Tesla supply network in California.
+
+In the past, and still largely in the present, the Tesla DC charging network has been sequestered for the use of Tesla drivers. Recently, with the introduction of the NACS standard, this restriction has started to loosen. In the future, the Tesla and non-Tesla networks will function, increasingly, as one. Given the demonstrated superiority of the Tesla network one might suppose that this opening will markedly improve the experience of non-Tesla drivers while narrowly improving that of Tesla drivers if not, on net, deteriorating it due to higher demand at Tesla DC charging stations. Neglecting the effects of increased demand, the modeling of which is beyond the scope of this study, a comparison can be made for each vehicle with the independent networks, and the combined network as shown in Table [REF].
+
+ 
 
 \newpage
 

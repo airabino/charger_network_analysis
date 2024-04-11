@@ -138,3 +138,20 @@ def add_stations(graph, station, rng):
             node['update'] = station.update
 
     return graph
+
+def accessibility(p_hat):
+
+    accessibility = 0
+
+    for key_0, value_0 in p_hat.items():
+
+        for key_1, value_1 in value_0.items():
+
+            accessibility += value_1
+
+    accessibility /= len(p_hat) ** 2
+
+    return accessibility
+
+
+
