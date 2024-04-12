@@ -282,8 +282,8 @@ The difference between the Tesla DC charging network and the non-proprietary net
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{figs/California_Charger_Network_Histograms.png}
-	\caption{Distributions of chargers per station for Tesla and non-proprietary networks in California.}
+	\includegraphics[width = \linewidth]{figs/California_Charger_Network_Survival_Functions.png}
+	\caption{Survival functions for charger networks in California. Top panel shows survival function for chargers per station. Bottom panel shows survival function for mean distance to three nearest stations from a given station.}
 	\label{fig:network_histograms}
 \end{figure}
 
@@ -310,26 +310,26 @@ Each of these drivers will have a different experience of California's road tran
 	\label{tab:scenarios}
 	\begin{tabular}{|C{.17\linewidth}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{.23\linewidth}|}
 		\hline Index & \gls{icev} & Model 3 Neutral & Bolt Cautious & Bolt Aggressive \\
-		\hline 0 & 9.02 & 9.89 & NaN & 15.27 \\
-		\hline 1 & 7.16 & 7.47 & NaN & 10.24 \\
-		\hline 2 & 5.71 & 6.14 & NaN & 9.09 \\
-		\hline 3 & 4.46 & 4.69 & 9.63 & 6.72 \\
-		\hline 4 & 4.67 & 5.00 & 8.83 & 7.03 \\
-		\hline 5 & 2.82 & 2.82 & 4.52 & 4.42 \\
-		\hline 6 & 2.09 & 2.09 & 2.09 & 2.09 \\
-		\hline 7 & 3.32 & 3.29 & 5.05 & 4.71 \\
-		\hline 8 & 2.71 & 2.71 & 4.86 & 4.54 \\
+		\hline 0 & 8.61 & 9.28 & 15.58 & 13.66 \\
+		\hline 1 & 6.63 & 7.07 & 13.31 & 10.04 \\
+		\hline 2 & 5.14 & 5.60 & 8.78 & 8.35 \\
+		\hline 3 & 4.31 & 4.54 & 7.54 & 5.96 \\
+		\hline 4 & 4.59 & 4.74 & 7.85 & 6.34 \\
+		\hline 5 & 2.71 & 2.82 & 4.01 & 4.17 \\
+		\hline 6 & 2.00 & 2.09 & 2.09 & 2.09 \\
+		\hline 7 & 2.96 & 3.18 & 4.34 & 4.50 \\
+		\hline 8 & 2.53 & 2.71 & 2.71 & 2.71 \\
 		\hline 9 & 0.00 & 0.00 & 0.00 & 0.00 \\
-		\hline 10 & 5.86 & 6.29 & NaN & 9.93 \\
-		\hline 11 & 1.64 & 1.64 & 1.64 & 1.64 \\
-		\hline 12 & 3.32 & 3.65 & 5.78 & 5.71 \\
-		\hline 13 & 6.81 & 7.52 & 14.69 & 11.52 \\
-		\hline 14 & 5.28 & 5.72 & 10.26 & 8.74 \\
+		\hline 10 & 5.82 & 6.13 & 8.88 & 9.05 \\
+		\hline 11 & 1.61 & 1.64 & 1.64 & 1.64 \\
+		\hline 12 & 3.26 & 3.32 & 4.72 & 4.73 \\
+		\hline 13 & 6.67 & 7.31 & 11.21 & 10.50 \\
+		\hline 14 & 5.25 & 5.47 & 8.41 & 8.32 \\
 		\hline
 	\end{tabular}
 \end{table}
 
-The example drivers have very different experiences and perceived experiences. While the \gls{icev} driver can take the "direct" path (not deviating to find a station), the \gls{bev} drivers have to deviate from the "direct" path and require substantial time to charge. However, there is quite significant disparity within the set of proposed \gls{bev} drivers. For destinations which are within full-charge range, there is no difference. However, due to the lower range, lower max charge rate, and lower infrastructure reliability for the Bolt, the differentials between it and the Model 3 can be tremendous, especially for remote locations. For 4 remote locations (Crescent City, Yreka, Redding, and Las Vegas (State Line)) the cautious Bolt driver would consider an out-of-charge event sufficiently probable to make the journey not feasible, while the aggressive Bold driver would consider the journey arduous. It is worth noting, also, that the \gls{icev} and Model 3 are able to take more direct routes although the differences are not as pronounced. Table \ref{tab:scenarios_nc} shows the optimal route times with charging/fueling times removed.
+The example drivers have very different experiences and perceived experiences. While the \gls{icev} driver can take the "direct" path (not deviating to find a station), the \gls{bev} drivers have to deviate from the "direct" path and require substantial time to charge. However, there is quite significant disparity within the set of proposed \gls{bev} drivers. For destinations which are within full-charge range, there is no difference. However, due to the lower range, lower max charge rate, and lower infrastructure reliability for the Bolt, the differentials between it and the Model 3 can be tremendous, especially for remote locations. For 4 remote locations (Crescent City, Yreka, Redding, and Las Vegas (State Line)). It is worth noting, also, that the \gls{icev} and Model 3 are able to take more direct routes although the differences are not as pronounced. Table \ref{tab:scenarios_nc} shows the optimal route times with charging/fueling times removed.
 
 \begin{table}[H]
 	\centering
@@ -337,21 +337,21 @@ The example drivers have very different experiences and perceived experiences. W
 	\label{tab:scenarios_nc}
 	\begin{tabular}{|C{.17\linewidth}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{\linewidth * 1 / 5}|C{.23\linewidth}|}
 		\hline Index & \gls{icev} & Model 3 Neutral & Bolt Cautious & Bolt Aggressive \\
-		\hline 0 & 8.61 & 8.76 & NaN & 9.03 \\
-		\hline 1 & 6.63 & 6.79 & NaN & 6.79 \\
-		\hline 2 & 5.14 & 5.74 & NaN & 5.33 \\
-		\hline 3 & 4.31 & 4.39 & 5.03 & 4.49 \\
-		\hline 4 & 4.59 & 4.67 & 4.66 & 4.80 \\
-		\hline 5 & 2.71 & 2.82 & 2.81 & 2.82 \\
+		\hline 0 & 8.61 & 8.80 & 9.58 & 8.76 \\
+		\hline 1 & 6.63 & 6.75 & 7.31 & 6.72 \\
+		\hline 2 & 5.14 & 5.34 & 5.78 & 5.33 \\
+		\hline 3 & 4.31 & 4.42 & 4.54 & 4.39 \\
+		\hline 4 & 4.59 & 4.63 & 4.85 & 4.67 \\
+		\hline 5 & 2.71 & 2.82 & 2.81 & 2.81 \\
 		\hline 6 & 2.00 & 2.09 & 2.09 & 2.09 \\
-		\hline 7 & 2.96 & 3.07 & 3.21 & 3.11 \\
-		\hline 8 & 2.53 & 2.71 & 3.15 & 2.94 \\
+		\hline 7 & 2.96 & 3.07 & 3.07 & 3.07 \\
+		\hline 8 & 2.53 & 2.71 & 2.71 & 2.71 \\
 		\hline 9 & 0.00 & 0.00 & 0.00 & 0.00 \\
-		\hline 10 & 5.82 & 5.87 & NaN & 5.91 \\
+		\hline 10 & 5.82 & 5.89 & 5.88 & 5.86 \\
 		\hline 11 & 1.61 & 1.64 & 1.64 & 1.64 \\
 		\hline 12 & 3.26 & 3.32 & 3.32 & 3.32 \\
-		\hline 13 & 6.67 & 6.81 & 7.16 & 7.01 \\
-		\hline 14 & 5.25 & 5.28 & 5.28 & 5.36 \\
+		\hline 13 & 6.67 & 6.93 & 6.81 & 7.14 \\
+		\hline 14 & 5.25 & 5.28 & 5.41 & 5.28 \\
 		\hline
 	\end{tabular}
 \end{table}
@@ -378,39 +378,54 @@ In order to gain a broader understanding of the effects of vehicular, infrastruc
 
 The rationale behind the selection of levels is as follows. As mentioned previously, the Tesla and non-proprietary DC charging networks are, presently, effectively separate and unequal entities. The base vehicle models in this study are the Chevrolet Bolt and Tesla Model 3 both of which are low-end vehicles for their category with more expensive models coming with higher battery capacities and charge rates \cite{AFDC_EVs_2023}. The range of reliability rates was taken from references \cite{Rempel_2023} with an aspirational high reliability rate added. Finally, risk attitudes were modeled on the theoretical basis outlined in the Methods section using \eqref{eq:superquantile} with Cautious ($p_0 = .5,\ p_1 = 1$), Neutral ($p_0 = 0,\ p_1 = 1$), and Aggressive ($p_0 = 0,\ p_1 = .5$) drivers.
 
-The metric used for comparison is accessibility as in \eqref{eq:a} where the cost is total route time. In each case the optimal-path tree $P$ is computed using the constrained implementation of Dijkstra's method as described in the Methods section with sample vectors of length 100. On average the difference between the accessibility score $A$ for the Model 3 and Bolt was 2.39 hours in favor of the Model 3 for the same combinations of experiment parameters. this difference is due to the superior range, charge rate, and charging infrastructure enjoyed by the Model 3. Linear regression was performed on the experimental parameters and interactions and results. Significant parameters ($\alpha = 0.05$) for the Bolt and Model 3 are listed in Tables \ref{tab:sp_bolt} and \ref{tab:sp_model_3} respectively.
+The metric used for comparison is accessibility as in \eqref{eq:a} where the cost is total route time. In each case the optimal-path tree $P$ is computed using the constrained implementation of Dijkstra's method as described in the Methods section with sample vectors of length 100. On average the difference between the accessibility score $A$ for the Model 3 and Bolt was 2.72 hours in favor of the Model 3 for the same combinations of experiment parameters. this difference is due to the superior range, charge rate, and charging infrastructure enjoyed by the Model 3. Linear regression was performed on the experimental parameters and interactions and results. Significant parameters ($\alpha = 0.05$) for the Bolt and Model 3 are listed in Tables \ref{tab:sp_bolt} and \ref{tab:sp_model_3} respectively.
 
 \begin{table}[H]
 	\centering
-	\caption{Significant terms from linear regression for Bolt.}
+	\caption{Significant ($\alpha = 0.05$) terms from linear regression for Bolt.}
 	\label{tab:sp_bolt}
 	\begin{tabular}{|C{.6\linewidth}|C{.2\linewidth}|C{.2\linewidth}|}
 		\hline Parameter & $\beta$ & p-value \\
-		\hline {\small Intercept } & 7.684  & 0.000 \\
-		\hline {\small Multiplier } & -0.971  & 0.000 \\
-		\hline {\small Attitude[T.Neutral] } & 2.766  & 0.000 \\
-		\hline {\small Attitude[T.Cautious] } & 3.579  & 0.000 \\
-		\hline {\small Multiplier:Attitude[T.Neutral] }  & -5.417 & 0.000 \\
-		\hline {\small Multiplier:Attitude[T.Cautious] }  & -3.891 & 0.001 \\
+		\hline {\small Intercept } & 8.557 & 0.000 \\
+		\hline {\small Multiplier } & -2.127 & 0.000 \\
+		\hline {\small Attitude[T.Neutral] } & 0.775 & 0.004 \\
+		\hline {\small Attitude[T.Cautious] } & 1.188 & 0.000 \\
 		\hline
 	\end{tabular}
 \end{table}
 
 \begin{table}[H]
 	\centering
-	\caption{Significant terms from linear regression for Model 3.}
+	\caption{Significant ($\alpha = 0.05$) terms from linear regression for Model 3.}
 	\label{tab:sp_model_3}
 	\begin{tabular}{|C{.6\linewidth}|C{.2\linewidth}|C{.2\linewidth}|}
 		\hline Parameter & $\beta$ & p-value \\
-		\hline {\small Intercept } & 6.486 & 0.000 \\
-		\hline {\small Multiplier } & -0.128 & 0.000 \\
+		\hline {\small Intercept } & 5.840 & 0.000 \\
+		\hline {\small Multiplier } & -0.118 & 0.000 \\
 		\hline
 	\end{tabular}
 \end{table}
 
-The regression results support the intuitive conclusion that vehicle range is important in determining accessibility and that a longer range vehicle will have more accessibility for a region of a set size. It is somewhat surprising that charger reliability was significant for neither vehicle/supply network combination (it would be significant for the Bolt at an $\alpha = 0.1$ level but not for the Model 3). The lack of significance of reliability in the experimental range is due to the redundancy present in both supply networks. Where the Tesla DC charger network consists of stations with many chargers the non-proprietary network consists of smaller stations in closer proximity to one-another. Because there are more chargers total in the Tesla network and because these are redundant within stations rather than between stations the effect of non-functional chargers on user experience is less. A consequence of the more distributed non-proprietary network is that charger non-availability can catch a driver out and require a costly event relocation or even a tow. For this reason, driver risk attitude is more important for non-Tesla drivers for whom the trade-off between more direct routes with higher risk and less direct routes with lower risk is substantial. Overall the results indicate that the reliability of individual chargers is less important than their distribution and that the non-proprietary supply network is currently inferior to the Tesla supply network in California.
+The regression results support the intuitive conclusion that vehicle range is important in determining accessibility and that a longer range vehicle will have more accessibility for a region of a set size. It is somewhat surprising that charger reliability was significant for neither vehicle/supply network combination. The lack of significance of reliability in the experimental range is due to the redundancy present in both supply networks. Where the Tesla DC charger network consists of stations with many chargers the non-proprietary network consists of smaller stations in closer proximity to one-another. Because there are more chargers total in the Tesla network and because these are redundant within stations rather than between stations the effect of non-functional chargers on user experience is less. A consequence of the more distributed non-proprietary network is that charger non-availability can catch a driver out and require a costly event relocation or even a tow. For this reason, driver risk attitude is more important for non-Tesla drivers for whom the trade-off between more direct routes with higher risk and less direct routes with lower risk is substantial. Overall the results indicate that the reliability of individual chargers is less important than their distribution and that the non-proprietary supply network is currently inferior to the Tesla supply network in California.
 
-In the past, and still largely in the present, the Tesla DC charging network has been sequestered for the use of Tesla drivers. Recently, with the introduction of the NACS standard, this restriction has started to loosen. In the future, the Tesla and non-Tesla networks will function, increasingly, as one. Given the demonstrated superiority of the Tesla network one might suppose that this opening will markedly improve the experience of non-Tesla drivers while narrowly improving that of Tesla drivers if not, on net, deteriorating it due to higher demand at Tesla DC charging stations. Neglecting the effects of increased demand, the modeling of which is beyond the scope of this study, a comparison can be made for each vehicle with the independent networks, and the combined network as shown in Table [REF].
+In the past, and still largely in the present, the Tesla DC charging network has been sequestered for the use of Tesla drivers. Recently, with the introduction of the NACS standard, this restriction has started to loosen. In the future, the Tesla and non-Tesla networks will function, increasingly, as one. Given the demonstrated superiority of the Tesla network one might suppose that this opening will markedly improve the experience of non-Tesla drivers while failing to improve that of Tesla drivers if not, on net, deteriorating it due to higher demand at Tesla DC charging stations. Neglecting the effects of increased demand, the modeling of which is beyond the scope of this study, a comparison can be made for each vehicle with the independent networks, and the combined network as shown in Table \ref{tab:vehicles_networks}.
+
+\begin{table}[H]
+	\centering
+	\caption{Accessibility for Bolt and Model 3 with neutral driver for various networks.}
+	\label{tab:vehicles_networks}
+	\begin{tabular}{|C{.4\linewidth}|C{.3\linewidth}|C{.3\linewidth}|}
+		\hline Network & Bolt & Model 3 \\
+		\hline Non-Proprietary & 9.49 & 6.32 \\
+		\hline Tesla & 7.63 & 5.85 \\
+		\hline Combined & 7.63 & 5.85 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\section*{Conclusions}
+
+stuff
 
  
 

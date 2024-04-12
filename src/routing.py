@@ -403,8 +403,9 @@ def dijkstra(graph, origins, **kwargs):
 
             # Checking if link traversal is possible
             feasible, current_values = constraints(current_values, node)
+            # feasible = True
 
-            # Charging if availabe
+            # # Charging if availabe
             if 'update' in node.keys():
 
                 current_values = node['update'](current_values)
@@ -417,6 +418,8 @@ def dijkstra(graph, origins, **kwargs):
             savings = cost < visited.get(target, np.inf)
 
             if feasible and savings:
+
+                # print(cost, visited.get(target, np.inf))
                
                 visited[target] = cost
 
@@ -428,7 +431,7 @@ def dijkstra(graph, origins, **kwargs):
 
     return path_costs, path_values, paths
 
-def super_quantile(x, risk_attitude, n = 10):
+def super_quantile(x, risk_attitude, n = 100):
     
     q = np.linspace(risk_attitude[0], risk_attitude[1], n)
     # print(q)
@@ -436,6 +439,22 @@ def super_quantile(x, risk_attitude, n = 10):
     sq = 1/(risk_attitude[1] - risk_attitude[0]) * (np.quantile(x, q) * (q[1] - q[0])).sum()
 
     # sq = x.mean() + x.std()
+
+    return sq
+
+def super_quantile_fast(x, risk_attitude, n = 100):
+    
+    # q = np.linspace(risk_attitude[0], risk_attitude[1], n)
+
+    # # print(q)
+
+    # # print(norm(*norm.fit(x)).ppf(q))
+    
+    # sq = 1/(risk_attitude[1] - risk_attitude[0]) * (
+    #     norm(*norm.fit(x)).ppf(q) * (q[1] - q[0])
+    #     ).sum()
+
+    sq = x.mean()
 
     return sq
 
@@ -602,13 +621,10 @@ class Station():
     def time(self, x):
         
         time = (
-            (self.vehicle.capacity * (1 - x['soc']) / self.vehicle.rate + self.delay_time) *
-            self.at_least_one_functional_charger
+            (self.vehicle.capacity * (1 - x['soc']) / self.vehicle.rate + self.delay_time)
             )
 
-        # print('a', self.vehicle.capacity * (1 - x['soc']) / self.vehicle.rate)
-        # print('b', self.delay_time)
-        # print('c', time)
+        # time = 0
 
         x['time'] += time
 
@@ -617,8 +633,7 @@ class Station():
     def price(self, x):
 
         price = (
-            (self.vehicle.capacity * (1 - x['soc']) * self.energy_price) *
-            self.at_least_one_functional_charger
+            (self.vehicle.capacity * (1 - x['soc']) * self.energy_price)
             )
 
         x['price'] += price

@@ -45,6 +45,24 @@ def non_proprietary_network(graph):
 
     return subgraph(graph, keep)
 
+def combined_network(graph):
+
+    keep = []
+
+    for source, node in graph._node.items():
+
+        if 'station' not in source:
+
+            keep.append(source)
+
+        elif node.get('network', '') in ['Tesla', 'eVgo Network', 'Electrify America', 'ChargePoint Network']:
+
+            # if node.get('corridor', 0):
+
+            keep.append(source)
+
+    return subgraph(graph, keep)
+
 def icev_network(graph):
 
     keep = []
@@ -139,7 +157,7 @@ def add_stations(graph, station, rng):
 
     return graph
 
-def accessibility(p_hat):
+def accessibility(p_hat, field):
 
     accessibility = 0
 
@@ -147,11 +165,8 @@ def accessibility(p_hat):
 
         for key_1, value_1 in value_0.items():
 
-            accessibility += value_1
+            accessibility += value_1[field].mean()
 
     accessibility /= len(p_hat) ** 2
 
     return accessibility
-
-
-
