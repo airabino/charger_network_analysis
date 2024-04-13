@@ -144,6 +144,108 @@
     \field{year}{2018}
   \endentry
 
+  \entry{PrietoCuriel_2024}{article}{}
+    \name{author}{2}{}{%
+      {{hash=PCR}{%
+         family={Prieto-Curiel},
+         familyi={P\bibinithyphendelim C\bibinitperiod},
+         given={Rafael},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=OJP}{%
+         family={Ospina},
+         familyi={O\bibinitperiod},
+         given={Juan\bibnamedelima P.},
+         giveni={J\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+    }
+    \keyw{Modal share, Vehicle kilometres travelled, Motorisation, Active
+  travel}
+    \strng{namehash}{PCROJP1}
+    \strng{fullhash}{PCROJP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    The use of cars in cities has many negative impacts, including pollution,
+  noise and the use of space. Yet, detecting factors that reduce the use of
+  cars is a serious challenge, particularly across different regions. Here, we
+  model the use of various modes of transport in a city by aggregating Active
+  mobility (A), Public Transport (B) and Cars (C), expressing the modal share
+  of a city by its ABC triplet. Data for nearly 800 cities across 61 countries
+  is used to model car use and its relationship with city size and income. Our
+  findings suggest that with longer distances and the congestion experienced in
+  large cities, Active mobility and journeys by Car are less frequent, but
+  Public Transport is more prominent. Further, income is strongly related to
+  the use of cars. Results show that a city with twice the income has 37% more
+  journeys by Car. Yet, there are significant differences across regions. For
+  cities in Asia, Public Transport contributes to a substantial share of their
+  journeys. For cities in the US, Canada, Australia, and New Zealand, most of
+  their mobility depends on Cars, regardless of city size. In Europe, there are
+  vast heterogeneities in their modal share, from cities with mostly Active
+  mobility (like Utrecht) to cities where Public Transport is crucial (like
+  Paris or London) and cities where more than two out of three of their
+  journeys are by Car (like Rome and Manchester).%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.envint.2024.108541
+    \endverb
+    \field{issn}{0160-4120}
+    \field{pages}{108541}
+    \field{title}{The ABC of mobility}
+    \verb{url}
+    \verb https://www.sciencedirect.com/science/article/pii/S0160412024001272
+    \endverb
+    \field{volume}{185}
+    \field{journaltitle}{Environment International}
+    \field{year}{2024}
+  \endentry
+
+  \entry{NHTS_2017}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=FFHA}{%
+         family={(FHA)},
+         familyi={F\bibinitperiod},
+         given={Federal Highway\bibnamedelima Administration},
+         giveni={F\bibinitperiod\bibinitdelim H\bibinitperiod\bibinitdelim
+  A\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {U.S. Department of Transportation}%
+    }
+    \strng{namehash}{FFHA1}
+    \strng{fullhash}{FFHA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{note}{\url{https://nhts.ornl.gov/}}
+    \field{title}{2017 National Household Travel Survey}
+    \field{journaltitle}{Federal Highway Administration (FHA)}
+    \field{year}{2017}
+  \endentry
+
+  \entry{NHTS_2022}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=FFHA}{%
+         family={(FHWA)},
+         familyi={F\bibinitperiod},
+         given={Federal Highway\bibnamedelima Administration},
+         giveni={F\bibinitperiod\bibinitdelim H\bibinitperiod\bibinitdelim
+  A\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {U.S. Department of Transportation}%
+    }
+    \strng{namehash}{FFHA2}
+    \strng{fullhash}{FFHA2}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{note}{\url{https://nhts.ornl.gov/}}
+    \field{title}{2022 National Household Travel Survey}
+    \field{journaltitle}{Federal Highway Administration (FHWA)}
+    \field{year}{2022}
+  \endentry
+
   \entry{Gamage_2023}{article}{}
     \name{author}{3}{}{%
       {{hash=GT}{%

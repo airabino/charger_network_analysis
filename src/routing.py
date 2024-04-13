@@ -403,7 +403,7 @@ def dijkstra(graph, origins, **kwargs):
 
             # Checking if link traversal is possible
             feasible, current_values = constraints(current_values, node)
-            # feasible = True
+            feasible = True
 
             # # Charging if availabe
             if 'update' in node.keys():
@@ -804,6 +804,13 @@ class ConstrainedVehicle(Vehicle):
 
     def constraint_test(self, x, v):
 
+        # print(
+        #     self.expectation_function(x['soc'],
+        #         (1 - self.risk_attitude[0], 1 - self.risk_attitude[1])),
+        #     v.get('min_soc', self.min_soc),
+        #     v.get('max_soc', self.max_soc)
+        #     )
+
         feasible = in_range(
             self.expectation_function(x['soc'],
                 (1 - self.risk_attitude[0], 1 - self.risk_attitude[1])),
@@ -811,7 +818,7 @@ class ConstrainedVehicle(Vehicle):
             v.get('max_soc', self.max_soc)
         )
 
-        x['time'] += self.out_of_charge_penalty * (not feasible)
+        # x['time'] += self.out_of_charge_penalty * (not feasible)
 
         return True, x
 
