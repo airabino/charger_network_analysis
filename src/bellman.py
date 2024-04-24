@@ -1,284 +1,261 @@
 '''
 Module for Dijkstra routing
 
-Code is based on (is an edited version of):
-NetworkX shortest_paths.weighted._dijkstra_multisource
-
-Edits are to allow for native tracking of multiple shortest path simultaneously.
-For example, one could get a shortest path weighted by 'distance' but also
-want to know path 'time', this edited code allows for this to be done efficiently.
+Implementation is based on NetworkX shortest_paths
 '''
-import time
 import numpy as np
-import networkx as nx
 
+from collections import deque
 from copy import deepcopy
 from heapq import heappop, heappush
 from itertools import count
-from sys import float_info, maxsize
-
-class Charger():
-
-    def __init__(self, reset, rate, delay, price, **kwargs):
-
-        self.reset = reset
-        self.rate = rate
-        self.delay = delay
-        self.price = price
-
-        self.range_field = kwargs.get('range_field', 'range')
-        self.time_field = kwargs.get('time_field', 'time')
-        self.price_field = kwargs.get('price_field', 'price')
-        self.rng = np.random.default_rng(kwargs.get('seed', None))
-
-    def get_random_state(self):
-
-        rn = self.rng.random()
-
-        return self.reset(rn), self.rate(rn), self.delay(rn), self.price(rn)
-
-    def update(self, cost):
-        # print('ccccc')
-
-        for idx in range(len(cost[self.range_field])):
-
-            reset, rate, delay, price = self.get_random_state()
-            # print(reset, rate, delay, price)
-
-            if cost[self.range_field][idx] > reset:
-                
-                cost[self.time_field][idx] += (
-                    (cost[self.range_field][idx] - reset) / rate + delay)
-
-                cost[self.price_field][idx] += (
-                    (cost[self.range_field][idx] - reset) * price)
-
-                cost[self.range_field][idx] = reset
-
-        return cost
+from sys import maxsize
 
 class Objective():
 
-    def __init__(self, field, initial, feasible, weight):
+    def __init__(self, field = 'weight', limit = np.inf):
 
         self.field = field
-        self.initial = initial
-        self.feasible = feasible
-        self.weight = weight
+        self.limit = limit
 
-        self.n = len(self.initial)
+    def initial(self):
 
-    def update(self, cost, entity):
+        return 0
 
-        # print('a', self.field, cost, entity)
-        # print(entity.get(self.field, 0))
+    def infinity(self):
 
-        entity_value = entity.get(self.field, 0)
-        # print('c', entity_value)
+        return np.inf
 
-        for idx in range(self.n):
+    def update(self, values, link, node):
 
-            cost[self.field][idx] += entity_value
+        values += link.get(self.field, 1) + node.get(self.field, 0)
 
-        # print('b', self.field, cost)
+        return values, values <= self.limit
 
-        return cost
+    def compare(self, values, comparison):
 
-def bellman(graph, destinations, objectives, origins = [], **kwargs):
+        return values, values < comparison
 
-    node_values, _ = bellman_integration(
-        graph, destinations, objectives, origins = origins, **kwargs)
+def bellman(graph, origins, **kwargs):
+    """Calls relaxation loop for Bellman–Ford algorithm and builds paths
 
-    path_values, paths = bellman_evaluation(
-        graph, node_values, objectives, origins = origins, **kwargs)
-
-    return path_values, paths
-
-def bellman_evaluation(graph, node_values, objectives, origins = [], **kwargs):
-
-    null_adjacency = {o.field: [maxsize] * len(o.initial) for o in objectives}
-
-    adjacency = graph._adj
-
-    paths = {origin: [origin] for origin in origins}
-
-    path_values = {origin: {o.field: o.initial for o in objectives} for origin in origins}
-
-    for origin in origins:
-
-        current = origin
-
-        while True:
-
-            current_adjacency = adjacency[current]
-
-            adjacency_costs = (
-                {key: node_values.get(key, null_adjacency) for key in current_adjacency}
-                )
-
-
-    return path_values, paths
-
-
-
-
-def bellman_integration(graph, destinations, objectives, origins = [], **kwargs):
-    """Uses Dijkstra's algorithm to find shortest weighted paths
-
-    Code is based on (is an edited version of):
-    NetworkX shortest_paths.weighted._dijkstra_multisource
-
-    Edits are to allow for native tracking of multiple shortest path simultaneously.
+    This is an implementation of the SPFA variant.
+    See https://en.wikipedia.org/wiki/Shortest_Path_Faster_Algorithm
 
     Parameters
     ----------
     graph : NetworkX graph
 
-    sources : non-empty iterable of nodes
-        Starting nodes for paths. If this is just an iterable containing
-        a single node, then all paths computed by this function will
-        start from that node. If there are two or more nodes in this
-        iterable, the computed paths may begin from any one of the start
-        nodes.
+    source: list
+        List of source nodes. The shortest path from any of the source
+        nodes will be found if multiple origins are provided.
 
-    objectives : dictionary - {field: {'limit': limit, 'weight': weight}}
-        Cumulative values for path fields will be returned - if any cutoff is exceeded
-        in reaching a node the node is considered unreachable via the given path.
-        AT LEAST ONE FIELD IS REQUIRED.
+    weight : function
+        The weight of an edge is the value returned by the function. The
+        function must accept exactly three positional arguments: the two
+        endpoints of an edge and the dictionary of edge attributes for
+        that edge. The function must return a number.
 
-    targets : iterable of nodes - optionally empty
-        Ending nodes for path. Search is halted when all targets are reached. If empty
-        all nodes will be reached if possible.
+    pred: dict of lists, optional (default=None)
+        dict to store a list of predecessors keyed by that node
+        If None, predecessors are not stored
 
-    chargers : Dictionary - {node: weights}
-        Dictionary of nodes that reset given weights to zere. As an example
-        a charger can be a node which resets a distance weight to zero allowing for
-        further distances to be reached.
+    paths: dict, optional (default=None)
+        dict to store the path list from source to each node, keyed by node
+        If None, paths are not stored
 
-    return_paths : Boolean
-        Boolean whether or not to compute paths dictionary. If False None
-        is returned for the paths output. COMPUTING PATHS WILL INCREASE RUN-TIME.
+    dist: dict, optional (default=None)
+        dict to store distance from source to the keyed node
+        If None, returned dist dict contents default to 0 for every node in the
+        source list
+
+    target: node label, optional
+        Ending node for path. Path lengths to other destinations may (and
+        probably will) be incorrect.
+
+    heuristic : bool
+        Determines whether to use a heuristic to early detect negative
+        cycles at a hopefully negligible cost.
 
     Returns
     -------
-    path_weights : dictionary
-        Path weights from source nodes to target nodes.
+    dist : dict
+        Returns a dict keyed by node to the distance from the source.
+        Dicts for paths and pred are in the mutated input dicts by those names.
 
-    paths : dictionary
-        Dictionary containing ordered lists of nodes passed on shortest
-        path between the origin node and other nodes. If return_paths == False
-        then None will be returned.
+    Raises
+    ------
+    NodeNotFound
+        If any of `source` is not in `graph`.
+
+    NetworkXUnbounded
+        If the (di)graph contains a negative (di)cycle, the
+        algorithm raises an exception to indicate the presence of the
+        negative (di)cycle.  Note: any negative weight edge in an
+        undirected graph is a negative cycle
     """
 
+    destinations = kwargs.get('destinations', None)
+    objective = kwargs.get('objective', Objective())
+    heuristic = kwargs.get('heuristic', True)
     return_paths = kwargs.get('return_paths', False)
+
+    predecessor = {target: [] for target in origins}
+
+    values = {target: objective.initial() for target in origins}
+    cost = {target: 0 for target in origins}
+
+    # Heuristic Storage setup. Note: use None because nodes cannot be None
+    nonexistent_edge = (None, None)
+    predecessor_edge = {origin: None for origin in origins}
+    recent_update = {origin: nonexistent_edge for origin in origins}
+
+    adjacency = graph._adj
+    nodes = graph._node
+    infinity = objective.infinity()
+    n = len(graph)
+
+    count = {}
+    queue = deque(origins)
+    in_queue = set(origins)
+
+    while queue:
+
+        source = queue.popleft()
+        in_queue.remove(source)
+
+        # Skip relaxations if any of the predecessors of source is in the queue.
+        if all(pred_source not in in_queue for pred_source in predecessor[source]):
+
+            values_source = values[source]
+
+            for target, edge in adjacency[source].items():
+
+                # cost_target = cost_source + adjacency[source][target][weight]
+                values_target, feasible = objective.update(values_source, edge, nodes[target])
+                
+                if feasible:
+
+                    cost_target, savings = objective.compare(
+                        values_target, values.get(target, infinity)
+                        )
+
+                    if savings:
+                        # In this conditional branch we are updating the path with target.
+                        # If it happens that some earlier update also added node target
+                        # that implies the existence of a negative cycle since
+                        # after the update node target would lie on the update path twice.
+                        # The update path is stored up to one of the source nodes,
+                        # therefore source is always in the dict recent_update
+                        if heuristic:
+
+                            if target in recent_update[source]:
+
+                                # Negative cycle found!
+                                predecessor[target].append(source)
+
+                                return target
+
+                            # Transfer the recent update info from source to target if the
+                            # same source node is the head of the update path.
+                            # If the source node is responsible for the cost update,
+                            # then clear the history and use it instead.
+                            if (
+                                (target in predecessor_edge) and
+                                (predecessor_edge[target] == source)
+                                ):
+
+                                recent_update[target] = recent_update[source]
+
+                            else:
+
+                                recent_update[target] = (source, target)
+
+                        if target not in in_queue:
+
+                            queue.append(target)
+                            in_queue.add(target)
+
+                            count_target = count.get(target, 0) + 1
+
+                            if count_target == n:
+
+                                # Negative cycle found!
+                                return target
+
+                            count[target] = count_target
+
+                        values[target] = values_target
+                        cost[target] = cost_target
+                        predecessor[target] = [source]
+                        predecessor_edge[target] = source
+
+                    elif values.get(target) is not None and values_target == values.get(target):
+
+                        predecessor[target].append(source)
 
     if return_paths:
 
-        paths = {destination: [destination] for destination in destinations}
+        paths = {}
+
+        origins = set(origins)
+
+        destinations = destinations if destinations is not None else predecessor
+
+        for destination in destinations:
+
+            path_generator = paths_from_predecessors(
+                origins, destination, predecessor
+                )
+
+            paths[destination] = next(path_generator)
 
     else:
 
         paths = None
 
-    if type(graph) is nx.classes.digraph.DiGraph:
-        # Reverses directed graphs
+    return cost, values, paths
 
-        graph = graph.reverse(default = True)
+def paths_from_predecessors(origins, destination, predecessor):
 
-    adjacency = graph._adj
-    # For speed-up (and works for both directed and undirected graphs)
+    seen = {destination}
 
-    path_values = {}  # dictionary of cost values for paths
+    stack = [[destination, 0]]
 
-    visited = {} # dictionary of costs-to-reach for nodes
+    top = 0
 
-    origins_visited = 0
+    while top >= 0:
 
-    if len(origins) == 0:
+        node, i = stack[top]
 
-        origins_to_visit = maxsize # If no targets are provided then search all nodes
+        if node in origins:
 
-    else:
+            yield [p for p, n in reversed(stack[: top + 1])]
 
-        origins_to_visit = len(origins)
-        # If targets are provided then search until all are seen
+        if len(predecessor[node]) > i:
 
-    # Heap Queue is used for search, efficiently allows for tracking of nodes
-    # and pushing/pulling
-    c = count() # use the count c to avoid comparing nodes (may not be able to)
-    heap = [] # heap is heapq with 3-tuples (cost, c, node)
+            stack[top][1] = i + 1
+            successor = predecessor[node][i]
 
-    for destination in destinations:
+            if successor in seen:
 
-        visited[destination] = 0 # Source is seen at the start of iteration and at 0 cost
-        # Adding the source tuple to the heap (initial cost, count, id)
-        cost = {objective.field: objective.initial for objective in objectives}
-        heappush(heap, (0, cost, next(c), destination))
+                continue
 
-    while heap: # Iterating while there are accessible un-visited nodes
+            else:
 
-        # Popping the smallest unseen node from the heap
+                seen.add(successor)
 
-        (wc, cost,  _, target) = heappop(heap)
+            top += 1
 
-        if target in path_values:
+            if top == len(stack):
 
-            continue  # already searched this node.
+                stack.append([successor, 0])
 
-        path_values[target] = cost
-        # Checking if the current source is a search target
-        # If all targets are reached then the search is terminated
+            else:
 
-        if target in origins:
+                stack[top][:] = [successor, 0]
 
-            origins_visited += 1
+        else:
 
-        if origins_visited >= origins_to_visit:
-
-            break
-
-        # Iterating through the current source node's adjacency
-        for source, link in adjacency[target].items():
-
-            tentative_cost = deepcopy(cost)
-
-            feasible = True
-            weighted_cost = 0
-
-            for objective in objectives:
-
-                # Updating objective for link
-                tentative_cost = objective.update(tentative_cost, link)
-
-
-                # Checking if link traversal is possible
-                feasible *= objective.feasible(tentative_cost)
-
-
-                # Adding the target node cost
-                tentative_cost = objective.update(tentative_cost, graph._node[source])
-
-
-                # Updating the weighted cost for the path
-                weighted_cost += objective.weight(tentative_cost)
-
-                
-                # Charging if availabe
-                if 'charger' in graph._node[source]:
-
-                    tentative_cost = graph._node[source]['charger'].update(tentative_cost)
-
-            not_visited = source not in visited
-            savings = weighted_cost < visited.get(source, 0)
-
-            if (not_visited or savings) and feasible:
-
-                visited[source] = weighted_cost
-
-                heappush(heap, (weighted_cost, tentative_cost, next(c), source))
-
-                if paths is not None:
-
-                    paths[source] = [source] + paths[target]
-
-    return path_values, paths
+            seen.discard(node)
+            top -= 1

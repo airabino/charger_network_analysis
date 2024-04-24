@@ -6,10 +6,7 @@ from scipy.stats import rv_histogram
 
 from .graph import graph_from_nlg
 from .utilities import pythagorean, top_n_indices
-
-def random_nodes(graph, n):
-
-	return np.random.choice(list(graph.nodes), size = n, replace = False)
+# from .routing import Charger
 
 def multiply_and_resample(x, y, rng = np.random.default_rng(None)):
 
