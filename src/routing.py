@@ -31,17 +31,47 @@ def in_range(x, lower, upper):
 
     return (x >= lower) & (x <= upper)
 
+class Objective():
+
+    def __init__(self, field = 'weight', limit = np.inf):
+
+        self.field = field
+        self.limit = limit
+
+    def initial(self):
+
+        return 0
+
+    def infinity(self):
+
+        return np.inf
+
+    def update(self, values, link, node):
+
+        values += link.get(self.field, 1) + node.get(self.field, 0)
+
+        return values, values <= self.limit
+
+    def compare(self, values, comparison):
+
+        return values, values < comparison
+
 class Vehicle():
 
     def __init__(self, **kwargs):
 
         self.capacity = kwargs.get('capacity', 80 * 3.6e6) # [J]
         self.efficiency = kwargs.get('efficiency', 550) # [J/m]
+        self.charge_rate = kwargs.get('charge_rate', 80e3) # [W]
+        self.charge_time_penalty = kwargs.get('charge_time_penalty', 300) # [s]
+        self.charge_price = kwargs.get('charge_price', .5 / 3.6e6) # [$/J]
         self.soc_bounds = kwargs.get('soc_bounds', (0, 1)) # ([-], [-])
+
         self.initial_values = kwargs.get(
             'initial_values',
             {
                 'time': 0, # [s]
+                'driving_time': 0, # [s]
                 'distance': 0, # [m]
                 'price': 0, # [$]
                 'soc': 1, # [dim]
@@ -62,9 +92,9 @@ class Vehicle():
 
     def update(self, values, link, node):
 
-        if (link['type'] == 'inter_station') and (link['distance'] < .75 * self.range):
+        if not in_range(link['distance'], 0, self.range):
 
-            return None, False
+            return values, False
 
         updated_values = values.copy()
 
@@ -72,17 +102,30 @@ class Vehicle():
         traversal_delta_soc = traversal_energy / self.capacity
 
         updated_values['time'] += link['time']
+        updated_values['driving_time'] += link['time']
         updated_values['distance'] += link['distance']
         updated_values['price'] += link['price']
         updated_values['soc'] -= traversal_delta_soc
 
         feasible = in_range(updated_values['soc'], *self.soc_bounds)
 
+        if node['type'] == 'station':
+
+            delta_soc = self.soc_bounds[1] - updated_values['soc']
+
+            updated_values['soc'] += delta_soc
+            updated_values['time'] += (
+                delta_soc * self.capacity / self.charge_rate + self.charge_time_penalty
+                )
+            updated_values['price'] += delta_soc * self.capacity * self.charge_price
+
         return updated_values, feasible
 
     def compare(self, values, comparison):
 
         return values['time'], values['time'] < comparison['time']
+
+
 
 
 
