@@ -1,5 +1,5 @@
 '''
-Module for Dijkstra routing
+Module for Bellman routing
 
 Implementation is based on NetworkX shortest_paths
 '''
@@ -28,72 +28,36 @@ class Objective():
 
     def update(self, values, link, node):
 
-        values += link.get(self.field, 1) + node.get(self.field, 0)
+        values += link.get(self.field, 1)
 
         return values, values <= self.limit
 
-    def compare(self, values, comparison):
+    def compare(self, values, approximation):
 
-        return values, values < comparison
+        return values, values < approximation
 
 def bellman(graph, origins, **kwargs):
-    """Calls relaxation loop for Bellman–Ford algorithm and builds paths
+    '''
+    Flexible implementation of Dijkstra's algorithm.
 
-    This is an implementation of the SPFA variant.
-    See https://en.wikipedia.org/wiki/Shortest_Path_Faster_Algorithm
+    Depends on an Objective object which contains the following four functions:
 
-    Parameters
-    ----------
-    graph : NetworkX graph
+    values = initial() - Function which produces the starting values of each problem state
+    to be applied to the origin node(s)
 
-    source: list
-        List of source nodes. The shortest path from any of the source
-        nodes will be found if multiple origins are provided.
+    values = infinity() - Function which produces the starting values for each non-origin
+    node. The values should be intialized such that they are at least higher than any
+    conceivable value which could be attained during routing.
 
-    weight : function
-        The weight of an edge is the value returned by the function. The
-        function must accept exactly three positional arguments: the two
-        endpoints of an edge and the dictionary of edge attributes for
-        that edge. The function must return a number.
+    values, feasible = update(values, edge, node) - Function which takes current path state
+    values and updates them based on the edge traversed and the target node and whether the
+    proposed edge traversal is feasible. This function returns the values argument and a
+    boolean feasible.
 
-    pred: dict of lists, optional (default=None)
-        dict to store a list of predecessors keyed by that node
-        If None, predecessors are not stored
-
-    paths: dict, optional (default=None)
-        dict to store the path list from source to each node, keyed by node
-        If None, paths are not stored
-
-    dist: dict, optional (default=None)
-        dict to store distance from source to the keyed node
-        If None, returned dist dict contents default to 0 for every node in the
-        source list
-
-    target: node label, optional
-        Ending node for path. Path lengths to other destinations may (and
-        probably will) be incorrect.
-
-    heuristic : bool
-        Determines whether to use a heuristic to early detect negative
-        cycles at a hopefully negligible cost.
-
-    Returns
-    -------
-    dist : dict
-        Returns a dict keyed by node to the distance from the source.
-        Dicts for paths and pred are in the mutated input dicts by those names.
-
-    Raises
-    ------
-    NodeNotFound
-        If any of `source` is not in `graph`.
-
-    NetworkXUnbounded
-        If the (di)graph contains a negative (di)cycle, the
-        algorithm raises an exception to indicate the presence of the
-        negative (di)cycle.  Note: any negative weight edge in an
-        undirected graph is a negative cycle
-    """
+    values, savings = compare(values, approximation) - Function for comparing path state
+    values with the existing best approximation at the target node. This function returns
+    the values argument and a boolean savings.
+    '''
 
     destinations = kwargs.get('destinations', None)
     objective = kwargs.get('objective', Objective())
@@ -190,7 +154,7 @@ def bellman(graph, origins, **kwargs):
                         predecessor[target] = [source]
                         predecessor_edge[target] = source
 
-                    elif values.get(target) is not None and values_target == values.get(target):
+                    elif cost.get(target) is not None and cost_target == cost.get(target):
 
                         predecessor[target].append(source)
 

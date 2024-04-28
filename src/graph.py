@@ -33,7 +33,6 @@ Link -> edge, adj
 
 Nodes of a graph may also be referred to as vertices
 '''
-
 import json
 import momepy
 import numpy as np
@@ -42,131 +41,6 @@ import geopandas as gpd
 import networkx as nx
 
 from scipy.spatial import KDTree
-
-from .utilities import pythagorean
-
-def node_assignment(graph, atlas):
-
-	x, y = np.array(
-		[[val['x'], val['y']] for key, val in graph._node.items()]
-		).T
-
-	graph_nodes = np.array(
-		[key for key, val in graph._node.items()]
-		).T
-
-	atlas_nodes = closest_nodes_from_coordinates(atlas, x, y)
-
-	graph_to_atlas = (
-		{graph_nodes[idx]: atlas_nodes[idx]['id'] for idx in range(len(graph_nodes))}
-		)
-	
-	atlas_to_graph = {}
-
-	for key, val in graph_to_atlas.items():
-
-		if val in atlas_to_graph.keys():
-
-			atlas_to_graph[val] += [key]
-
-		else:
-
-			atlas_to_graph[val] = [key]
-
-	return graph_to_atlas, atlas_to_graph
-
-def closest_nodes_from_coordinates(graph, x, y):
-	'''
-	Creates an assignment dictionary mapping between points and closest nodes
-	'''
-
-	# Pulling coordinates from graph
-	xy_graph = np.array([(n['x'], n['y']) for n in graph._node.values()])
-	xy_graph = xy_graph.reshape((-1,2))
-
-	# Creating spatial KDTree for assignment
-	kd_tree = KDTree(xy_graph)
-
-	# Shaping input coordinates
-	xy_query = np.vstack((x, y)).T
-
-	# Computing assignment
-	result = kd_tree.query(xy_query)
-
-	node_assignment = []
-
-	for idx in range(len(x)):
-
-		node = result[1][idx]
-
-		node_assignment.append({
-			'id':node,
-			'query':xy_query[idx],
-			'result':xy_graph[node],
-			})
-
-	return node_assignment
-
-def random_graph(n, scale, s = 1, link_bounds = (0, np.inf), link_speeds = [1], seed = None):
-	
-	rng = np.random.default_rng(seed)
-
-	x = rng.random(n) * scale[0]
-	y = rng.random(n) * scale[1]
-	
-	nodes = []
-
-	for idx in range(n):
-
-		nodes.append({
-			'id': idx,
-			'x': x[idx],
-			'y': y[idx],
-		})
-
-	links = []
-
-	for idx_s in range(n):
-		for idx_t in range(n):
-
-			source = nodes[idx_s]['id']
-			target = nodes[idx_t]['id']
-
-			link_distance = pythagorean(
-				nodes[idx_s]['x'],
-				nodes[idx_s]['y'],
-				nodes[idx_t]['x'],
-				nodes[idx_t]['y'],
-			)
-
-			p = np.exp(-link_distance / s)
-			r = rng.random()
-			# if r <= p:
-				# print(idx_s, idx_t, p, r, link_distance)
-
-			dont_add_link = np.any((
-				(link_distance < link_bounds[0]),
-				(link_distance > link_bounds[1]),
-				r > p,
-				))
-
-			if dont_add_link:
-
-				continue
-
-			# print(idx_s, idx_t, p, r, link_distance)
-
-			link_time = link_distance / rng.choice(link_speeds)
-
-			links.append({
-				'source': source,
-				'target': target,
-				'distance': link_distance,
-				'time': link_time,
-			})
-
-	return graph_from_nlg({'nodes': nodes, 'links': links})
-
 
 # Functions for NLG JSON handling 
 

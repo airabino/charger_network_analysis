@@ -5,7 +5,6 @@ Implementation is based on NetworkX shortest_paths
 '''
 import numpy as np
 
-from copy import deepcopy
 from heapq import heappop, heappush
 from itertools import count
 from sys import maxsize
@@ -27,17 +26,35 @@ class Objective():
 
     def update(self, values, link, node):
 
-        values += link.get(self.field, 1) + node.get(self.field, 0)
+        values = values + link.get(self.field, 1)
 
         return values, values <= self.limit
 
-    def compare(self, values, comparison):
+    def compare(self, values, approximation):
 
-        return values, values < comparison
+        return values, values < approximation
 
 def dijkstra(graph, origins, **kwargs):
     '''
-    Flexible implementation of Dijkstra's algorithm
+    Flexible implementation of Dijkstra's algorithm.
+
+    Depends on an Objective object which contains the following four functions:
+
+    values = initial() - Function which produces the starting values of each problem state
+    to be applied to the origin node(s)
+
+    values = infinity() - Function which produces the starting values for each non-origin
+    node. The values should be intialized such that they are at least higher than any
+    conceivable value which could be attained during routing.
+
+    values, feasible = update(values, edge, node) - Function which takes current path state
+    values and updates them based on the edge traversed and the target node and whether the
+    proposed edge traversal is feasible. This function returns the values argument and a
+    boolean feasible.
+
+    values, savings = compare(values, approximation) - Function for comparing path state
+    values with the existing best approximation at the target node. This function returns
+    the values argument and a boolean savings.
     '''
 
     destinations = kwargs.get('destinations', [])
@@ -117,25 +134,23 @@ def dijkstra(graph, origins, **kwargs):
 
             node = nodes[target]
 
-            current_values = deepcopy(values)
-
             # Updating states for edge traversal
-            current_values, feasible = objective.update(
-                current_values, edge, node,
+            values, feasible = objective.update(
+                values, edge, node,
                 )
 
             if feasible:
 
                 # Updating the weighted cost for the path
                 cost, savings = objective.compare(
-                    current_values, visited.get(target, infinity)
+                    values, visited.get(target, infinity)
                     )
 
                 if savings:
                    
-                    visited[target] = current_values
+                    visited[target] = values
 
-                    heappush(heap, (cost, next(c), current_values, target))
+                    heappush(heap, (cost, next(c), values, target))
 
                     if paths is not None:
 
