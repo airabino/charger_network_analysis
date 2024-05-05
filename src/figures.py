@@ -38,6 +38,105 @@ colormaps={
 	'default_prop_cycle': default_prop_cycle,
 }
 
+default_route_tree_kwargs = {
+	'destinations_kw': {
+		'node_field': 'value',
+		'scatter': {
+			's': 300,
+			'ec': 'k',
+			'lw': 2,
+			# 'marker': (8, 1, 0),
+			'zorder': 3,
+			'label': 'Destinations',
+		},
+		'colorbar': {
+			'label': 'Time to Destination [h]'
+		}
+	},
+	'stations_kw': {
+		# 'node_field': 'value',
+		'scatter': {
+			's': 100,
+			'fc': 'none',
+			'ec': 'k',
+			'zorder': 1,
+			'marker': (4, 1, 0),
+			'label': 'Unused Stations',
+		},
+	},
+	'stations_used_kw': {
+		# 'node_field': 'value',
+		'scatter': {
+			's': 200,
+			'fc': 'magenta',
+			'ec': 'k',
+			'lw': 2,
+			'zorder': 2,
+			'marker': (4, 1, 0),
+			'label': 'Used Stations',
+		},
+	},
+	'edge_kw': {
+		'color': 'k',
+		'lw': 1.5,
+		'zorder': 0,
+	}
+}
+
+def plot_route_tree(ax, graph, values = {}, paths = {}, destinations = [], **kwargs):
+	'''
+	plots a route tree from an origin to destinations with refueling stations
+	'''
+
+	stations_used = []
+
+	# Plotting path edges
+	for path in paths.values():
+
+		stations_used.extend(path[1:-1])
+
+		x = [graph._node[n]['x'] for n in path]
+		y = [graph._node[n]['y'] for n in path]
+
+		ax.plot(x, y, **kwargs.get('edge_kw', {}))
+
+	# Adding value field to graph
+	for source, node in graph._node.items():
+
+		node['value'] = values.get(source, np.nan)
+
+	# Making subgraphs
+	nodes = list(graph.nodes)
+	stations = [n for n in nodes if n not in destinations]
+	stations = [n for n in stations if n not in stations_used]
+
+	# Plotting destinations
+	if kwargs.get('show_destinations', True):
+
+		destinations = subgraph(graph, destinations)
+	
+		plot_graph(
+			destinations, ax = ax, show_links = False, **kwargs.get('destinations_kw', {})
+			)
+
+	# Plotting stations
+	if kwargs.get('show_unused_stations', True):
+
+		stations = subgraph(graph, stations)
+	
+		plot_graph(
+			stations, ax = ax, show_links = False, **kwargs.get('stations_kw', {})
+			)
+
+	# Plotting stations used
+	if kwargs.get('show_used_stations', True):
+
+		stations_used = subgraph(graph, stations_used)
+	
+		plot_graph(
+			stations_used, ax = ax, show_links = False, **kwargs.get('stations_used_kw', {})
+			)
+
 def colormap(colors):
 
 	if type(colors) == str:
@@ -93,14 +192,20 @@ def plot_graph(graph, ax = None, **kwargs):
 		vmin = scatter_kw.get('vmin', np.nanmin(values))
 		vmax = scatter_kw.get('vmax', np.nanmax(values))
 
-		values_norm = (
-				(values - vmin) / (vmax - vmin)
-				)
+		if vmin == vmax:
 
-		kwargs['scatter']['color'] = cmap(values_norm)
+			values_norm = values
+
+		else:
+
+			values_norm = (
+					(values - vmin) / (vmax - vmin)
+					)
+
+		scatter_kw['color'] = cmap(values_norm)
 
 	sc = ax.scatter(
-		coords[:, 0], coords[:, 1], ** scatter_kw
+		coords[:, 0], coords[:, 1], **scatter_kw
 		)
 
 	if show_links:

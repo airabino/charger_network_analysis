@@ -1,6 +1,7 @@
 import time
 import numpy as np
 
+from copy import deepcopy
 from scipy.stats import norm
 from scipy.special import factorial
 
@@ -19,6 +20,89 @@ def super_quantile(x, p = (0, 1), n = 100):
     q_k = np.quantile(x, p_k)
 
     return np.nan_to_num(q_k.mean(), nan = np.inf)
+
+def shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
+    '''
+    Return path costs, path values, and paths using Dijkstra's or Bellman's method
+
+    Produces paths to each destination from closest origin
+
+    Depends on an Objective object which contains the following four functions:
+
+    values = initial() - Function which produces the starting values of each problem state
+    to be applied to the origin node(s)
+
+    values = infinity() - Function which produces the starting values for each non-origin
+    node. The values should be intialized such that they are at least higher than any
+    conceivable value which could be attained during routing.
+
+    values, feasible = update(values, edge, node) - Function which takes current path state
+    values and updates them based on the edge traversed and the target node and whether the
+    proposed edge traversal is feasible. This function returns the values argument and a
+    boolean feasible.
+
+    values, savings = compare(values, approximation) - Function for comparing path state
+    values with the existing best approximation at the target node. This function returns
+    the values argument and a boolean savings.
+    '''
+
+    if method == 'dijkstra':
+
+        return dijkstra(graph, origins, **kwargs)
+
+    elif method == 'bellman':
+
+        return bellman(graph, origins, **kwargs)
+
+def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
+    '''
+    Return path costs, path values, and paths using Dijkstra's or Bellman's method
+
+    Produces paths to each origin from each origin
+
+    Depends on an Objective object which contains the following four functions:
+
+    values = initial() - Function which produces the starting values of each problem state
+    to be applied to the origin node(s)
+
+    values = infinity() - Function which produces the starting values for each non-origin
+    node. The values should be intialized such that they are at least higher than any
+    conceivable value which could be attained during routing.
+
+    values, feasible = update(values, edge, node) - Function which takes current path state
+    values and updates them based on the edge traversed and the target node and whether the
+    proposed edge traversal is feasible. This function returns the values argument and a
+    boolean feasible.
+
+    values, savings = compare(values, approximation) - Function for comparing path state
+    values with the existing best approximation at the target node. This function returns
+    the values argument and a boolean savings.
+    '''
+
+    # print(origins)
+    # print(kwargs.get('progress_bar_kw', {}))
+
+    if method == 'dijkstra':
+
+        routing_function = dijkstra
+
+    elif method == 'bellman':
+
+        routing_function = bellman
+
+    costs = {}
+    values = {}
+    paths = {}
+
+    for origin in ProgressBar(origins, **kwargs.get('progress_bar_kw', {})):
+
+        result = routing_function(graph, [origin], destinations = origins, **kwargs)
+
+        costs[origin] = result[0]
+        values[origin] = result[1]
+        paths[origin] = result[2]
+
+    return costs, values, paths
 
 class Objective():
 
@@ -53,8 +137,8 @@ class Vehicle():
         self.efficiency = kwargs.get('efficiency', 550) # [J/m]
         self.charge_rate = kwargs.get('charge_rate', 80e3) # [W]
         self.charge_time_penalty = kwargs.get('charge_time_penalty', 300) # [s]
-        self.charge_price = kwargs.get('charge_price', .5 / 3.6e6) # [$/J]
         self.soc_bounds = kwargs.get('soc_bounds', (0, 1)) # ([-], [-])
+        self.max_charge_start_soc = kwargs.get('max_charge_start_soc', 1) # [-]
 
         self.initial_values = kwargs.get(
             'initial_values',
@@ -80,9 +164,14 @@ class Vehicle():
         return {k: np.inf for k in self.initial_values.keys()}
 
     def update(self, values, link, node):
-        # print(link)
 
-        if not in_range(link['distance'], 0, self.range):
+        if (
+            (node['type'] == 'station') and
+            not in_range(
+                link['distance'],
+                (1 - self.max_charge_start_soc) * self.range,
+                self.range
+            )):
 
             return values, False
 
@@ -101,13 +190,21 @@ class Vehicle():
 
         if node['type'] == 'station':
 
-            delta_soc = self.soc_bounds[1] - updated_values['soc']
+            updated_values = node['station'].update(updated_values)
 
-            updated_values['soc'] += delta_soc
-            updated_values['time'] += (
-                delta_soc * self.capacity / self.charge_rate + self.charge_time_penalty
-                )
-            updated_values['price'] += delta_soc * self.capacity * self.charge_price
+            # charge_rate = max([self.charge_rate, node.get('charge_rate', 0)])
+
+            # delay = node.get('expected_delay', 0)
+
+            # delta_soc = self.soc_bounds[1] - updated_values['soc']
+
+            # updated_values['soc'] += delta_soc
+            # updated_values['time'] += (
+            #     delta_soc * self.capacity / charge_rate + self.charge_time_penalty + delay
+            #     )
+            # updated_values['price'] += (
+            #     delta_soc * self.capacity * node.get('charge_price', 0)
+            #     )
 
         return updated_values, feasible
 
@@ -119,20 +216,28 @@ class StochasticVehicle():
 
     def __init__(self, **kwargs):
 
-        self.cases = kwargs.get('cases', 30) # [-]
+        self.cases = kwargs.get('cases', 1) # [-]
         self.capacity = kwargs.get('capacity', 80 * 3.6e6) # [J]
         self.efficiency = kwargs.get('efficiency', 550) # [J/m]
         self.charge_rate = kwargs.get('charge_rate', 80e3) # [W]
-        self.charge_price = kwargs.get('charge_price', .5 / 3.6e6) # [$/J]
         self.soc_bounds = kwargs.get('soc_bounds', (0, 1)) # ([-], [-])
         self.max_charge_start_soc = kwargs.get('max_charge_start_soc', 1) # [-]
         self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # ([-], [-])
 
-        self.expectation = kwargs.get(
-            'expectation',
-            lambda x: super_quantile(x, self.risk_attitude),
-            )
+        if self.cases == 1:
 
+            self.expectation = kwargs.get(
+                'expectation',
+                lambda x: x[0],
+                )
+
+        else:
+
+            self.expectation = kwargs.get(
+                'expectation',
+                lambda x: super_quantile(x, self.risk_attitude),
+                )
+            
         self.initial_values = kwargs.get(
             'initial_values',
             {
@@ -147,6 +252,13 @@ class StochasticVehicle():
         self.range = (
             (self.soc_bounds[1] - self.soc_bounds[0]) * self.capacity / self.efficiency
             )
+
+    def select_case(self, case):
+
+        new_object = deepcopy(self)
+        new_object.expectation = lambda x: x[case]
+
+        return new_object
 
     def initial(self):
 
@@ -179,6 +291,9 @@ class StochasticVehicle():
         updated_values['price'] = values['price'] + link['price']
         updated_values['soc']  = values['soc'] - traversal_delta_soc
 
+        # print(updated_values['soc'][0])
+        # print(self.expectation(updated_values['soc']))
+
         feasible = in_range(self.expectation(updated_values['soc']), *self.soc_bounds)
 
         if node['type'] == 'station':
@@ -200,10 +315,13 @@ class StochasticStation():
 
         self.vehicle = vehicle
 
+        self.cases = getattr(self.vehicle, 'cases', 1)
+
         self.seed = kwargs.get('seed', None)
         self.rng = kwargs.get('rng', np.random.default_rng())
         self.chargers = kwargs.get('chargers', 1)
         self.charge_rate = kwargs.get('charge_rate', 80e3)
+        self.charge_price = kwargs.get('charge_price', .5 / 3.6e6) # [$/J]
 
         self.charge_rate = min([self.charge_rate, self.vehicle.charge_rate])
 
@@ -228,7 +346,7 @@ class StochasticStation():
 
     def clip_norm(self, param, limits):
 
-        return np.clip(norm(*param).rvs(self.vehicle.cases), *limits)
+        return np.clip(norm(*param).rvs(self.cases), *limits)
 
     def populate(self):
 
@@ -244,9 +362,9 @@ class StochasticStation():
             3.6e6 / self.charge_rate
             )
 
-        self.delay_time = np.zeros(self.vehicle.cases)
+        self.delay_time = np.zeros(self.cases)
 
-        for idx in range(self.vehicle.cases):
+        for idx in range(self.cases):
 
             self.delay_time[idx] = self.queuing_time(
                 1 / self.arrival[idx],
@@ -287,7 +405,7 @@ class StochasticStation():
 
     def functionality(self):
 
-        rn = self.rng.random(size = (self.chargers, self.vehicle.cases))
+        rn = self.rng.random(size = (self.chargers, self.cases))
 
         return (rn <= self.reliability).sum(axis = 0)
 
@@ -306,7 +424,7 @@ class StochasticStation():
     def price(self, x):
 
         price = (
-            (self.vehicle.capacity * (1 - x['soc']) * self.energy_price)
+            (self.vehicle.capacity * (1 - x['soc']) * self.charge_price)
             )
 
         x['price'] += price

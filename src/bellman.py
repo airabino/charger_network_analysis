@@ -38,7 +38,7 @@ class Objective():
 
 def bellman(graph, origins, **kwargs):
     '''
-    Flexible implementation of Dijkstra's algorithm.
+    Flexible implementation of Bellman's algorithm.
 
     Depends on an Objective object which contains the following four functions:
 
