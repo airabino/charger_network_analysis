@@ -22,22 +22,22 @@
 \usepackage{array}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage{comment}
+%\usepackage{comment}
 \usepackage[english]{babel}
 \usepackage[acronym,nomain]{glossaries} % list of acronyms
-\usepackage{xurl}
+%\usepackage{xurl}
 \usepackage{multicol}
 \usepackage{multirow}
 \usepackage{mathptmx}
 \usepackage{float}
 \usepackage{lipsum}
-\usepackage{framed}
+%\usepackage{framed}
 \usepackage[T1]{fontenc}
 \usepackage[pdfpagelabels,pdfusetitle,colorlinks=false,pdfborder={0 0 0}]{hyperref}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-\usepackage{tabularx}
-\usepackage{wrapfig}
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+%\usepackage{tabularx}
+%\usepackage{wrapfig}
 %\usepackage{enumitem}
 \usepackage{paralist}
 
@@ -53,6 +53,7 @@
 
 \sloppy
 \raggedbottom
+\raggedcolumns
 
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1-2\tabcolsep}}
 
@@ -123,26 +124,58 @@ There are, thus, a variety of methods which can be used to quantify the accessib
 
 \section*{Methods}
 
-\subsection*{Vehicle Reduced Sub-Network Graph}
+The focus of this study is long-trip accessibility for road vehicles. The metric proposed is of the Proximity type and reflects the ease with which a given individual, driving a given vehicle, can access the important locations in a region from one-another. The metric is titled Road-trip Accessibility. It is assumed that travelers, when considering non-routine long trips have a specific destination in mind and would not consider nearly equivalent and/or equidistant locations as fungible. Rather, having determined to travel to a given location the traveler will then select a mode. Road-trip Accessibility is computed by calculating the mode and person specific lowest-cost-paths for all pairs of selected locations within the region and taking the average. Example costs which might be used are travel time and travel price. This paper will focus, exclusively, on travel time. The manner in which lowest-cost-paths are calculated is critical in arriving at a representative result. This study calls for a specific method of stochastic route optimization and evaluation which will be detailed in the subsections below.
 
-Critical to this analysis is the definition of the \gls{rsng} for a given vehicle. Powered vehicles are range-limited due to the finite capacity of their \glspl{ess}. In order to traverse the edge defined by an \gls{od} pair whose energy requirement is greater than the capacity of the \gls{ess} a vehicle must stop at a supply station. The above applies equally to road vehicles of all powertrain types, the difference being the qualities of the respective supply networks which are neither equivalent nor isomorphic.
+A transportation accessibility metric should have land-use, transportation, temporal, and individual components \cite{Karst_2003}. Road-trip Accessibility contains all of these components. The land-use within a region has two principle effects on Road-trip Accessibility. First, for a multi-city region, peripheral cities should experience worse regional access than central cities. Second, geographically large and/or sparse regions should experience worse overall accessibility than compact regions. The transportation infrastructure determines the efficacy of various modes. Where only vehicular travel is concerned, the mode choice is reduced to vehicle choice. Vehicle specific infrastructure is not necessarily the same for all vehicles of a given fuel type but is necessarily different between fuel types creating effectively separate modes. The temporal component of Road-trip Accessibility arises from the schedules of public transportation services and road traffic patterns. Finally the individual component is the traveler risk attitude and route cost weights.
 
-For a network $G = \{V, E\}$ where $V$ is the set of nodes and $E$ is the set of edges, a reduced sub-network $\hat{G} = \{\hat{V}, \hat{E}\}$ can be computed where $\hat{V} \subseteq V$ and $\hat{E}$ is the set of paths between all nodes in $\hat{V}$. In other words, the cardinality of $V$ is reduced but the relationships between the \gls{od} pairs in $\hat{V}$ are maintained by considering multi-edge paths which contained nodes not in $\hat{V}$ as single edges. For a road vehicle with \gls{ess} capacity $C$ located at an origin node $v_i \in O \subseteq V$ $\hat{V}$ contains $O$, supply nodes in $S$, and opportunity nodes $D \subseteq V$. $\hat{E}$ contains all resulting edges where the edge traversal cost $f((o, d)) \leq C$. Where a destination is in range from the vehicle starting position a direct path will be seen on the \gls{rsng} and will be the shortest path. Otherwise, an indirect path utilizing at least one supply station may be the shortest path. An example source and equivalent sub-network are shown in Figure \ref{fig:reduced_sub_network_graph}.
+\subsection*{Road-trip Accessibility Metric Definition}
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/reduced_sub_network_graph.png}
-	\caption{Example original and reduced sub-network graphs. The original graph is a lattice where all edges are valued at 1. The reduced network contains all paths less than or equal to 2 between selected nodes as edges.}
-	\label{fig:reduced_sub_network_graph}
-\end{figure}
+For region $R$ with a set of $N$ selected locations $O = \{O_1, O_2, \dots, O_N\}$ and a corresponding set of importance weights $W = \{W_0, W_1, \dots, W_N\}$, the Road-trip Accessibility metric $A_{rt}$ is
 
-\subsection*{Models}
+\begin{equation}
+	A_{rt} = \frac{1}{N^2}\sum_{i = 0}^{N} \sum_{j = 0 }^{N} W_iW_jC(O_i, O_j) \label{eq:a_rt}
+\end{equation}
 
-The method requires several models which serve to inform optimal routing. Vehicular, infrastructural, and individual models are described below.
+\noindent where $C(O_i, O_j) $ is the cost of the optimal path from $O_i$ to $O_j$. The specific accessibility metric $A_{rt,i}$ can be computed for region $R$ and origin $i$ as
 
-\subsubsection*{Vehicles}
+\begin{equation}
+	A_{rt,i} = \frac{1}{N}\sum_{j = 0 }^{N} W_iW_jC(O_i, O_j) \label{eq:a_rt_i}
+\end{equation}
 
-Vehicles effect routing due to their range limits and the time required to supply them. Vehicular parameters are listed in Table \ref{tab:param_veh}.
+for any origin $O_i \in O$. Road-trip Accessibility is a weighted mean of costs to access important locations from either a specific location or for all-pairs. The all-pairs implementation \eqref{eq:a_rt} is titled General Road-trip Accessibility while the single-origin implementation \eqref{eq:a_rt_i} is titled Specific Road-trip Accessibility. A given score applies to a given region, travel mode, and individual person. Comparisons may be made between different combinations by computing scores for each combination.
+
+\subsection*{Computing the Road-trip Accessibility Metric}
+
+Powered vehicles are range-limited due to the finite capacity of their \glspl{ess}. In order to traverse an \gls{od} arc whose energy requirement is greater than a given limit, a vehicle must stop at a supply station. In practical terms, the limit is defined by the vehicle's \gls{ess} capacity, starting \gls{soc}, desired finishing \gls{soc}, and the driver's low \gls{soc} tolerance. Because supply events add time to a trip, they will usually be avoided on short trips. For sufficiently long trips, where at least one supply event is necessary, computing the lowest-cost-path requires considering the time added by supply events and the locations of supply stations. These are, usually, not considered as, for \glspl{icev}, supply events are brief and supply stations are ubiquitous in most areas of the developed world. However, for \glspl{bev}, where supply events are lengthy and where DC supply stations are comparatively rare, ignoring supply events when computing a lowest-cost-path carries non-negligible risk. For this reason, dedicated \gls{bev} routing services compute routes considering supply events [SOURCE  - a better route planner].
+
+A further complication is that the driver will have limited and uncertain information with which to evaluate alternatives at the beginning of the trip. Variables such as traffic, temporary road closures, supply equipment non-functionality, and queues at supply stations cannot be precisely known at the start of a trip. The ability to estimate delays and the severity of delays vary among the previously mentioned events. As the driver progresses, certainty may increase but factors such as charger availability may change up to the instant that the driver arrives at the charger. As such, the driver will have to plan to optimize the expected result. This is replicated via stochastic optimization.
+
+\subsubsection*{Stochastic Optimal Routing}
+
+The purpose of stochastic optimal routing is to find the expected lowest-cost-paths from a given origin $i \in V$ to a set of destinations $D \in V$ on a graph $G = \{V, E\}$. The output is tree $P$ containing the optimal-feasible paths from the origin to the selected destinations. The objective of routing between nodes $i$ and $j\in D$ is
+
+\begin{equation}
+	\min_{U \in \overline({U}_{i,j})}\ \mathbb{E}[J(S_0, U)]
+\end{equation}
+
+where
+
+\begin{equation}
+	J(U) = \sum_{k = 0}^M \Phi_k(S_0, U)
+\end{equation}
+
+s.t.
+
+\begin{equation}	
+	b^k_l \leq \mathbb{E}\left[\int_0^t \Phi_k(S_0, U)dt\right] \leq b^k_u\quad \forall t \in T\ k = 1, 2, \dots, M
+\end{equation}
+
+\noindent where $S$ is the state vector, $S_0$ is the initial values of the states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi$ is the set of cost functions, and $\mathbb{E}$ denotes an expectation. State vector $S$ is initialized and stored as vectors containing $N$ discreet variables. A distribution $D$ for a the state vector at any node and time-step can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if state expectations remain within set bounds. Comparison between routes is performed using cost expectation. Routing depends on vehicle, infrastructural, and individual models.
+
+
+\subsubsection*{Vehicle Model}
+
+Vehicles effect routing due to their range limits and supply methods. The vehicle model used herein is highly simplified due to the inexact nature of the problem. Vehicles serve to store energy and consume energy at a constant rate per unit distance driven. More exact information on road conditions, traffic conditions, and atmospheric conditions among others can be used to compute edge-specific efficiencies. Vehicular parameters are listed in Table \ref{tab:param_veh}.
 
 \begin{table}[H]
 	\centering
@@ -150,17 +183,57 @@ Vehicles effect routing due to their range limits and the time required to suppl
 	\label{tab:param_veh}
 	\begin{tabular}{|C{\linewidth*3/8}|C{\linewidth*3/8}|C{\linewidth*2/8}|}
 		\hline Parameter & Description & Unit \\
-		\hline \gls{ess} Capacity & Accessible energy storage capacity for vehicle & [kWh] \\
-		\hline Energy Consumption & Energy required to move the vehicle a given unit of distance & [kJ/km] \\
-		\hline Energizing Rate & Rate at which energy can be added to the \gls{ess} at a supply location & [kW] \\
-		\hline DC Charge Limits & Lower and upper \gls{soc} bounds for DC charging & [-] \\
+		\hline \gls{ess} Capacity & Accessible energy storage capacity & [kWh] \\
+		\hline Energy Consumption & Energy required to move the vehicle & [kJ/km] \\
+		\hline Supply Rate & \gls{ess} maximum energy addition rate & [kW] \\
+		\hline Supply Limits & \gls{soc} bounds for supply & [-] \\
 		\hline
 	\end{tabular}
 \end{table}
 
-\subsubsection*{Supply Stations}
+\subsubsection*{Supply Infrastructure Network Model}
 
-Supply infrastructure impacts routing by providing the ability for trips greater than a vehicle's usable range to be completed. Utilizing a supply station resets the vehicle's \gls{soc} to a set level but costs money and time. The cost of the energy supplied is a station level parameter and may vary by location and time. The time added due to energizing is a function of the vehicle and supply equipment maximum energizing rate, the total energy added, and the time spent prior to energizing due to queuing if no equipment is immediately available. The amount of time that a vehicle can expect to queue is a function of the arrival rate of vehicles at a given station, the time taken to energize by those vehicles, the number of supply equipment at the station, and the functionality rate of said equipment. Expected queuing time distributions for different arrival rates and numbers of equipment for DC \gls{ev} chargers are shown in Figure \ref{fig:expected_delay}.
+Supply networks effect routing both in structure and in the characteristics of individual stations. In this paper, the supply network refers to all stations which the vehicle can utilize rather than the industry definition which covers stations operated by a single \gls{cpo}. Networks ultimately consist of individual supply ports (chargers or fuel pumps) and serve large and geographically distributed demand. A network consisting of more than one port can develop redundancy either by concentrating ports in a single confined space "in-station" or via a more evenly distributed approach "between-station". Network redundancy also varies by location with "thinner" and "thicker" coverage areas.
+
+Vehicle optimal routing serves to find the lowest-cost-path between two points on a road atlas atlas. A road atlas is a graph with a large number of nodes and a low edge-to-node ratio. When considering a multi-leg itinerary, such as when solving the Traveling Salesman Problem or Vehicle Routing Problem, the atlas need not be stored in entirety. Only the locations of and relationships between relevant nodes are necessary. The graph formed from the relevant nodes and their relationships is a reduced subgraph with a low number of nodes and relatively high edges-per-node and cycles-per-node ratios. A reduced subgraph is defined as follows. For a graph $G = \{V, E\}$ where $V$ is the set of nodes and $E$ is the set of edges, a reduced subgraph $\hat{G} = \{\hat{V}, \hat{E}\}$ can be computed where $\hat{V} \subseteq V$ and $\hat{E}$ is the set of shortest-paths between all nodes in $\hat{V}$. An example of a reduced subgraph is shown in Figure \ref{fig:reduced_subgraph}.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/full_graph.png}
+%		\caption{Locations and routes between selected nodes on atlas}
+	\end{subfigure}%
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/reduced_graph.png}
+%		\caption{Reduced graph containing locations of and relationships between selected nodes}
+	\end{subfigure}
+	\caption{Example original graph (a) containing locations and an atlas and reduced subgraph (b) containing locations and arcs.}
+%	The locations selected are key destinations in the state or on its border. Logistical optimization requires, first computing arcs between \gls{od} pairs as in the right pane based on the atlas in the left pane.}
+	\label{fig:reduced_subgraph}
+\end{figure}
+
+For a given vehicle type, the \gls{sng} is the reduced subgraph containing the trip origin, trip destination, and all supply stations reasonably likely to be utilized. Alternatively the \gls{sng} can contain a set of origins and destinations in order to enable further reduction for logistical optimization purposes. The \gls{sng} is the graph on which long vehicle trips should be optimized if supply events are expensive and/or constraining. In general, because the road atlas will have a low cycle-to-node ratio, the Bellman algorithm will be faster while the Bellman-Ford algorithm (specifically the SPFA variant) will be faster for the \gls{sng} with its high cycle-to-node ratio. The relevant \gls{sng} for \glspl{icev} and \gls{bev} are neither equivalent nor isomorphic. Different vehicles within a given powertrain type may also have different \glspl{sng} but this is far more common for \glspl{ev} than \glspl{icev}. The \gls{sng} informs routing by providing a set of possible paths between origins and destinations. The structure of a network may make for a greater or lesser number of available paths depending on the number and location of stations.
+
+Supply station characteristics significantly impact the expected cost of utilizing a given station. Supply stations are defined by the number of ports, the reliability of ports, the maximum supply rate of ports, the rate of user arrivals, and the durations of supply events. In combination, these factors determine the likelihood of a port being usable and available as well as the likely duration of queue if no port is usable and available. Supply station parameters are listed in Table \ref{tab:param_supply}.
+
+\begin{table}[H]
+	\centering
+	\caption{Supply Station Parameters for Routing}
+	\label{tab:param_supply}
+	\begin{tabular}{|C{\linewidth*2/8}|C{\linewidth*3/8}|C{\linewidth*3/8}|}
+		\hline Parameter & Description & Unit \\
+		\hline Arrivals Ratio & Arrival rate at station per port and unit of time & [cars/port/hour] \\
+		\hline Supply Rate & Maximum rate of energy supply & [kW] \\
+		\hline Supply Energy & Expected energy supplied to vehicles & [kWh] \\
+		\hline Ports & Number of chargers/pumps at a station which can be used simultaneously & [-] \\
+		\hline Reliability & Percentage of the time that a given pump will be usable & [-] \\ 
+		\hline
+	\end{tabular}
+\end{table}
+
+Unfortunately, with the exception of the number of ports and the maximum supply rate, little of this information is available before arrival [SOURCE]. As a result, arrivals ratio, supply energy, and reliability must be estimated. To reflect this uncertainty, distributions are used for arrivals ratio and supply energy. Information on ports is taken from \gls{afdc} \cite{afdc_2023}, and information on chargers is taken from \cite{Rempel_2023}. The delays which result from DC charging station parameters are modeled as M/M/s queues and are demonstrated in \ref{fig:expected_delay}.
 
 \begin{figure}[H]
 	\centering
@@ -169,23 +242,7 @@ Supply infrastructure impacts routing by providing the ability for trips greater
 	\label{fig:expected_delay}
 \end{figure}
 
-Expected queuing time is highly determined by variable factors like arrival rate, which must be estimated, and numbers of usable equipment, which is a function of installed equipment and reliability. The amounts of energy purchased are less variable station-to-station for the same powertrain type. The queuing times in this study are computed using the expected waiting time formula for a M/M/c queue. This approximation is reflective of reality as long trips will begin well before there can be certainty about queues at distant stations. Supply station parameters are listed in Table \ref{tab:param_supply}.
-
-\begin{table}[H]
-	\centering
-	\caption{Supply Station Parameters for Routing}
-	\label{tab:param_supply}
-	\begin{tabular}{|C{\linewidth*3/8}|C{\linewidth*3/8}|C{\linewidth*2/8}|}
-		\hline Parameter & Description & Unit \\
-		\hline Arrivals Ratio & Number of arrivals at a station per servicer-hour & [-] \\
-		\hline Service Time & Time taken to supply energy to vehicles & [s] \\
-		\hline Servicers & Number of chargers/pumps at a station which can be used simultaneously & [-] \\
-		\hline Functionality Rate & Percentage of the time that a given servicer will be usable & [-] \\ 
-		\hline
-	\end{tabular}
-\end{table}
-
-All of the parameters in Table \ref{tab:param_supply} are sampled from random distributions. Arrivals Ratio is sampled from a normal distribution centered on 1 with a standard deviation of .5. Service Time is derived from the station max charging rate and charge event energy sampled from a normal distribution centered on 60 kWh with a standard deviation of 15 kWh. The number of servicers for a given station is taken from data or inputted as a parameter as is the functionality rate.
+The mean arrivals rate is not known precisely, nor is the mean service rate so each is sampled from a distribution. In Figure \ref{fig:expected_delay} the columns show different distributions of arrivals rate and the rows show different levels of port redundancy. It can be observed that each factor is substantial in determining expected queue length and that their effects are additive. Without better information, a driver will have to make an educated guess as to how busy a station is likely to be and how many of its listed chargers will be functional. Getting either factor wrong could have serious consequences if the driver does not have the option to easily reach a different station where the driver may have no better information regardless. Reflecting the lack of information this study uses very broad assumptions for arrivals rate distribution and charge energy distribution. Arrivals rate is assumed to be a ratio of vehicles per hour per charger normally distributed as $\mathcal{N}(1, 0.5)$. Charge energy delivered is assumed to be normally distributed as $\mathcal{N}(60, 15)$ in kWh. \gls{icev} supply infrastructure is assumed to be ubiquitous with massive redundancy within and between stations such that supply requires neither deviation nor delay.
 
 \subsubsection*{Drivers}
 
@@ -209,41 +266,7 @@ Given the same physical circumstances, different drivers will evaluate route cos
 	\end{tabular}
 \end{table}
 
-\subsection*{Stochastic Optimal Routing}
-
-The purpose of stochastic optimal routing is to find the expected "shortest-paths" from a given origin $o \in V$ to a set of destinations $D \in V$ on a network defined by graph $G = \{V, E\}$. The output of the routing algorithm is tree $P$ containing the optimal-feasible paths from the origin to all destinations as edges. The objective of routing between $i$ and $j$ is
-
-\begin{equation}
-	\min_{U \in \overline({U}_{i,j})}\ \mathbb{E}[J(S_0, U)]
-\end{equation}
-
-where
-
-\begin{equation}
-	J(U) = \sum_{k = 0}^M w_k\phi_k(s_{0,k}, U)
-\end{equation}
-
-s.t.
-
-\begin{equation}	
-	b^w_l \leq \mathbb{E}\left[\int_0^t \Phi_w(S_0, U)dt\right] \leq b^w_u\quad \forall t \in T
-\end{equation}
-
-\noindent where $S_0$ is the vector of route states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi_w$ is the cost function for route weight $w \in W$, and $\mathbb{E}$ denotes an expectation and is computed as in \eqref{eq:superquantile}. The optimal routes may be found using the Dijkstra or Bellman-Ford algorithm. In either case route states $S$ are initialized and stored as vectors containing $N$ discreet variables. An empirical distribution $D$ for a state vector can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if state expectations remain within set bounds. Comparison between routes is performed using cost expectation.
-
-\subsection*{Long-Trip Accessibility Metric}
-
-In the presented framework accessibility can be computed in general for a region or in specific for a given origin within the region. In either case, the regional \gls{rsng}, travel mode, mode-specific infrastructure, and traveler must be modeled. For region $R$ with a set of $N$ selected nodes $O = \{O_1, O_2, \dots, O_N\}$, a corresponding set of importance weights $W = \{W_0, W_1, \dots, W_N\}$, and optimal path trees $P = \{P_1, P_2, \dots, P_N\}$, accessibility metric $A$ is the weighted mean
-
-\begin{equation}
-	A(R) = \frac{1}{N^2}\sum_{i = 0}^{N} \sum_{j = 0 }^{N} W_iW_jP_{i,j} \label{eq:a}
-\end{equation}
-
-\noindent where $P_{i,j}$ is the cost of the optimal path from $O_i$ to $O_j$. The specific accessibility metric $A(R, o)$ can be computed for region $R$ and origin $o$ by setting $W = \{W_o\}$ and $P = \{P_o\}$. Thus, a direct comparison in accessibility between regions, origins, travel modes, travelers, infrastructure deployments, or any of those mentioned in any combination can be conducted.
-
-Long-trip accessibility metric $A$ is of the proximity type concerned with the expected cost to transit edges between pre-selected O/D pairs. In contrast with accessibility studies focused on routine travel behavior, this study is focused on non-routine long trips. It is assumed that travelers, when considering non-routine long trips have a specific destination in mind and would not consider equivalent and equidistant cities as fungible. Rather, it is assumed that, having determined to travel to a given location, the traveler will then decide on mode.
-
-A transportation accessibility metric should have land-use, transportation, temporal, and individual components \cite{Karst_2003}. Metric $A$ contains all of these components. The land-use within a region has two principle effects on $A$. First, for a multi-city region, specific accessibility should vary within the region with peripheral cities experiencing worse regional access than central cities. Second, geographically large and/or sparse regions should experience worse accessibility than compact regions. The transportation infrastructure determines the efficacy of various modes. Where only vehicular travel is concerned, the mode choice is reduced to vehicle choice. Vehicle mode-specific infrastructure is not necessarily the same for all vehicles of a given fuel type but is necessarily different between fuel types thus separating vehicular modes. The temporal component of $A$ arises from the schedules of public transportation services and road traffic patterns. Finally the individual component is the traveler risk attitude as modeled using superquantile function parameters and route cost weights.
+\section*{Random Network Example}
 
 \section*{California Case Study}
 
@@ -296,7 +319,7 @@ The difference between the Tesla DC charging network and the non-proprietary net
 	\label{fig:network_histograms}
 \end{figure}
 
-California \glspl{icev} utilize a third and completely separate network of supply stations. There are estimated to be over 8,000 gasoline stations in California \cite{CEC_2022} and these are widely and proportionally distributed. Because no public database for the locations of gasoline stations in the state exists, and due to their ubiquity it is assumed in this study that \gls{icev} driver optimal paths will not be effected by fueling station availability and that such stations will be available wherever needed. For this reason, \glspl{icev} are assumed to take the "direct" path between cities where \glspl{bev} need to find optimal paths on their \glspl{rsng}.
+California \glspl{icev} utilize a third and completely separate network of supply stations. There are estimated to be over 8,000 gasoline stations in California \cite{CEC_2022} and these are widely and proportionally distributed. Because no public database for the locations of gasoline stations in the state exists, and due to their ubiquity it is assumed in this study that \gls{icev} driver optimal paths will not be effected by fueling station availability and that such stations will be available wherever needed. For this reason, \glspl{icev} are assumed to take the "direct" path between cities where \glspl{bev} need to find optimal paths on their \glspl{sng}.
 
 \subsection*{Example}
 

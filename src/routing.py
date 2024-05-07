@@ -48,11 +48,31 @@ def shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
     if method == 'dijkstra':
 
-        return dijkstra(graph, origins, **kwargs)
+        costs, values, paths = dijkstra(graph, origins, **kwargs)
 
     elif method == 'bellman':
 
-        return bellman(graph, origins, **kwargs)
+        costs, values, paths = bellman(graph, origins, **kwargs)
+
+    destinations = kwargs.get('destinations', [])
+    
+    if destinations:
+
+        costs_d = {}
+        values_d = {}
+        paths_d = {}
+
+        for destination in destinations:
+
+            costs_d[destination] = costs[destination]
+            values_d[destination] = values[destination]
+            paths_d[destination] = paths[destination]
+
+        return costs_d, values_d, paths_d
+
+    else:
+
+        return costs, values, paths
 
 def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
     '''
