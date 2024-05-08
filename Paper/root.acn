@@ -42,7 +42,7 @@
 \glossaryentry{ESS?\glossentry{ess}|setentrycounter[]{page}"\glsnumberformat}{5}
 \glossaryentry{SOC?\glossentry{soc}|setentrycounter[]{page}"\glsnumberformat}{5}
 \glossaryentry{CPO?\glossentry{cpo}|setentrycounter[]{page}"\glsnumberformat}{5}
-\glossaryentry{SNG?\glossentry{sng}|setentrycounter[]{page}"\glsnumberformat}{5}
+\glossaryentry{SNG?\glossentry{sng}|setentrycounter[]{page}"\glsnumberformat}{6}
 \glossaryentry{SNG?\glossentry{sng}|setentrycounter[]{page}"\glsnumberformat}{6}
 \glossaryentry{SNG?\glossentry{sng}|setentrycounter[]{page}"\glsnumberformat}{6}
 \glossaryentry{SNG?\glossentry{sng}|setentrycounter[]{page}"\glsnumberformat}{6}
@@ -61,9 +61,11 @@
 \glossaryentry{SNG?\glossentry{sng}|setentrycounter[]{page}"\glsnumberformat}{9}
 \glossaryentry{SNG?\glossentry{sng}|setentrycounter[]{page}"\glsnumberformat}{9}
 \glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{9}
+\glossaryentry{SOC?\glossentry{soc}|setentrycounter[]{page}"\glsnumberformat}{9}
 \glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{9}
+\glossaryentry{OEM?\glossentry{oem}|setentrycounter[]{page}"\glsnumberformat}{9}
 \glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{10}
-\glossaryentry{ICEV?\glossentry{icev}|setentrycounter[]{page}"\glsnumberformat}{10}
+\glossaryentry{ICEV?\glossentry{icev}|setentrycounter[]{page}"\glsnumberformat}{11}
 \glossaryentry{ICEV?\glossentry{icev}|setentrycounter[]{page}"\glsnumberformat}{11}
 \glossaryentry{ICEV?\glossentry{icev}|setentrycounter[]{page}"\glsnumberformat}{11}
 \glossaryentry{BEV?\glossentry{bev}|setentrycounter[]{page}"\glsnumberformat}{11}

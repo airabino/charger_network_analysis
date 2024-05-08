@@ -166,11 +166,13 @@ where
 
 s.t.
 
-\begin{equation}	
-	b^k_l \leq \mathbb{E}\left[\int_0^t \Phi_k(S_0, U)dt\right] \leq b^k_u\quad \forall t \in T\ k = 1, 2, \dots, M
-\end{equation}
+\begin{gather}	
+	b^k_l \leq \mathbb{E}\left[\int_0^t \Phi_k(S_0, U)dt\right] \leq b^k_u\\
+	\mathbb{E}\left[\int_0^T \Phi_k(S_0, U)dt\right] \geq b^k_f\\
+	 t \in [0, T]\quad k = 1, 2, \dots, M
+\end{gather}
 
-\noindent where $S$ is the state vector, $S_0$ is the initial values of the states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi$ is the set of cost functions, and $\mathbb{E}$ denotes an expectation. State vector $S$ is initialized and stored as vectors containing $N$ discreet variables. A distribution $D$ for a the state vector at any node and time-step can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if state expectations remain within set bounds. Comparison between routes is performed using cost expectation. Routing depends on vehicle, infrastructural, and individual models.
+\noindent where $T$ is the final value of time for a route, $S$ is the state vector, $S_0$ is the initial values of the states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi$ is the set of cost functions, $b^k_l$ and $b^k_u$ are the upper and lower bounds for state $k$ respectively, and $b^k_f$ is the final state minimum value for state $k$. $\mathbb{E}$ denotes an expectation. State vector $S$ is initialized and stored as vectors containing $N$ discreet variables. A distribution $D$ for a the state vector at any node and time-step can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if state expectations remain within set bounds. Comparison between routes is performed using cost expectation. Routing depends on vehicle, infrastructural, and individual models.
 
 
 \subsubsection*{Vehicle Model}
@@ -352,7 +354,7 @@ The randomly generated example is informative but does not reflect any actual \g
 
 \subsection*{Background}
 
-The state of California is geographically large and contains major population centers distributed across the state. Major road transportation corridors form connections between the state's population centers and with population centers in adjacent states. This case study concerns the long-trip accessibility of California's road transportation network. For the purposes of analysis, 15 important cities in California and adjacent states were selected. Non-California locations are represented by the most-likely departure locations at the California state line. These locations are enumerated in Table \ref{tab:locations}.
+The state of California is geographically large and contains major population centers distributed across the state. Major road transportation corridors form connections between the state's population centers and with population centers in adjacent states. This case study concerns the long-trip accessibility of California's road transportation network. For the purposes of analysis, 15 important cities in California and adjacent states were selected. Non-California locations are represented by the most-likely departure locations at the California state line. Because the state-line locations are midpoints the required arrival \gls{soc} at these points is set at 50\% where it is set at 20\% for all others. These locations are enumerated in Table \ref{tab:locations}.
 
 \begin{table}[H]
 	\centering
@@ -379,7 +381,7 @@ The state of California is geographically large and contains major population ce
 	\end{tabular}
 \end{table}
 
-Locations were chosen either because they are, themselves, important destinations in California or because they are the closest points in California to important destinations in neighboring states. For long trips, \glspl{bev} will rely on DC charging stations. The locations of all DC charging stations in California were scraped from AFDC \cite{afdc_2023}. California's DC charging stations include proprietary stations such as Tesla Superchargers and the Rivian Adventure network as well as non-proprietary stations such as those operated by ChargePoint, Electrify America, eVgo, and others. The selected locations and DC charging stations are mapped in Figure \ref{fig:california_atlas}.
+For long trips, \glspl{bev} will rely on DC charging stations. The locations of all DC charging stations in California are available from AFDC \cite{afdc_2023}. California's DC charging stations include proprietary (vehicle \gls{oem} owned and operated) stations such as Tesla Superchargers and the Rivian Adventure network as well as non-proprietary stations such as those operated by ChargePoint, Electrify America, eVgo, and others. The selected locations and DC charging stations are mapped in Figure \ref{fig:california_atlas}.
 
 \begin{figure}[H]
 	\centering
@@ -388,9 +390,9 @@ Locations were chosen either because they are, themselves, important destination
 	\label{fig:california_atlas}
 \end{figure}
 
-The proprietary and non-proprietary networks in California are neither equivalent nor isomorphic. There are 403 Tesla and 78 Rivian DC charging stations in the state as compared to 1,425 non-proprietary DC charging stations. The non-Tesla chargers overwhelmingly use combination CCS/ChaDeMo plugs as defined by SAE J1772 \cite{SAE_J1772} which reflect the ports on the overwhelming number of non-Tesla \glspl{bev}. By contrast, Tesla chargers and vehicles use the NACS standard as defined by SAE J3400 \cite{SAE_J3400}. The Tesla and non-Tesla systems are increasingly interoperable with the aid of adapters but should be considered separately in the present. Tesla drivers use Tesla DC chargers almost exclusively \cite{Visaria_2022} and CCS/ChaDeMo to NACS adapters are more common than their counterparts. The Rivian Adventure network is technically interoperable with other J1772 vehicles but is set aside for the exclusive use of Rivian vehicles. The purpose of the Rivian Adventure network is to allow for Rivian vehicles to charge in remote locations and is not intended to be the only network used by them.
+The proprietary and non-proprietary networks in California are neither equivalent nor isomorphic. There are 403 Tesla and 78 Rivian DC charging stations in the state as compared to 1,425 non-proprietary DC charging stations. The non-Tesla networks overwhelmingly use combination CCS/ChaDeMo chargers as defined by SAE J1772 \cite{SAE_J1772} which reflect the ports on the overwhelming number of non-Tesla \glspl{bev}. By contrast, Tesla chargers and vehicles use the NACS standard as defined by SAE J3400 \cite{SAE_J3400}. The Tesla and non-Tesla systems are increasingly interoperable with the aid of adapters but should be considered separately in the present. Tesla drivers use Tesla DC chargers almost exclusively \cite{Visaria_2022} and CCS/ChaDeMo to NACS adapters are more common than their counterparts. The Rivian Adventure network is technically interoperable with other J1772 vehicles but is set aside for the exclusive use of Rivian vehicles. The purpose of the Rivian Adventure network serves to allow for Rivian vehicles to charge in remote locations and is not intended to be relied upon exclusively.
 
-The difference between the Tesla DC charging network and the non-proprietary network extends from function to form. Built out as an investment to entice sales of Tesla vehicles and, until recently, exclusive to them, the Tesla network is technically superior with higher rate and more reliable chargers \cite{Rempel_2023, Kozumplik_2022}. Non-proprietary networks have, so far, been subsidy driven \cite{Gamage_2023} and have responded to incentives to form a widely distributed but thin presence. A stark contrast is seen when examining the ratio of chargers to stations. In California there are 403 Tesla DC charging stations with a total of 6,277 DC chargers for an average of 15.6 chargers per station. Among non-proprietary networks there are a total of 1,425 stations with 3,667 chargers for an average of 2.6 per station. The distributions of chargers per station for Tesla and non-proprietary networks are shown in Figure \ref{fig:network_histograms}. As demonstrated in Figure \ref{fig:expected_delay}, the number of chargers at a station has a major effect on expected delay time as well as determining the importance of individual equipment failure. 
+The difference between the Tesla DC charging network and the non-Tesla networks extends from function to form. Built out as an investment to entice sales of Tesla vehicles and, until recently, exclusive to them, the Tesla network is technically superior with higher maximum charging rates and more reliable chargers \cite{Rempel_2023, Kozumplik_2022}. Non-proprietary networks have, so far, been utilization and subsidy driven \cite{Gamage_2023} and have responded to incentives which encourage widely distributed stations with few chargers per station. A stark contrast is seen when examining the ratio of chargers to stations. In California there are 403 Tesla DC charging stations with a total of 6,277 DC chargers for an average of 15.6 chargers per station. Among non-proprietary networks there are a total of 1,425 stations with 3,667 chargers for an average of 2.6 per station. The distributions of chargers per station for Tesla and non-proprietary networks are shown in Figure \ref{fig:network_histograms}. 
 
 \begin{figure}[H]
 	\centering
@@ -398,6 +400,8 @@ The difference between the Tesla DC charging network and the non-proprietary net
 	\caption{Survival functions for charger networks in California. Top panel shows survival function for chargers per station. Bottom panel shows survival function for mean distance to three nearest stations from a given station.}
 	\label{fig:network_histograms}
 \end{figure}
+
+The Tesla DC charging network develops redundancy primarily in-station where the non-proprietary networks develop redundancy primarily between-station. Non-Tesla chargers are also more likely to be sighted in urban areas suggesting a desire to capture local as well as corridor travel demand. Tesla stations are more often sighted along travel corridors suggesting a focus on enabling long distance travel. In more remote parts of California the proprietary networks nearly match the non-proprietary networks in between-station redundancy.
 
 California \glspl{icev} utilize a third and completely separate network of supply stations. There are estimated to be over 8,000 gasoline stations in California \cite{CEC_2022} and these are widely and proportionally distributed. Because no public database for the locations of gasoline stations in the state exists, and due to their ubiquity it is assumed in this study that \gls{icev} driver optimal paths will not be effected by fueling station availability and that such stations will be available wherever needed. For this reason, \glspl{icev} are assumed to take the "direct" path between cities where \glspl{bev} need to find optimal paths on their \glspl{sng}.
 
