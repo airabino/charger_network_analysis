@@ -214,67 +214,43 @@ def reformat_graph(graph, node_attributes = {}, link_attributes = {}, **kwargs):
 	where e is the graph edge graph._adj[origin][destination]
 	'''
 
-	# Extracting node data from the graph
-	node_ids = list(graph.nodes)
+	nodes_df = pd.DataFrame(list(graph.nodes), columns=['node'])
+	nodes_df['x'] = nodes_df['node'].apply(lambda n: graph._node[n][0])
+	nodes_df['y'] = nodes_df['node'].apply(lambda n: graph._node[n][1])
 
-	# Extracting the x and y coordinates from the Graph
-	coordinates = np.array([key for key, value in graph._node.items()])
-	x, y = coordinates.reshape((-1, 2)).T
+	kd_tree = KDTree(nodes_df[['x', 'y']].values)
+	
+	nodes_df['id'] = nodes_df.index
+	for field, fun in node_attributes.items():
+		if isinstance(fun, str):
+			fun = eval(fun)
+		nodes_df[field] = nodes_df['node'].apply(lambda n: fun(graph._node[n]))
 
-	# Creating a spatial KD Tree for quick identification of matches
-	# between Graph nodes and equivalent vertices
-	kd_tree = KDTree(coordinates.reshape((-1, 2)))
+	links_list = []
 
-	nodes = []
-	links = []
+	for index, row in nodes_df.iterrows():
+		source_idx = row['id']
+		source = row['node']
+		for target, attributes in graph._adj[source].items():
+			target_idx = kd_tree.query([graph._node[target]])[1]
 
-	# Looping on nodes
-	for source_idx, source in enumerate(node_ids):
-
-		# Adding id, x, and y fields
-		node = {
-			'id': source_idx,
-			'x': x[source_idx],
-			'y': y[source_idx],
-			}
-
-		for field, fun in node_attributes.items():
-
-			if type(fun) is str:
-				
-				fun = eval(fun)
-
-			node[field] = fun(graph._node[source])
-
-		nodes.append(node)
-
-		# Pulling the coordinates of the adjacent nodes from the graph
-		targets = graph._adj[source].keys()
-
-		# Looping on adjacency
-		for target in targets:
-
-			# Finding the matching node index for the node coordinates
-			target_idx = kd_tree.query(list(target))[1]
-
-			link={
-				'source': source_idx,
-				'target': target_idx,
-				}
+			link = {
+                'source': source_idx,
+                'target': target_idx,
+            }
 
 			for field, fun in link_attributes.items():
-
-				if type(fun) is str:
-				
+				if isinstance(fun, str):
 					fun = eval(fun)
+				link[field] = fun(attributes)
 
-				link[field] = fun(graph._adj[source][target])
+			links_list.append(link)
 
-			links.append(link)
-
-	nlg = {'nodes': nodes, 'links': links}
-
+	links_df = pd.DataFrame(links_list)
+    
+	nlg = {'nodes': nodes_df.to_dict('records'), 'links': links_df.to_dict('records')}
 	return graph_from_nlg(nlg, **kwargs)
+
 
 # Functions for CSV handling
 
