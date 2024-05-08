@@ -124,6 +124,20 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
     return costs, values, paths
 
+def specific_road_trip_accessibility(values, field = 'time', expectation = np.mean):
+
+    sum_cost = 0
+
+    n = len(values)
+
+    for key, val in values.items():
+
+        sum_cost += expectation(np.atleast_1d(val[field]))
+
+    return sum_cost / n
+
+
+
 class Objective():
 
     def __init__(self, field = 'weight', limit = np.inf):
@@ -241,6 +255,7 @@ class StochasticVehicle():
         self.efficiency = kwargs.get('efficiency', 550) # [J/m]
         self.charge_rate = kwargs.get('charge_rate', 80e3) # [W]
         self.soc_bounds = kwargs.get('soc_bounds', (0, 1)) # ([-], [-])
+        self.charge_target_soc = kwargs.get('charge_target_soc', 1) # [-]
         self.max_charge_start_soc = kwargs.get('max_charge_start_soc', 1) # [-]
         self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # ([-], [-])
 
@@ -318,7 +333,9 @@ class StochasticVehicle():
 
         if node['type'] == 'station':
 
-            updated_values = node['station'].update(updated_values)
+            updated_values = node['station'].update(
+                updated_values, self,
+                )
 
         return updated_values, feasible
 
@@ -331,19 +348,15 @@ class StochasticVehicle():
 
 class StochasticStation():
 
-    def __init__(self, vehicle, **kwargs):
+    def __init__(self, **kwargs):
 
-        self.vehicle = vehicle
-
-        self.cases = getattr(self.vehicle, 'cases', 1)
-
+        self.cases = kwargs.get('cases', 1) # [-]
         self.seed = kwargs.get('seed', None)
-        self.rng = kwargs.get('rng', np.random.default_rng())
+        self.rng = kwargs.get('rng', np.random.default_rng(self.seed))
         self.chargers = kwargs.get('chargers', 1)
         self.charge_rate = kwargs.get('charge_rate', 80e3)
         self.charge_price = kwargs.get('charge_price', .5 / 3.6e6) # [$/J]
-
-        self.charge_rate = min([self.charge_rate, self.vehicle.charge_rate])
+        self.base_delay = kwargs.get('base_delay', 0) # [s]
 
         self.arrival_param = kwargs.get('arrival_param', (1, .5))
         self.arrival_limits = kwargs.get('arrival_limits', (.1, 1.9))
@@ -366,7 +379,7 @@ class StochasticStation():
 
     def clip_norm(self, param, limits):
 
-        return np.clip(norm(*param).rvs(self.cases), *limits)
+        return np.clip(self.rng.normal(*param, size = self.cases), *limits)
 
     def populate(self):
 
@@ -382,11 +395,11 @@ class StochasticStation():
             3.6e6 / self.charge_rate
             )
 
-        self.delay_time = np.zeros(self.cases)
+        self.delay_time = np.zeros(self.cases) + self.base_delay
 
         for idx in range(self.cases):
 
-            self.delay_time[idx] = self.queuing_time(
+            self.delay_time[idx] += self.queuing_time(
                 1 / self.arrival[idx],
                 1 / self.service[idx],
                 self.functional_chargers[idx]
@@ -397,14 +410,6 @@ class StochasticStation():
             'price': lambda x: self.price(x),
             'soc': lambda x: self.soc(x),
         }
-
-    def update(self, x):
-
-        x = self.time(x)
-        x = self.price(x)
-        x = self.soc(x)
-
-        return x
 
     def queuing_time(self, l, m, c):
 
@@ -429,11 +434,23 @@ class StochasticStation():
 
         return (rn <= self.reliability).sum(axis = 0)
 
-    def time(self, x):
+    def update(self, x, vehicle):
+
+        capacity = vehicle.capacity
+        target = vehicle.charge_target_soc
+        rate = min([self.charge_rate, vehicle.charge_rate])
+
+        x = self.time(x, capacity, rate, target)
+        x = self.price(x, capacity, rate, target)
+        x = self.soc(x, capacity, rate, target)
+
+        return x
+
+    def time(self, x, capacity, rate, target):
         
         time = (
-            (self.vehicle.capacity * (1 - x['soc']) /
-                self.charge_rate +
+            (capacity * (target - x['soc']) /
+                rate +
                 self.delay_time)
             )
 
@@ -441,18 +458,18 @@ class StochasticStation():
 
         return x
 
-    def price(self, x):
+    def price(self, x, capacity, rate, target):
 
         price = (
-            (self.vehicle.capacity * (1 - x['soc']) * self.charge_price)
+            (capacity * (target - x['soc']) * self.charge_price)
             )
 
         x['price'] += price
 
         return x
 
-    def soc(self, x):
+    def soc(self, x, capacity, rate, target):
 
-        x['soc'] += (1 - x['soc']) * self.at_least_one_functional_charger
+        x['soc'] += (target - x['soc']) * self.at_least_one_functional_charger
 
         return x

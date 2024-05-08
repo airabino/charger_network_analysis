@@ -266,9 +266,89 @@ Given the same physical circumstances, different drivers will evaluate route cos
 	\end{tabular}
 \end{table}
 
-\section*{Random Network Example}
+The driver model serves to bias the routing by selecting a subset of information to use in optimization. As such it reflects individual perception. The results of the routing can be interpreted through the same bias, a different bias, or no bias. Thus Road-trip accessibility can be as perceived (with bias) ot as expected (without bias). In this study, evaluation will be conducted on the basis of expectation.
+
+\subsection*{Randomly Generated Example}
+
+The Road-trip accessibility method and metric is demonstrated using a vehicle on a randomly generated \gls{sng}. In this example, a \gls{sng} containing 15 locations and 85 stations distributed across a 1000 km square is generated with randomized node locations. Edges exist between all nodes and are assigned Pythagorean distances. All edges are assumed to be traversed at 105 kmh. The origin is selected as Location 0 located in the lower-right corner with all other locations as destinations and a Specific Road-trip Accessibility is computed for Location 0. The vehicle used has a relatively short range of 262 km. The charging stations have between 1 and 5 chargers. Figure \ref{fig:perceived_srta_random} shows the times to travel to each destination as well as the path taken along the \gls{sng} under four different scenarios.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/random_example_high_reliability_aggressive.png}
+		\caption{High reliability, aggressive}
+	\end{subfigure}%
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/random_example_high_reliability_cautious.png}
+		\caption{High reliability, cautious}
+	\end{subfigure}
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/random_example_low_reliability_aggressive.png}
+		\caption{Low reliability, aggressive}
+	\end{subfigure}%
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/random_example_low_reliability_cautious.png}
+		\caption{Low reliability, cautious}
+	\end{subfigure}
+	\caption{Driver's perception of Specific Road-trip Accessibility for different drivers with different levels of charger reliability.}
+	\label{fig:perceived_srta_random}
+\end{figure}
+
+The scenarios presented in Figure \ref{fig:perceived_srta_random} consider different levels of equipment reliability (75\% and 95\%) and different driver risk-attitudes (aggressive - $p_0 = 0,\ p_1 = .1$ and cautious - $p_0 = .9,\ p_1 = 1$). Specifically, the results consider Specific Road-Trip Accessibility as perceived by the driver. The aggressive driver is only concerned with the best 10\% of outcomes where the cautious driver is only concerned with the worst 10\% of outcomes. The differences in perceived costs-to-travel are quite stark between the aggressive and cautious driver in both cases but this difference is larger when reliability is low. In other words, the effects are additive from a perceived cost perspective. A manifestation of this gap is the different routes taken in the different scenarios. Perception is biased and not necessarily the best basis to evaluate costs-to-travel. The neutral expectations ($p_0 = 0,\ p_1 = 1$) of the routes taken by the drivers are shown in Figure \ref{fig:perceived_srta_random_n}.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/random_example_high_reliability_aggressive_n.png}
+		\caption{High reliability, aggressive}
+	\end{subfigure}%
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/random_example_high_reliability_cautious_n.png}
+		\caption{High reliability, cautious}
+	\end{subfigure}
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/random_example_low_reliability_aggressive_n.png}
+		\caption{Low reliability, aggressive}
+	\end{subfigure}%
+	\begin{subfigure}[t]{.5\linewidth}
+		\centering\captionsetup{width = .8\linewidth}
+		\includegraphics[width = \linewidth]{figs/random_example_low_reliability_cautious_n.png}
+		\caption{Low reliability, cautious}
+	\end{subfigure}
+	\caption{Neutral expectation of Specific Road-trip Accessibility for different drivers with different levels of charger reliability.}
+	\label{fig:perceived_srta_random_n}
+\end{figure}
+
+The neutral expectations tell a different story. For the different levels of reliability, neutral expectations of costs-to-travel are similar for the routes selected by the aggressive and cautious drivers. The differences between biased and neutral perception are easy to understand. Both drivers selected routes based on a subset of the information and these routes are non-optimal when all information is considered. Drivers may adjust their priors over time but policy can only control the fundamentals. Thus, it is recommended to consider bias in route planning but neutral expectation in evaluation.
+
+The composition of the routes taken by the drivers in the randomly generated example demonstrate an interesting dynamic as seen in Table \ref{tab:distances_redundancy}.
+
+\begin{table}[H]
+	\centering
+	\caption{Average route distances and chargers per station utilized for example scenarios}
+	\label{tab:distances_redundancy}
+	\begin{tabular}{|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline Reliability & Risk-Attitude & Average Route Distance [km] & Chargers per Station Utilized [-] \\
+		\hline High & Aggressive & 558.827 & 3.871 \\
+		\hline High & Cautious & 578.505 & 4.290 \\
+		\hline Low & Aggressive & 575.947 & 4.063 \\
+		\hline Low & Cautious & 574.953 & 3.750 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+When reliability is high, the aggressive driver opts for a more direct path where the cautious driver favors a path with higher charger redundancy in-station. However, when reliability is low the reverse happens. This is because, in the low reliability scenario, completely failed stations come into play and the cautious driver tends to stick to areas with higher redundancy between-station even if this means accepting perceived longer queues. The aggressive driver, ignoring the worst case scenario of being stranded, opts for the lower expected queuing time to be found in high redundancy stations.
 
 \section*{California Case Study}
+
+The randomly generated example is informative but does not reflect any actual \gls{sng}. In order to see effects on a more representative basis a case study is performed on the state of California using information on the states DC EV \gls{sng} with modes of common \glspl{bev} which enjoy different levels of access.
 
 \subsection*{Background}
 

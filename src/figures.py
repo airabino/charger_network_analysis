@@ -56,7 +56,7 @@ default_route_tree_kwargs = {
 	'stations_kw': {
 		# 'node_field': 'value',
 		'scatter': {
-			's': 100,
+			's': 200,
 			'fc': 'none',
 			'ec': 'k',
 			'zorder': 1,
@@ -67,7 +67,7 @@ default_route_tree_kwargs = {
 	'stations_used_kw': {
 		# 'node_field': 'value',
 		'scatter': {
-			's': 200,
+			's': 300,
 			'fc': 'magenta',
 			'ec': 'k',
 			'lw': 2,
@@ -187,7 +187,7 @@ def plot_graph(graph, ax = None, **kwargs):
 
 	if node_field is not None:
 
-		values = np.array([v[node_field] for v in graph._node.values()])
+		values = np.array([v.get(node_field, np.nan) for v in graph._node.values()])
 
 		vmin = scatter_kw.get('vmin', np.nanmin(values))
 		vmax = scatter_kw.get('vmax', np.nanmax(values))
