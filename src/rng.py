@@ -63,6 +63,15 @@ def random_graph(n, **kwargs):
 
 	return graph_from_nlg({'nodes': nodes, 'links': links})
 
+def random_nodes(graph, n):
+	if n > len(graph.nodes):
+		raise ValueError("Requested number of nodes exceeds the total number of nodes in the graph")
+
+	rng = np.random.default_rng()
+	random_nodes = rng.choice(graph.nodes, size=n, replace=False)
+
+	return random_nodes
+
 def random_completely_connected_graph(n, m, **kwargs):
 
 	n_nodes = n + m

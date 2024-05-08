@@ -222,7 +222,7 @@ class Vehicle():
 
         feasible = in_range(updated_values['soc'], *self.soc_bounds)
 
-        if node['type'] == 'station':
+        if node.get('type', '') == 'station':
 
             updated_values = node['station'].update(updated_values)
 

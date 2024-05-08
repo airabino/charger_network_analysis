@@ -65,38 +65,35 @@ class NpEncoder(json.JSONEncoder):
 
 		return super(NpEncoder, self).default(obj)
 
+def save_json(data, filename, mode='w'):
+    ''' Generalized function to save data to JSON file '''
+    with open(filename, mode) as file:
+        json.dump(data, file, indent=4, cls=NpEncoder)
+
+def load_json(filename):
+    ''' Generalized function to load JSON data from file '''
+    with open(filename, 'r') as file:
+        return json.load(file)
+
 def nlg_to_json(nlg, filename):
 	'''
 	Writes nlg to JSON, overwrites previous
 	'''
-
-	with open(filename, 'w') as file:
-
-		json.dump(nlg, file, indent = 4, cls = NpEncoder)
+	save_json(nlg, filename)
 
 def append_nlg(nlg, filename):
 	'''
 	Writes nlg to JSON, appends to existing - NEEDS UPDATING
 	'''
-
-	nlg_from_file = Load(filename)
-
-	nlg = dict(**nlg_from_file, **nlg)
-
-	with open(filename, 'a') as file:
-
-		json.dump(nlg, file, indent = 4, cls = NpEncoder)
+	existing_data = load_json(filename)
+	updated_data = {**existing_data, **nlg}
+	save_json(updated_data, filename)
 
 def nlg_from_json(filename):
 	'''
 	Loads graph from nlg JSON
 	'''
-
-	with open(filename, 'r') as file:
-
-		nlg = json.load(file)
-
-	return nlg
+	return load_json(filename)
 
 # Functions for NetworkX graph .json handling
 
