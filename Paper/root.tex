@@ -216,7 +216,9 @@ Vehicle optimal routing serves to find the lowest-cost-path between two points o
 	\label{fig:reduced_subgraph}
 \end{figure}
 
-For a given vehicle type, the \gls{sng} is the reduced subgraph containing the trip origin, trip destination, and all supply stations reasonably likely to be utilized. Alternatively the \gls{sng} can contain a set of origins and destinations in order to enable further reduction for logistical optimization purposes. The \gls{sng} is the graph on which long vehicle trips should be optimized if supply events are expensive and/or constraining. In general, because the road atlas will have a low cycle-to-node ratio, the Bellman algorithm will be faster while the Bellman-Ford algorithm (specifically the SPFA variant) will be faster for the \gls{sng} with its high cycle-to-node ratio. The relevant \gls{sng} for \glspl{icev} and \gls{bev} are neither equivalent nor isomorphic. Different vehicles within a given powertrain type may also have different \glspl{sng} but this is far more common for \glspl{ev} than \glspl{icev}. The \gls{sng} informs routing by providing a set of possible paths between origins and destinations. The structure of a network may make for a greater or lesser number of available paths depending on the number and location of stations.
+For a given vehicle type, the \gls{sng} is the reduced subgraph containing the trip origin, trip destination, and all supply stations reasonably likely to be utilized. Alternatively the \gls{sng} can contain a set of origins and destinations in order to enable further reduction for logistical optimization purposes. In-station redundancy for a \gls{sng} is a node parameter. In-station $R_{is}$ redundancy for any node $v \in V$ on \gls{sng} $G = \{V, E\}$ is the number of ports at node $v$. Between-station redundancy $R_{bs}$ for an \gls{sng} is a clique parameter. Between-station redundancy for any clique $C \subseteq V$ on \gls{sng} $G = \{V, E\}$ is the sum of the ports at nodes $v \in C$. A more meaningful result for $R_{bs}$ may be returned by limiting the cost of edges considered. For example, $R'_{bs}$ may be computed for $G' = \{V, E'\}$ where $E' \subseteq E$ contains all edges of less than 10 minutes drive time.
+
+The \gls{sng} is the graph on which long vehicle trips should be optimized if supply events are expensive and/or constraining. In general, because the road atlas will have a low cycle-to-node ratio, the Bellman algorithm will be faster while the Bellman-Ford algorithm (specifically the SPFA variant) will be faster for the \gls{sng} with its high cycle-to-node ratio. The relevant \gls{sng} for \glspl{icev} and \gls{bev} are neither equivalent nor isomorphic. Different vehicles within a given powertrain type may also have different \glspl{sng} but this is far more common for \glspl{ev} than \glspl{icev}. The \gls{sng} informs routing by providing a set of possible paths between origins and destinations. The structure of a network may make for a greater or lesser number of available paths depending on the number and location of stations.
 
 Supply station characteristics significantly impact the expected cost of utilizing a given station. Supply stations are defined by the number of ports, the reliability of ports, the maximum supply rate of ports, the rate of user arrivals, and the durations of supply events. In combination, these factors determine the likelihood of a port being usable and available as well as the likely duration of queue if no port is usable and available. Supply station parameters are listed in Table \ref{tab:param_supply}.
 
@@ -244,7 +246,7 @@ Unfortunately, with the exception of the number of ports and the maximum supply 
 	\label{fig:expected_delay}
 \end{figure}
 
-The mean arrivals rate is not known precisely, nor is the mean service rate so each is sampled from a distribution. In Figure \ref{fig:expected_delay} the columns show different distributions of arrivals rate and the rows show different levels of port redundancy. It can be observed that each factor is substantial in determining expected queue length and that their effects are additive. Without better information, a driver will have to make an educated guess as to how busy a station is likely to be and how many of its listed chargers will be functional. Getting either factor wrong could have serious consequences if the driver does not have the option to easily reach a different station where the driver may have no better information regardless. Reflecting the lack of information this study uses very broad assumptions for arrivals rate distribution and charge energy distribution. Arrivals rate is assumed to be a ratio of vehicles per hour per charger normally distributed as $\mathcal{N}(1, 0.5)$. Charge energy delivered is assumed to be normally distributed as $\mathcal{N}(60, 15)$ in kWh. \gls{icev} supply infrastructure is assumed to be ubiquitous with massive redundancy within and between stations such that supply requires neither deviation nor delay.
+The mean arrivals rate is not known precisely, nor is the mean service rate so each is sampled from a distribution. In Figure \ref{fig:expected_delay} the columns show different distributions of arrivals rate and the rows show different levels of port redundancy. It can be observed that each factor is substantial in determining expected queue length and that their effects are additive. Without better information, a driver will have to make an educated guess as to how busy a station is likely to be and how many of its listed chargers will be functional. Getting either factor wrong could have serious consequences if the driver does not have the option to easily reach a different station where the driver may have no better information regardless. Reflecting the lack of information this study uses very broad assumptions for arrivals rate distribution and charge energy distribution. Arrivals rate is assumed to be a ratio of vehicles per hour per charger normally distributed as $N(1, 0.5)$. Charge energy delivered is assumed to be normally distributed as $N(60, 15)$ in kWh. \gls{icev} supply infrastructure is assumed to be ubiquitous with massive redundancy within and between stations such that supply requires neither deviation nor delay.
 
 \subsubsection*{Drivers}
 
@@ -272,7 +274,7 @@ The driver model serves to bias the routing by selecting a subset of information
 
 \subsection*{Randomly Generated Example}
 
-The Road-trip accessibility method and metric is demonstrated using a vehicle on a randomly generated \gls{sng}. In this example, a \gls{sng} containing 15 locations and 85 stations distributed across a 1000 km square is generated with randomized node locations. Edges exist between all nodes and are assigned Pythagorean distances. All edges are assumed to be traversed at 105 kmh. The origin is selected as Location 0 located in the lower-right corner with all other locations as destinations and a Specific Road-trip Accessibility is computed for Location 0. The vehicle used has a relatively short range of 262 km. The charging stations have between 1 and 5 chargers. Figure \ref{fig:perceived_srta_random} shows the times to travel to each destination as well as the path taken along the \gls{sng} under four different scenarios.
+The Road-trip accessibility method and metric is demonstrated using a vehicle on a randomly generated \gls{sng}. In this example, a \gls{sng} containing 15 locations and 85 stations distributed across a 1000 km square is generated with randomized node locations. Edges exist between all nodes and are assigned Pythagorean distances. All edges are assumed to be traversed at 105 kmh. The origin is selected as Location 0 located in the lower-right corner with all other locations as destinations and a Specific Road-trip Accessibility is computed for Location 0. The vehicle used has a relatively short range of 262 km. The charging stations have between 1 and 5 chargers. Arrivals ratio and supply energy are sampled from normal distributions $N(1, 0.5)$ and $N(60, 15)$ respectively. Figure \ref{fig:perceived_srta_random} shows the times to travel to each destination as well as the path taken along the \gls{sng} under four different scenarios.
 
 \begin{figure}[H]
 	\centering
@@ -385,7 +387,7 @@ For long trips, \glspl{bev} will rely on DC charging stations. The locations of 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{figs/California_Places_Chargers.png}
+	\includegraphics[width = \linewidth]{figs/California_SNG_Vertical.png}
 	\caption{Selected locations and DC charging stations for California case study}
 	\label{fig:california_atlas}
 \end{figure}
@@ -394,16 +396,28 @@ The proprietary and non-proprietary networks in California are neither equivalen
 
 The difference between the Tesla DC charging network and the non-Tesla networks extends from function to form. Built out as an investment to entice sales of Tesla vehicles and, until recently, exclusive to them, the Tesla network is technically superior with higher maximum charging rates and more reliable chargers \cite{Rempel_2023, Kozumplik_2022}. Non-proprietary networks have, so far, been utilization and subsidy driven \cite{Gamage_2023} and have responded to incentives which encourage widely distributed stations with few chargers per station. A stark contrast is seen when examining the ratio of chargers to stations. In California there are 403 Tesla DC charging stations with a total of 6,277 DC chargers for an average of 15.6 chargers per station. Among non-proprietary networks there are a total of 1,425 stations with 3,667 chargers for an average of 2.6 per station. The distributions of chargers per station for Tesla and non-proprietary networks are shown in Figure \ref{fig:network_histograms}. 
 
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/California_Charger_Network_Survival_Functions.png}
+%	\caption{Survival functions for charger networks in California. Top panel shows survival function for chargers per station. Bottom panel shows survival function for mean distance to three nearest stations from a given station.}
+%	\label{fig:network_histograms}
+%\end{figure}
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{figs/California_Charger_Network_Survival_Functions.png}
-	\caption{Survival functions for charger networks in California. Top panel shows survival function for chargers per station. Bottom panel shows survival function for mean distance to three nearest stations from a given station.}
+	\begin{subfigure}{\linewidth}
+		\includegraphics[width = \linewidth]{figs/California_RIS_Hist.png}
+	\end{subfigure}
+	\begin{subfigure}{\linewidth}
+		\includegraphics[width = \linewidth]{figs/California_RBS_Hist.png}
+	\end{subfigure}
+	\caption{Survival functions for charger networks in California. Top panel shows survival function for in-station redundancy. Bottom panel shows survival function for redundancy between stations with 10 minute drive-time.}
 	\label{fig:network_histograms}
 \end{figure}
 
 The Tesla DC charging network develops redundancy primarily in-station where the non-proprietary networks develop redundancy primarily between-station. Non-Tesla chargers are also more likely to be sighted in urban areas suggesting a desire to capture local as well as corridor travel demand. Tesla stations are more often sighted along travel corridors suggesting a focus on enabling long distance travel. In more remote parts of California the proprietary networks nearly match the non-proprietary networks in between-station redundancy.
 
-California \glspl{icev} utilize a third and completely separate network of supply stations. There are estimated to be over 8,000 gasoline stations in California \cite{CEC_2022} and these are widely and proportionally distributed. Because no public database for the locations of gasoline stations in the state exists, and due to their ubiquity it is assumed in this study that \gls{icev} driver optimal paths will not be effected by fueling station availability and that such stations will be available wherever needed. For this reason, \glspl{icev} are assumed to take the "direct" path between cities where \glspl{bev} need to find optimal paths on their \glspl{sng}.
+California \glspl{icev} utilize a third and completely separate network of supply stations. There are estimated to be over 8,000 gasoline stations in California \cite{CEC_2022} and these are widely and proportionally distributed. Because no public database for the locations of gasoline stations in the state exists, and due to their ubiquity it is assumed in this study that \gls{icev} driver optimal paths will not be effected by fueling station availability. For this reason, \glspl{icev} are assumed to take the "direct" path between cities where \glspl{bev} need to find optimal paths on their \glspl{sng}.
 
 \subsection*{Example}
 
