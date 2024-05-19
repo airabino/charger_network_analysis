@@ -102,6 +102,8 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
     # print(origins)
     # print(kwargs.get('progress_bar_kw', {}))
 
+    # print(graph.nodes)
+
     if method == 'dijkstra':
 
         routing_function = dijkstra
@@ -124,6 +126,22 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
     return costs, values, paths
 
+def road_trip_accessibility(values, field = 'time', expectation = np.mean):
+
+    sum_cost = 0
+
+    n = len(values)
+
+    for key, val in values.items():
+
+        # print(key)
+
+        sum_cost += specific_road_trip_accessibility(
+            val, field = field, expectation = expectation
+            )
+
+    return sum_cost / n
+
 def specific_road_trip_accessibility(values, field = 'time', expectation = np.mean):
 
     sum_cost = 0
@@ -133,10 +151,9 @@ def specific_road_trip_accessibility(values, field = 'time', expectation = np.me
     for key, val in values.items():
 
         sum_cost += expectation(np.atleast_1d(val[field]))
+        # print(sum_cost, n, key, expectation(np.atleast_1d(val[field])))
 
     return sum_cost / n
-
-
 
 class Objective():
 
@@ -162,6 +179,61 @@ class Objective():
     def compare(self, values, approximation):
 
         return values, values < approximation
+
+def edge_types(graph):
+
+    _adj = graph._adj
+    _node = graph._node
+
+    for source, adj in _adj.items():
+        for target, edge in adj.items():
+
+            edge['type'] = (
+                f"{_node[source].get('type', 'none')}_{_node[target].get('type', 'none')}"
+                )
+
+    return graph
+
+class Scout():
+
+    def __init__(self, **kwargs):
+
+        self.field = kwargs.get('field', 'time')
+        self.limit = kwargs.get('limit', np.inf)
+        self.edge_limit = kwargs.get('edge_limit', np.inf)
+        self.exclude = kwargs.get('exclude', ['city_city'])
+        self.disambiguation = kwargs.get('disambiguation', 0)
+
+    def initial(self):
+
+        return 0
+
+    def infinity(self):
+
+        return np.inf
+
+    def update(self, values, edge, node):
+
+        if (edge['type'] in self.exclude) or (edge[self.field] > self.edge_limit):
+
+            return values, False
+
+        values += edge.get(self.field, 1)
+
+        return values, values <= self.limit
+
+    def compare(self, values, approximation):
+        # print(
+        #     values,
+        #     values < (approximation * (1 + self.disambiguation)),
+        #     (approximation * (1 + self.disambiguation)),
+        #     )
+
+        if approximation == np.inf:
+
+            return values, values < approximation
+
+        return values, values * (1 + self.disambiguation) < approximation
 
 class Vehicle():
 
@@ -200,12 +272,16 @@ class Vehicle():
     def update(self, values, link, node):
 
         if (
-            (node['type'] == 'station') and
+            (link['type'] == 'station_station') and
             not in_range(
                 link['distance'],
                 (1 - self.max_charge_start_soc) * self.range,
                 self.range
             )):
+
+            if node['type'] == 'city':
+
+                print('a')
 
             return values, False
 
@@ -222,23 +298,13 @@ class Vehicle():
 
         feasible = in_range(updated_values['soc'], *self.soc_bounds)
 
+        if link['type'] == 'city_city':
+
+            print(link, feasible)
+
         if node['type'] == 'station':
 
             updated_values = node['station'].update(updated_values)
-
-            # charge_rate = max([self.charge_rate, node.get('charge_rate', 0)])
-
-            # delay = node.get('expected_delay', 0)
-
-            # delta_soc = self.soc_bounds[1] - updated_values['soc']
-
-            # updated_values['soc'] += delta_soc
-            # updated_values['time'] += (
-            #     delta_soc * self.capacity / charge_rate + self.charge_time_penalty + delay
-            #     )
-            # updated_values['price'] += (
-            #     delta_soc * self.capacity * node.get('charge_price', 0)
-            #     )
 
         return updated_values, feasible
 
@@ -250,6 +316,8 @@ class StochasticVehicle():
 
     def __init__(self, **kwargs):
 
+        self.ddd = [0, 0]
+
         self.cases = kwargs.get('cases', 1) # [-]
         self.capacity = kwargs.get('capacity', 80 * 3.6e6) # [J]
         self.efficiency = kwargs.get('efficiency', 550) # [J/m]
@@ -258,6 +326,7 @@ class StochasticVehicle():
         self.charge_target_soc = kwargs.get('charge_target_soc', 1) # [-]
         self.max_charge_start_soc = kwargs.get('max_charge_start_soc', 1) # [-]
         self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # ([-], [-])
+        self.out_of_charge_penalty = kwargs.get('out_of_charge_penalty', 4 * 3600) # [s]
 
         if self.cases == 1:
 
@@ -306,7 +375,7 @@ class StochasticVehicle():
     def update(self, values, link, node):
 
         if (
-            (node['type'] == 'station') and
+            (link['type'] == 'station_station') and
             not in_range(
                 link['distance'],
                 (1 - self.max_charge_start_soc) * self.range,
@@ -326,10 +395,13 @@ class StochasticVehicle():
         updated_values['price'] = values['price'] + link['price']
         updated_values['soc']  = values['soc'] - traversal_delta_soc
 
-        # print(updated_values['soc'][0])
-        # print(self.expectation(updated_values['soc']))
-
         feasible = in_range(self.expectation(updated_values['soc']), *self.soc_bounds)
+
+        if not feasible:
+
+            updated_values['time'] += self.out_of_charge_penalty
+
+            feasible = True
 
         if node['type'] == 'station':
 
@@ -354,7 +426,7 @@ class StochasticStation():
         self.seed = kwargs.get('seed', None)
         self.rng = kwargs.get('rng', np.random.default_rng(self.seed))
         self.chargers = kwargs.get('chargers', 1)
-        self.charge_rate = kwargs.get('charge_rate', 80e3)
+        self.charge_rate = kwargs.get('charge_rate', 400e3)
         self.charge_price = kwargs.get('charge_price', .5 / 3.6e6) # [$/J]
         self.base_delay = kwargs.get('base_delay', 0) # [s]
 
@@ -434,6 +506,15 @@ class StochasticStation():
 
         return (rn <= self.reliability).sum(axis = 0)
 
+    def expect(self, vehicle):
+
+        self.delay_time = super_quantile(self.delay_time, vehicle.risk_attitude)
+
+        self.at_least_one_functional_charger = super_quantile(
+            self.functional_chargers,
+            (1 - vehicle.risk_attitude[1], 1 - vehicle.risk_attitude[0])
+            ) > 1
+
     def update(self, x, vehicle):
 
         capacity = vehicle.capacity
@@ -449,7 +530,7 @@ class StochasticStation():
     def time(self, x, capacity, rate, target):
         
         time = (
-            (capacity * (target - x['soc']) /
+            (capacity  * np.clip(target - x['soc'], 0, 1) /
                 rate +
                 self.delay_time)
             )
@@ -461,7 +542,7 @@ class StochasticStation():
     def price(self, x, capacity, rate, target):
 
         price = (
-            (capacity * (target - x['soc']) * self.charge_price)
+            (capacity * np.clip(target - x['soc'], 0, 1) * self.charge_price)
             )
 
         x['price'] += price
@@ -470,6 +551,6 @@ class StochasticStation():
 
     def soc(self, x, capacity, rate, target):
 
-        x['soc'] += (target - x['soc']) * self.at_least_one_functional_charger
+        x['soc'] += np.clip(target - x['soc'], 0, 1) * self.at_least_one_functional_charger
 
         return x

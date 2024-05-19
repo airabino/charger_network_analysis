@@ -83,7 +83,15 @@ def bellman(graph, origins, **kwargs):
     queue = deque(origins)
     in_queue = set(origins)
 
+    # print(cost, values, 'a')
+
+    aaa = 0
+
     while queue:
+        aaa +=  1
+        # print(aaa, end = '\r')
+
+        # print('b')
 
         source = queue.popleft()
         in_queue.remove(source)
@@ -115,10 +123,10 @@ def bellman(graph, origins, **kwargs):
 
                             if target in recent_update[source]:
 
-                                # Negative cycle found!
+                                print('Negative cycle found!', target, recent_update[target])
                                 predecessor[target].append(source)
 
-                                return target
+                                break
 
                             # Transfer the recent update info from source to target if the
                             # same source node is the head of the update path.
@@ -144,10 +152,12 @@ def bellman(graph, origins, **kwargs):
 
                             if count_target == n:
 
-                                # Negative cycle found!
-                                return target
+                                print('Negative cycle found!')
+                                break
 
                             count[target] = count_target
+
+                            # print('c')
 
                         values[target] = values_target
                         cost[target] = cost_target
@@ -157,6 +167,8 @@ def bellman(graph, origins, **kwargs):
                     elif cost.get(target) is not None and cost_target == cost.get(target):
 
                         predecessor[target].append(source)
+
+    # print(cost, values, 'b')
 
     if return_paths:
 
@@ -177,6 +189,8 @@ def bellman(graph, origins, **kwargs):
     else:
 
         paths = None
+
+    # print(cost, values, 'a')
 
     return cost, values, paths
 

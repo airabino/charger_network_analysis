@@ -106,13 +106,17 @@ class Graph_From_Atlas():
 
         feasible = True
 
+        values_new = {}
+
         for idx in range(self.n):
 
-            values[self.fields[idx]] += link.get(self.fields[idx], 0)
+            values_new[self.fields[idx]] = (
+                values[self.fields[idx]] + link.get(self.fields[idx], 0)
+                )
 
-            feasible *= values[self.fields[idx]] <= self.limits[idx]
+            feasible *= values_new[self.fields[idx]] <= self.limits[idx]
 
-        return values, feasible
+        return values_new, feasible
 
     def compare(self, values, comparison):
 

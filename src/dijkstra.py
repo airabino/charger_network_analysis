@@ -135,7 +135,7 @@ def dijkstra(graph, origins, **kwargs):
             node = nodes[target]
 
             # Updating states for edge traversal
-            values, feasible = objective.update(
+            values_target, feasible = objective.update(
                 values, edge, node,
                 )
 
@@ -143,14 +143,14 @@ def dijkstra(graph, origins, **kwargs):
 
                 # Updating the weighted cost for the path
                 cost, savings = objective.compare(
-                    values, visited.get(target, infinity)
+                    values_target, visited.get(target, infinity)
                     )
 
                 if savings:
                    
-                    visited[target] = values
+                    visited[target] = values_target
 
-                    heappush(heap, (cost, next(c), values, target))
+                    heappush(heap, (cost, next(c), values_target, target))
 
                     if paths is not None:
 

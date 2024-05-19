@@ -394,7 +394,7 @@ For long trips, \glspl{bev} will rely on DC charging stations. The locations of 
 
 The proprietary and non-proprietary networks in California are neither equivalent nor isomorphic. There are 403 Tesla and 78 Rivian DC charging stations in the state as compared to 1,425 non-proprietary DC charging stations. The non-Tesla networks overwhelmingly use combination CCS/ChaDeMo chargers as defined by SAE J1772 \cite{SAE_J1772} which reflect the ports on the overwhelming number of non-Tesla \glspl{bev}. By contrast, Tesla chargers and vehicles use the NACS standard as defined by SAE J3400 \cite{SAE_J3400}. The Tesla and non-Tesla systems are increasingly interoperable with the aid of adapters but should be considered separately in the present. Tesla drivers use Tesla DC chargers almost exclusively \cite{Visaria_2022} and CCS/ChaDeMo to NACS adapters are more common than their counterparts. The Rivian Adventure network is technically interoperable with other J1772 vehicles but is set aside for the exclusive use of Rivian vehicles. The purpose of the Rivian Adventure network serves to allow for Rivian vehicles to charge in remote locations and is not intended to be relied upon exclusively.
 
-The difference between the Tesla DC charging network and the non-Tesla networks extends from function to form. Built out as an investment to entice sales of Tesla vehicles and, until recently, exclusive to them, the Tesla network is technically superior with higher maximum charging rates and more reliable chargers \cite{Rempel_2023, Kozumplik_2022}. Non-proprietary networks have, so far, been utilization and subsidy driven \cite{Gamage_2023} and have responded to incentives which encourage widely distributed stations with few chargers per station. A stark contrast is seen when examining the ratio of chargers to stations. In California there are 403 Tesla DC charging stations with a total of 6,277 DC chargers for an average of 15.6 chargers per station. Among non-proprietary networks there are a total of 1,425 stations with 3,667 chargers for an average of 2.6 per station. The distributions of chargers per station for Tesla and non-proprietary networks are shown in Figure \ref{fig:network_histograms}. 
+The difference between the Tesla DC charging network and the non-Tesla networks extends from function to form. Built out as an investment to entice sales of Tesla vehicles and, until recently, exclusive to them, the Tesla network is technically superior with higher maximum charging rates and more reliable chargers \cite{Rempel_2023, Kozumplik_2022}. Non-proprietary networks have, so far, been utilization and subsidy driven \cite{Gamage_2023} and have responded to incentives which encourage widely distributed stations with few chargers per station. A stark contrast is seen when examining the ratio of chargers to stations. In California there are 403 Tesla DC charging stations with a total of 6,277 DC chargers for an average of 15.6 chargers per station. Among non-proprietary networks there are a total of 1,425 stations with 3,667 chargers for an average of 2.6 per station. Redundancies for Tesla and non-proprietary networks are shown in Figure \ref{fig:network_histograms}. 
 
 %\begin{figure}[H]
 %	\centering
@@ -409,9 +409,15 @@ The difference between the Tesla DC charging network and the non-Tesla networks 
 		\includegraphics[width = \linewidth]{figs/California_RIS_Hist.png}
 	\end{subfigure}
 	\begin{subfigure}{\linewidth}
-		\includegraphics[width = \linewidth]{figs/California_RBS_Hist.png}
+		\includegraphics[width = \linewidth]{figs/California_RBS_Hist_300.png}
 	\end{subfigure}
-	\caption{Survival functions for charger networks in California. Top panel shows survival function for in-station redundancy. Bottom panel shows survival function for redundancy between stations with 10 minute drive-time.}
+	\begin{subfigure}{\linewidth}
+		\includegraphics[width = \linewidth]{figs/California_RBS_Hist_600.png}
+	\end{subfigure}
+	\begin{subfigure}{\linewidth}
+		\includegraphics[width = \linewidth]{figs/California_RBS_Hist_1200.png}
+	\end{subfigure}
+	\caption{Survival functions for charger networks in California. Top panel shows survival function for in-station redundancy. Bottom three panels show survival functions for between-station redundancy for station cliques defined by 5, 10, and 20 minute drive-times respectively.}
 	\label{fig:network_histograms}
 \end{figure}
 
@@ -531,6 +537,40 @@ The metric used for comparison is long-trip accessibility as defined in \eqref{e
 		\hline Parameter & $\beta$ & p-value \\
 		\hline {\small Intercept } & 5.840 & 0.000 \\
 		\hline {\small Multiplier } & -0.118 & 0.000 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+%	\caption{Significant ($\alpha = 0.05$) terms from linear regression for Bolt.}
+%	\label{tab:sp_bolt}
+	\begin{tabular}{|C{.6\linewidth}|C{.2\linewidth}|C{.2\linewidth}|}
+		\hline Parameter & $\beta$ & p-value \\
+		\hline {\small Intercept } & 6.678 & 0.000 \\
+		\hline {\small Range } & -0.903 & 0.035 \\
+		\hline {\small Attitude } & 2.633 & 0.000 \\
+		\hline {\small Attitude:Range } & -2.570 & 0.000 \\
+		\hline {\small Attitude:Reliability } & -2.028 & 0.003 \\
+		\hline {\small Attitude:Non-Tesla Access } & 1.406 & 0.021 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	%	\caption{Significant ($\alpha = 0.05$) terms from linear regression for Bolt.}
+	%	\label{tab:sp_bolt}
+	\begin{tabular}{|C{.6\linewidth}|C{.2\linewidth}|C{.2\linewidth}|}
+		\hline Parameter & $\beta$ & p-value \\
+		\hline {\small Intercept } & 6.800 & 0.000 \\
+		\hline {\small Range } & -0.921 & 0.012 \\
+		\hline {\small Attitude } & 3.640 & 0.000 \\
+		\hline {\small Attitude:Range } & -3.559 & 0.000 \\
+		\hline {\small Attitude:Reliability } & -2.772 & 0.000 \\
+		\hline {\small Attitude:Redundancy-IS } & -1.339 & 0.026 \\
+		\hline {\small Attitude:Range:Reliability } & 2.754 & 0.002 \\
 		\hline
 	\end{tabular}
 \end{table}

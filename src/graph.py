@@ -187,7 +187,7 @@ def graph_from_shapefile(filepath, node_attributes = {}, link_attributes = {}, *
 
 	return graph
 
-def graph_from_gdf(gdf,directed=False):
+def graph_from_gdf(gdf, directed = False):
 	'''
 	Calls momepy gdf_to_nx function to make a Graph from a GeoDataFrame.
 	In this case the primal graph (vertex-defined) is called for, multi-paths
