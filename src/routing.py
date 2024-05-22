@@ -118,7 +118,12 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
     for origin in ProgressBar(origins, **kwargs.get('progress_bar_kw', {})):
 
-        result = routing_function(graph, [origin], destinations = origins, **kwargs)
+        result = shortest_paths(
+            graph, [origin],
+            destinations = origins,
+            method = method, 
+            **kwargs
+            )
 
         costs[origin] = result[0]
         values[origin] = result[1]
@@ -126,32 +131,39 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
     return costs, values, paths
 
-def road_trip_accessibility(values, field = 'time', expectation = np.mean):
+def road_trip_accessibility(values, keys = [], field = 'time', expectation = np.mean):
 
     sum_cost = 0
 
     n = len(values)
 
-    for key, val in values.items():
+    if not keys:
+
+        keys = list(values.keys())
+
+    for key in keys:
 
         # print(key)
 
         sum_cost += specific_road_trip_accessibility(
-            val, field = field, expectation = expectation
+            values[key], field = field, expectation = expectation
             )
 
     return sum_cost / n
 
-def specific_road_trip_accessibility(values, field = 'time', expectation = np.mean):
+def specific_road_trip_accessibility(values, keys = [], field = 'time', expectation = np.mean):
 
     sum_cost = 0
 
     n = len(values)
 
-    for key, val in values.items():
+    if not keys:
 
-        sum_cost += expectation(np.atleast_1d(val[field]))
-        # print(sum_cost, n, key, expectation(np.atleast_1d(val[field])))
+        keys = list(values.keys())
+
+    for key in keys:
+
+        sum_cost += expectation(np.atleast_1d(values[key][field]))
 
     return sum_cost / n
 
@@ -223,94 +235,12 @@ class Scout():
         return values, values <= self.limit
 
     def compare(self, values, approximation):
-        # print(
-        #     values,
-        #     values < (approximation * (1 + self.disambiguation)),
-        #     (approximation * (1 + self.disambiguation)),
-        #     )
 
         if approximation == np.inf:
 
             return values, values < approximation
 
         return values, values * (1 + self.disambiguation) < approximation
-
-class Vehicle():
-
-    def __init__(self, **kwargs):
-
-        self.capacity = kwargs.get('capacity', 80 * 3.6e6) # [J]
-        self.efficiency = kwargs.get('efficiency', 550) # [J/m]
-        self.charge_rate = kwargs.get('charge_rate', 80e3) # [W]
-        self.charge_time_penalty = kwargs.get('charge_time_penalty', 300) # [s]
-        self.soc_bounds = kwargs.get('soc_bounds', (0, 1)) # ([-], [-])
-        self.max_charge_start_soc = kwargs.get('max_charge_start_soc', 1) # [-]
-
-        self.initial_values = kwargs.get(
-            'initial_values',
-            {
-                'time': 0, # [s]
-                'driving_time': 0, # [s]
-                'distance': 0, # [m]
-                'price': 0, # [$]
-                'soc': 1, # [dim]
-            },
-        )
-
-        self.range = (
-            (self.soc_bounds[1] - self.soc_bounds[0]) * self.capacity / self.efficiency
-            )
-
-    def initial(self):
-
-        return self.initial_values
-
-    def infinity(self):
-
-        return {k: np.inf for k in self.initial_values.keys()}
-
-    def update(self, values, link, node):
-
-        if (
-            (link['type'] == 'station_station') and
-            not in_range(
-                link['distance'],
-                (1 - self.max_charge_start_soc) * self.range,
-                self.range
-            )):
-
-            if node['type'] == 'city':
-
-                print('a')
-
-            return values, False
-
-        updated_values = values.copy()
-
-        traversal_energy = self.efficiency * link['distance']
-        traversal_delta_soc = traversal_energy / self.capacity
-
-        updated_values['time'] += link['time']
-        updated_values['driving_time'] += link['time']
-        updated_values['distance'] += link['distance']
-        updated_values['price'] += link['price']
-        updated_values['soc'] -= traversal_delta_soc
-
-        feasible = in_range(updated_values['soc'], *self.soc_bounds)
-
-        if link['type'] == 'city_city':
-
-            print(link, feasible)
-
-        if node['type'] == 'station':
-
-            updated_values = node['station'].update(updated_values)
-
-        return updated_values, feasible
-
-    def compare(self, values, approximation):
-
-        return values['time'], values['time'] < approximation['time']
 
 class StochasticVehicle():
 
@@ -324,9 +254,12 @@ class StochasticVehicle():
         self.charge_rate = kwargs.get('charge_rate', 80e3) # [W]
         self.soc_bounds = kwargs.get('soc_bounds', (0, 1)) # ([-], [-])
         self.charge_target_soc = kwargs.get('charge_target_soc', 1) # [-]
-        self.max_charge_start_soc = kwargs.get('max_charge_start_soc', 1) # [-]
+        self.max_charge_start_soc = kwargs.get(
+            'max_charge_start_soc', self.charge_target_soc) # [-]
         self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # ([-], [-])
         self.out_of_charge_penalty = kwargs.get('out_of_charge_penalty', 4 * 3600) # [s]
+
+        self.field = kwargs.get('field', 'time')
 
         if self.cases == 1:
 
@@ -346,6 +279,7 @@ class StochasticVehicle():
             'initial_values',
             {
                 'time': np.zeros(self.cases), # [s]
+                'routing_time': np.zeros(self.cases), # [s]
                 'driving_time': np.zeros(self.cases), # [s]
                 'distance': np.zeros(self.cases), # [m]
                 'price': np.zeros(self.cases), # [$]
@@ -375,7 +309,7 @@ class StochasticVehicle():
     def update(self, values, link, node):
 
         if (
-            (link['type'] == 'station_station') and
+            (node['type'] != 'city') and
             not in_range(
                 link['distance'],
                 (1 - self.max_charge_start_soc) * self.range,
@@ -390,6 +324,7 @@ class StochasticVehicle():
         updated_values = {}
 
         updated_values['time'] = values['time'] + link['time']
+        updated_values['routing_time'] = values['routing_time'] + link['time']
         updated_values['driving_time'] = values['driving_time'] + link['time']
         updated_values['distance'] = values['distance'] + link['distance']
         updated_values['price'] = values['price'] + link['price']
@@ -400,6 +335,8 @@ class StochasticVehicle():
         if not feasible:
 
             updated_values['time'] += self.out_of_charge_penalty
+            updated_values['routing_time'] += self.out_of_charge_penalty
+            updated_values['driving_time'] += self.out_of_charge_penalty
 
             feasible = True
 
@@ -413,10 +350,12 @@ class StochasticVehicle():
 
     def compare(self, values, comparison):
 
-        return (
-            self.expectation(values['time']), 
-            self.expectation(values['time']) < self.expectation(comparison['time'])
-            )
+        values_exp = self.expectation(values[self.field])
+        comparison_exp = self.expectation(comparison[self.field])
+
+        savings = values_exp < comparison_exp
+
+        return values_exp, savings
 
 class StochasticStation():
 
@@ -528,14 +467,13 @@ class StochasticStation():
         return x
 
     def time(self, x, capacity, rate, target):
-        
-        time = (
-            (capacity  * np.clip(target - x['soc'], 0, 1) /
-                rate +
-                self.delay_time)
-            )
 
-        x['time'] += time
+        full_charge_time = capacity / rate
+        charge_time = full_charge_time * np.clip(target - x['soc'], 0, 1)
+
+        x['time'] += charge_time + self.delay_time
+
+        x['routing_time'] += full_charge_time + self.delay_time
 
         return x
 

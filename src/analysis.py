@@ -65,7 +65,7 @@ def total_sum_of_squares(x):
 
 def coefficient_of_determination(x, y):
 
-    return 1 - (RSS(x, y) / TSS(x))
+    return 1 - (residual_sum_of_squares(x, y) / total_sum_of_squares(x))
 
 def adjusted_coefficient_of_determination(x, y, n, p):
 
@@ -79,14 +79,17 @@ def anova_tabular(x, y, n, p):
     dfe = n - p
     dfm = p - 1
     dft = n - 1
+
+    print(dfe, dfm, dft)
+
     mse = sse / dfe
     msm = ssm / dfm
     mst = sst / dft
     f = msm / mse
     pf = f_dist.sf(f, dfm, dfe)
 
-    r2 =coefficient_of_determination(x, y)
-    ar2 =adjusted_coefficient_of_determination(x, y, n, p)
+    r2 = coefficient_of_determination(x, y)
+    ar2 = adjusted_coefficient_of_determination(x, y, n, p)
 
     out_string = "\\hline R & R-Squared & Adjusted R-Squared & Std. Error \\\\\n"
     out_string += "\\hline {:.3f} & {:.3f} & {:.3f} & {:.3f} \\\\\n".format(
@@ -107,14 +110,16 @@ def anova_tabular(x, y, n, p):
 
     print(out_string)
 
-def model_anova_tabular(model, df_norm, res_column, m):
+def model_anova_tabular(model, df_norm, res_column, n, c = 1):
 
     y_hat = predict(model, df_norm)
     y = df_norm[res_column]
-    n = df_norm.shape[0]
-    p = sum([comb(m, n) for n in range(m + 1)])
+    m = df_norm.shape[0]
+    p = sum([comb(n, k) for k in range(n + 1)]) * c
 
-    return ANOVA(y,y_hat,n,p)
+    print(n, p)
+
+    return anova_tabular(y, y_hat, m, p)
 
 def predict(model, df_norm):
 

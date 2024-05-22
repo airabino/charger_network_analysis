@@ -103,7 +103,6 @@ def bellman(graph, origins, **kwargs):
 
             for target, edge in adjacency[source].items():
 
-                # cost_target = cost_source + adjacency[source][target][weight]
                 values_target, feasible = objective.update(values_source, edge, nodes[target])
                 
                 if feasible:
