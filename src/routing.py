@@ -6,7 +6,7 @@ from scipy.stats import norm
 from scipy.special import factorial
 
 from .progress_bar import ProgressBar
-from .dijkstra import dijkstra
+from .dijkstra import dijkstra, multi_directional_dijkstra
 from .bellman import bellman
 
 def in_range(x, lower, upper):
@@ -104,32 +104,38 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
     # print(graph.nodes)
 
-    if method == 'dijkstra':
+    if method == 'multi_dijkstra':
 
-        routing_function = dijkstra
+        return multi_directional_dijkstra(graph, origins, **kwargs)
 
-    elif method == 'bellman':
+    else:
 
-        routing_function = bellman
+        if method == 'dijkstra':
 
-    costs = {}
-    values = {}
-    paths = {}
+            routing_function = dijkstra
 
-    for origin in ProgressBar(origins, **kwargs.get('progress_bar_kw', {})):
+        elif method == 'bellman':
 
-        result = shortest_paths(
-            graph, [origin],
-            destinations = origins,
-            method = method, 
-            **kwargs
-            )
+            routing_function = bellman
 
-        costs[origin] = result[0]
-        values[origin] = result[1]
-        paths[origin] = result[2]
+        costs = {}
+        values = {}
+        paths = {}
 
-    return costs, values, paths
+        for origin in ProgressBar(origins, **kwargs.get('progress_bar_kw', {})):
+
+            result = shortest_paths(
+                graph, [origin],
+                destinations = origins,
+                method = method, 
+                **kwargs
+                )
+
+            costs[origin] = result[0]
+            values[origin] = result[1]
+            paths[origin] = result[2]
+
+        return costs, values, paths
 
 def road_trip_accessibility(values, keys = [], field = 'time', expectation = np.mean):
 
@@ -234,6 +240,10 @@ class Scout():
 
         return values, values <= self.limit
 
+    def combine(self, values_0, values_1):
+
+        return values_0 + values_1
+
     def compare(self, values, approximation):
 
         if approximation == np.inf:
@@ -279,6 +289,7 @@ class StochasticVehicle():
             'initial_values',
             {
                 'time': np.zeros(self.cases), # [s]
+                'merge_time': np.zeros(self.cases), # [s]
                 'routing_time': np.zeros(self.cases), # [s]
                 'driving_time': np.zeros(self.cases), # [s]
                 'distance': np.zeros(self.cases), # [m]
@@ -297,6 +308,17 @@ class StochasticVehicle():
         new_object.expectation = lambda x: x[case]
 
         return new_object
+
+    def combine(self, values_0, values_1):
+
+        merged_values = {k: values_0[k] + values_1[k] for k in values_0.keys()}
+
+        merged_values['soc'] = values_0['soc'] - (1 - values_1['soc'])
+        # merged_values['time'] = values_0['merge_time'] + values_1['time']
+
+        feasible = in_range(self.expectation(merged_values['soc']), *self.soc_bounds)
+
+        return merged_values, feasible
 
     def initial(self):
 
@@ -324,6 +346,7 @@ class StochasticVehicle():
         updated_values = {}
 
         updated_values['time'] = values['time'] + link['time']
+        updated_values['merge_time'] = values['time'] + link['time']
         updated_values['routing_time'] = values['routing_time'] + link['time']
         updated_values['driving_time'] = values['driving_time'] + link['time']
         updated_values['distance'] = values['distance'] + link['distance']
@@ -336,7 +359,7 @@ class StochasticVehicle():
 
             updated_values['time'] += self.out_of_charge_penalty
             updated_values['routing_time'] += self.out_of_charge_penalty
-            updated_values['driving_time'] += self.out_of_charge_penalty
+            # updated_values['driving_time'] += self.out_of_charge_penalty
 
             feasible = True
 
@@ -365,15 +388,16 @@ class StochasticStation():
         self.seed = kwargs.get('seed', None)
         self.rng = kwargs.get('rng', np.random.default_rng(self.seed))
         self.chargers = kwargs.get('chargers', 1)
-        self.charge_rate = kwargs.get('charge_rate', 400e3)
+        self.expected_charge_rate = kwargs.get('expected_charge_rate', 80e3)
+        self.max_charge_rate = kwargs.get('max_charge_rate', 400e3)
         self.charge_price = kwargs.get('charge_price', .5 / 3.6e6) # [$/J]
         self.base_delay = kwargs.get('base_delay', 0) # [s]
 
         self.arrival_param = kwargs.get('arrival_param', (1, .5))
-        self.arrival_limits = kwargs.get('arrival_limits', (.1, 1.9))
+        self.arrival_limits = kwargs.get('arrival_limits', (.1, np.inf))
 
-        self.service_param = kwargs.get('service_param', (60, 15))
-        self.service_limits = kwargs.get('service_limits', (10, 110))
+        self.service_param = kwargs.get('service_param', (45 * 3.6e6, 0))
+        self.service_limits = kwargs.get('service_limits', (.1, np.inf))
         
         self.reliability = kwargs.get('reliability', 1)
         self.energy_price = kwargs.get('energy_price', .5 / 3.6e6)
@@ -397,13 +421,15 @@ class StochasticStation():
         self.functional_chargers = self.functionality()
         self.at_least_one_functional_charger = self.functional_chargers > 0
 
-        self.arrival = (
-            3600 / (self.chargers * self.clip_norm(self.arrival_param, self.arrival_limits))
+        self.service = (
+            self.clip_norm(self.service_param, self.service_limits) /
+            self.expected_charge_rate + self.base_delay
             )
 
-        self.service = (
-            self.clip_norm(self.service_param, self.service_limits) *
-            3.6e6 / self.charge_rate
+        self.arrival = (
+            self.service.mean() / (
+                self.chargers * self.clip_norm(self.arrival_param, self.arrival_limits)
+                )
             )
 
         self.delay_time = np.zeros(self.cases) + self.base_delay
@@ -458,7 +484,7 @@ class StochasticStation():
 
         capacity = vehicle.capacity
         target = vehicle.charge_target_soc
-        rate = min([self.charge_rate, vehicle.charge_rate])
+        rate = min([self.max_charge_rate, vehicle.charge_rate])
 
         x = self.time(x, capacity, rate, target)
         x = self.price(x, capacity, rate, target)

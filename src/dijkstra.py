@@ -196,18 +196,13 @@ def multi_directional_dijkstra(graph, origins, **kwargs):
 
     infinity = objective.infinity()
 
-    if return_paths:
-
-        paths = {d: {o: [o] for o in origins} for d in destinations}
-
-    else:
-
-        paths = None
+    paths = {d: {o: [o] for o in origins} for d in destinations}
 
     nodes = graph._node
     edges = graph._adj
 
-    path_values = {o: {o: 0 for o in origins} for o in origins} # dictionary of costs for paths
+    # dictionary of costs for paths
+    path_values = {o: {o: objective.initial() for o in origins} for o in origins} 
 
     path_costs = {o: {} for o in origins} # dictionary of objective values for paths
 
@@ -218,6 +213,11 @@ def multi_directional_dijkstra(graph, origins, **kwargs):
 
     # Status of search for origin-pair shortest paths - True for self paths
     connections = {d: {o: o == d for o in origins} for d in destinations}
+
+    # Values of the origin-pair paths
+    connection_values = {d: {o: objective.initial() for o in origins} for d in destinations}
+
+    connection_paths = {d: {o: [o] for o in origins} for d in destinations}
 
     c = count() # use the count c to avoid comparing nodes (may not be able to)
     heaps = {o: [] for o in origins} # heap is heapq with 3-tuples (cost, c, node)
@@ -282,9 +282,7 @@ def multi_directional_dijkstra(graph, origins, **kwargs):
 
                         heappush(heap, (cost, next(c), values_target, target))
 
-                        if paths is not None:
-
-                            paths[origin][target] = paths[origin][source] + [target]
+                        paths[origin][target] = paths[origin][source] + [target]
 
                     # Updating origin-pair paths
                     for destination in origins:
@@ -295,26 +293,32 @@ def multi_directional_dijkstra(graph, origins, **kwargs):
 
                                 tentative_mu = (
                                     path_costs[origin][source] +
-                                    path_costs[destination][target] +
-                                    edge_cost
+                                    edge_cost+
+                                    path_costs[destination][target]
+                                    )
+
+                                tentative_path = (
+                                    paths[origin][source] +
+                                    paths[destination][target][::-1]
+                                    )
+
+                                tentative_values, feasible = objective.combine(
+                                    path_values[origin][target],
+                                    path_values[destination][target]
                                     )
 
                                 # Updating estimation if tentative path is shorter
                                 # than current path. Also update path and values.
-                                if tentative_mu < mu[origin][destination]:
+                                if (tentative_mu < mu[origin][destination]) and feasible:
 
                                     mu[origin][destination] = tentative_mu
 
-                                    paths[origin][destination] = (
-                                        paths[origin][source] +
-                                        paths[destination][target][::-1]
+                                    connection_paths[origin][destination] = tentative_path
+
+                                    connection_values[origin][destination] = (
+                                        tentative_values
                                         )
 
-                                    path_values[origin][destination] = (
-                                        path_values[origin][target] +
-                                        path_values[destination][target]
-                                        )
-        
         # Updating origin-pair search status
         complete = True
 
@@ -342,4 +346,4 @@ def multi_directional_dijkstra(graph, origins, **kwargs):
 
             break
 
-    return path_costs, path_values, paths
+    return path_costs, connection_values, connection_paths

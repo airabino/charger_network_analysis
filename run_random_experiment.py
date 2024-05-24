@@ -46,12 +46,15 @@ _vehicle_param = {
     'charge_target_soc': lambda rng: .8,
     'soc_bounds': lambda rng: (.1, 1),
     'efficiency': lambda rng: 550,
+    'max_charge_start_soc': lambda rng: .5,
 }
 
 _station_param = {
     'reliability': lambda rng: rng.random() * .5 + .5,
     'base_delay': lambda rng: 60,
     'cases': lambda rng: 100,
+    'arrival_param': lambda rng: (rng.random() * 2 + 1) * np.array([1, .25]),
+    'service_param': lambda rng: (45 * 3.6e6, 0),
 }
 
 sng_combined = src.graph.graph_from_json('Outputs/sng_combined.json')

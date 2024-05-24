@@ -17,6 +17,8 @@ default_station_param = {
     'reliability': lambda rng: rng.random() * .5 + .5,
     'base_delay': lambda rng: 60,
     'cases': lambda rng: 100,
+    'arrival_param': lambda rng: (rng.random() * 2 + 1) * np.array([1, .25]),
+    'service_param': lambda rng: (45 * 3.6e6, 0),
 }
 
 def generate_case(graphs, vehicle_param, station_param, rng = np.random.default_rng()):
