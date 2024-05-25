@@ -1006,6 +1006,49 @@
     \field{year}{2023}
   \endentry
 
+  \entry{Rempel_2023}{article}{}
+    \name{author}{4}{}{%
+      {{hash=RD}{%
+         family={Rempel},
+         familyi={R\bibinitperiod},
+         given={David},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=CC}{%
+         family={Cullen},
+         familyi={C\bibinitperiod},
+         given={Carleen},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=BMM}{%
+         family={Bryan},
+         familyi={B\bibinitperiod},
+         given={Mary\bibnamedelima Matteson},
+         giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=CGV}{%
+         family={Cezar},
+         familyi={C\bibinitperiod},
+         given={Gustavo\bibnamedelima Vianna},
+         giveni={G\bibinitperiod\bibinitdelim V\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RD+1}
+    \strng{fullhash}{RDCCBMMCGV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1177/00187208231215242
+    \endverb
+    \field{number}{0}
+    \field{pages}{00187208231215242}
+    \field{title}{Reliability of Open Public Electric Vehicle Direct Current
+  Fast Chargers}
+    \field{volume}{0}
+    \field{journaltitle}{Human Factors}
+    \field{year}{0}
+  \endentry
+
   \entry{SAE_J1772}{manual}{}
     \name{author}{1}{}{%
       {{hash=CHE}{%
@@ -1132,49 +1175,6 @@
     \field{year}{2022}
   \endentry
 
-  \entry{Rempel_2023}{article}{}
-    \name{author}{4}{}{%
-      {{hash=RD}{%
-         family={Rempel},
-         familyi={R\bibinitperiod},
-         given={David},
-         giveni={D\bibinitperiod},
-      }}%
-      {{hash=CC}{%
-         family={Cullen},
-         familyi={C\bibinitperiod},
-         given={Carleen},
-         giveni={C\bibinitperiod},
-      }}%
-      {{hash=BMM}{%
-         family={Bryan},
-         familyi={B\bibinitperiod},
-         given={Mary\bibnamedelima Matteson},
-         giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod},
-      }}%
-      {{hash=CGV}{%
-         family={Cezar},
-         familyi={C\bibinitperiod},
-         given={Gustavo\bibnamedelima Vianna},
-         giveni={G\bibinitperiod\bibinitdelim V\bibinitperiod},
-      }}%
-    }
-    \strng{namehash}{RD+1}
-    \strng{fullhash}{RDCCBMMCGV1}
-    \field{labelnamesource}{author}
-    \field{labeltitlesource}{title}
-    \verb{doi}
-    \verb 10.1177/00187208231215242
-    \endverb
-    \field{number}{0}
-    \field{pages}{00187208231215242}
-    \field{title}{Reliability of Open Public Electric Vehicle Direct Current
-  Fast Chargers}
-    \field{volume}{0}
-    \field{journaltitle}{Human Factors}
-    \field{year}{0}
-  \endentry
-
   \entry{Kozumplik_2022}{misc}{}
     \name{author}{1}{}{%
       {{hash=KBJ}{%
@@ -1231,6 +1231,187 @@
     \verb energy/california-retail-fuel-outlet-annual-reporting
     \endverb
     \field{year}{2022}
+  \endentry
+
+  \entry{DOE_EPA_2024}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=EEERE}{%
+         family={(EERE)},
+         familyi={E\bibinitperiod},
+         given={Energy Efficiency \& Renewable\bibnamedelima Energy},
+         giveni={E\bibinitperiod\bibinitdelim E\bibinitperiod\bibinitdelim
+  \bibinitperiod\bibinitdelim R\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {US Department of Energy (DOE)}%
+    }
+    \strng{namehash}{EEERE1}
+    \strng{fullhash}{EEERE1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{www.fueleconomy.gov the official U.S. government source for
+  fuel economy information}
+    \verb{url}
+    \verb https://www.fueleconomy.gov/
+    \endverb
+    \field{year}{2024}
+  \endentry
+
+  \entry{AAA_2024}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=AAAA}{%
+         family={(AAA)},
+         familyi={A\bibinitperiod},
+         given={American Automobile\bibnamedelima Association},
+         giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod\bibinitdelim
+  A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AAAA1}
+    \strng{fullhash}{AAAA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Gas Prices}
+    \verb{url}
+    \verb https://gasprices.aaa.com/
+    \endverb
+    \field{year}{2024}
+  \endentry
+
+  \entry{EIA_2024}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=EUEIA}{%
+         family={(EIA)},
+         familyi={E\bibinitperiod},
+         given={U.S. Energy Information\bibnamedelima Administration},
+         giveni={U\bibinitperiod\bibinitdelim E\bibinitperiod\bibinitdelim
+  I\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{EUEIA1}
+    \strng{fullhash}{EUEIA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Electricity Data Browser}
+    \verb{url}
+    \verb https://www.eia.gov/electricity/data/browser/
+    \endverb
+    \field{year}{2024}
+  \endentry
+
+  \entry{Trinko_2021}{article}{}
+    \name{author}{5}{}{%
+      {{hash=TD}{%
+         family={Trinko},
+         familyi={T\bibinitperiod},
+         given={David},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=PE}{%
+         family={Porter},
+         familyi={P\bibinitperiod},
+         given={Emily},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=DJ}{%
+         family={Dunckley},
+         familyi={D\bibinitperiod},
+         given={Jamie},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=BT}{%
+         family={Bradley},
+         familyi={B\bibinitperiod},
+         given={Thomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=CT}{%
+         family={Coburn},
+         familyi={C\bibinitperiod},
+         given={Timothy},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{TD+1}
+    \strng{fullhash}{TDPEDJBTCT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    Electric vehicle (EV) charging infrastructure is present all over the
+  United States, but charging prices vary greatly, both in amount and in the
+  methods by which they are assessed. For this paper, we interpret and analyze
+  charging price information from PlugShare, a crowd-sourced EV charging data
+  platform. Because prices in these data exist in a semi-structured textual
+  format, an ad hoc text mining approach is used to extract quantitative price
+  information. Descriptive analytics of the processed dataset demonstrate how
+  the prices of EV charging vary with charging level (Direct Current Fast
+  Charging versus Level 2), geographic location, network provider, and location
+  type. Our research indicates that a great deal of diversity and flexibility
+  exists in structuring the prices of EV charging to enable incentives for
+  shaping charging behaviors, but that it has yet to be widely standardized or
+  utilized. Comparisons with estimates of the levelized cost of EV charging
+  illustrate some of the challenges associated with operating and using these
+  stations.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.3390/en14175240
+    \endverb
+    \field{issn}{1996-1073}
+    \field{number}{17}
+    \field{title}{Combining Ad Hoc Text Mining and Descriptive Analytics to
+  Investigate Public EV Charging Prices in the United States}
+    \verb{url}
+    \verb https://www.mdpi.com/1996-1073/14/17/5240
+    \endverb
+    \field{volume}{14}
+    \field{journaltitle}{Energies}
+    \field{year}{2021}
+  \endentry
+
+  \entry{CalTrans_2024}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=D}{%
+         family={DriveClean},
+         familyi={D\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {CalTrans}%
+    }
+    \strng{namehash}{D1}
+    \strng{fullhash}{D1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Electric Car Charging Overview}
+    \verb{url}
+    \verb https://driveclean.ca.gov/electric-car-charging/
+    \endverb
+    \field{year}{2024}
+  \endentry
+
+  \entry{Sowder_2024}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=SG}{%
+         family={Sowder},
+         familyi={S\bibinitperiod},
+         given={Greg},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Qmerit Network}%
+    }
+    \strng{namehash}{SG1}
+    \strng{fullhash}{SG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{California Electrification Statistics}
+    \verb{url}
+    \verb https://qmerit.com/blog/california-electrification-statistics/
+    \endverb
+    \field{year}{2024}
+    \warn{\item Invalid format of field 'month'}
   \endentry
 
   \entry{Dixon_2020}{article}{}

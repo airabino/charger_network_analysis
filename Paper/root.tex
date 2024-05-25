@@ -457,6 +457,70 @@ In order to understand the effects of vehicular, infrastructural, and behavioral
 	\end{tabular}
 \end{table}
 
+All randomly sampled \glspl{bev} in this study are assumed to have an energy consumption rate of 608 kJ/km this being the EPA energy consumption rate of a Tesla Model 3 in highway operation \cite{DOE_EPA_2024}. Highway operation is assumed herein due to the focus on long trips. Thus \gls{bev} full-charge ranges will be between 237 and 711 km. Vehicles are assumed to fast charge only up to 80\% \gls{soc} in order to remain in the constant current range. When charging, sampled \glspl{bev} add highway range at a rate between 4.9 and 19.7 km per minute. For the sake of comparison, three \glspl{icev} were also modeled. These \glspl{icev} represent different levels of efficiency present in the present \gls{icev} fleet. \gls{ess} capacity numbers were pulled from manufacturer websites and energy consumption rates are computed from EPA highway fuel economy ratings \cite{DOE_EPA_2024}. Although substantially less efficient than equivalent \glspl{bev} the comparatively high specific energy of liquid petroleum allows for \glspl{icev} to have higher maximum ranges. \gls{icev} supply infrastructure is modeled to dispense fuel at the normal US rate of 7 gallons per minute which is an equivalent energy supply rate of 14.15 MW. When refueling, the Prius. Golf, and Pacifica, add highway range at rates of 631, 462, and 282 km per minute. respectively. The \gls{icev} model data and California road-trip accessibility vales are shown in Table \ref{tab:icev_models}.
+
+\begin{table}[H]
+	\centering
+	\caption{\gls{icev} models}
+	\label{tab:icev_models}
+	\begin{tabular}{|C{.45\linewidth}|C{.3\linewidth}|C{.25\linewidth}|}
+		\hline Vehicle Model & Parameter & Value \\
+		\cline{1-3} & \gls{ess} Capacity & 381 [kWh] \\
+		\cline{2-3} & Energy Consumption & 1,346 [kJ/km] \\
+		\cline{2-3} 2024 Toyota Prius & Full-Tank Range & 1,018 [km] \\
+		\cline{2-3} & California Road-Trip Accessibility & 5.472 [hours] \\
+		\cline{1-3} & \gls{ess} Capacity & 445 [kWh] \\
+		\cline{2-3} & Energy Consumption & 1,839 [kJ/km] \\
+		\cline{2-3} 2024 Volkswagen Golf & Full-Tank Range & 871 [km] \\
+		\cline{2-3} & California Road-Trip Accessibility & 5.492 [hours] \\
+		\cline{1-3} & \gls{ess} Capacity & 640 [kWh] \\
+		\cline{2-3} & Energy Consumption & 3,015 [kJ/kM] \\
+		\cline{2-3} 2024 Chrysler Pacifica & Full-Tank Range & 764 [km] \\
+		\cline{2-3} & California Road-Trip Accessibility & 5.517 [hours] \\
+		\hline
+	\end{tabular}
+\end{table}
+
+California road-trip accessibility for \glspl{icev} was computed under the assumption of petroleum supply infrastructure ubiquity. As such, \glspl{icev} were given the "direct" path between locations with stop times added where additional range was needed. For each necessary stop, time was added for refueling to full as well as 10 minutes to divert from the road and handle the transaction prior to refueling. Additionally, drivers of the \glspl{icev} were assumed to keep a 10\% buffer of remaining range. The \glspl{icev} each had similar road-trip accessibility scores of roughly 5.5 hours. The longest arc considered in Crescent City (Location 0) to Phoenix - State Line (Location 13) which is roughly 1,530 km just exceeding double the usable range of the Pacifica. The Prius, Golf, and Pacifica required averages of 0.43, 0.31, and 0.19 supply stops per route respectively.
+
+
+
+
+
+This study focuses on travel times and routing did not optimize for energy cost. At present there is no publicly available data on energy costs at a granular station-level for either gasoline or DC fast charging stations. Nevertheless, some sense of the relative economics of long-trip travel can be attained by examining energy costs per km. Conventional wisdom suggests that \glspl{bev} should offer a potential cost savings on the basis of average energy costs. Energy costs vary substantially by region in the US with California being the most expensive. Energy costs around the time of writing are shown in Table \ref{tab:energy_costs}.
+
+\begin{table}[H]
+	\centering
+	\caption{Residential electricity and petroleum average prices USD}
+	\label{tab:energy_costs}
+	\begin{tabular}{|C{.31\linewidth}|C{.23\linewidth}|C{.23\linewidth}|C{.23\linewidth}|}
+		\hline Source & US & California & Percentage Increase \\
+		\hline Petroleum [gallon] & 3.609 & 5.138 & 42.37 \\
+		\hline Residential Electricity [kWh] & 0.1668 & 0.3247 & 94.66 \\
+		\hline Transportation Electricity [kWh] & 0.1520 & 0.1191 & 27.62 \\
+		\hline DC Fast Charging (Estimated) [kWh] & 0.35 - 0.50 & 0.35 - 0.60 & 0 - 20 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Petroleum prices are from AAA \cite{AAA_2024} and energy prices are from EIA \cite{EIA_2024}. DC fast charging pricing schemes display much heterogeneity and may not be as easily accounted as metered electricity prices. An Ad-Hoc Text Mining study performed on over 90,000 recorded PlugShare events from 2019 and 2021 found the mode of DC fast charging prices to be in the range of 0.3 and 0.4 USD per kWh with prices not significantly correlating with local energy prices \cite{Trinko_2021}. In the same time period California residential electricity increased from 0.1995 USD per kWh to 0.2282 USD per kWh and transportation electricity increased from 0.0891 to 0.1179 USD per kWh. By comparison with 2024 electricity prices, one would expect prices in the range of 0.35 and 0.60 USD per kWh for DC fast charging in California and 0.35 to 0.5 in the US, ranges backed by informal reporting \cite{CalTrans_2024, Sowder_2024}. Thus, expected energy costs per highway km traveled can be computed and are shown in Table \ref{tab:expected_energy_costs_per_km}.
+
+\begin{table}[H]
+	\centering
+	\caption{Expected energy costs per highway km traveled in US cents.}
+	\label{tab:expected_energy_costs_per_km}
+	\begin{tabular}{|C{\linewidth / 4}|C{\linewidth / 4}|C{\linewidth / 4}|C{\linewidth / 4}|}
+		\hline Vehicle & Source & US Price & CA Price \\
+		\hline Prius & Petroleum & 4.00 & 5.70 \\
+		\hline Golf & Petroleum & 5.47 & 7.78 \\
+		\hline Pacifica & Petroleum & 8.97 & 12.77 \\
+		\hline \gls{bev} & Residential Electricity & 2.82 & 5.48 \\
+		\hline \gls{bev} & DC Fast Charging & 5.91 - 8.44 & 5.91 - 10.13 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+The economic picture is that, broadly speaking, DC fast charging a \gls{bev} presents no appreciable economic benefit over fueling an efficient \gls{icev}. In much of the US, home-charging a \gls{bev} provides cost savings for the initial part of the trip until supply is needed but this is not the case in California where residential electricity is, on average, nearly twice as expensive as the US average.
 
 \subsection*{Example}
 
@@ -666,53 +730,27 @@ In this study a framework for accessing long-trip accessibility for road vehicle
 	\label{fig:rbs_600_top_8_networks}
 \end{figure}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_1.png}
+	\caption{PDFs of expected delay time for station with mean arrival ratio of 1, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
+	\label{fig:expected_delays_coutnours_1}
+\end{figure}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_2.png}
+	\caption{PDFs of expected delay time for station with mean arrival ratio of 2, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
+	\label{fig:expected_delays_coutnours_2}
+\end{figure}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_3.png}
+	\caption{PDFs of expected delay time for station with mean arrival ratio of 3, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
+	\label{fig:expected_delays_coutnours_3}
+\end{figure}
 
 \end{multicols}
 
 \end{document}
-
-%\subsection*{Random Graph Example}
-%
-%The optimal routing method in this study accounts for factors which influence road vehicle accessibility and derive from vehicular, infrastructural, and behavioral parameters. Important vehicular parameter for accessibility is range which determines which locations can be reached with and without charging. Important infrastructural parameters such as the number and locations of charging stations, usability rates, and expected delay times. Important behavioral parameters include risk attitude parameters as in \eqref{eq:superquantile}. These factors influence routing individually and via interactions as demonstrated on a randomly generated graph.
-%
-%A random graph of 100 nodes, 15 containing charging stations within a 100 km by 100 km square was generated with a random node selected as the origin. Edge probabilities were defined relative to a characteristic distance using
-%
-%\begin{equation}
-%	P(e) = \exp(-L(e)/d)
-%\end{equation}
-%
-%where $e$ is an edge, $L(e)$ is the distance of edge $e$, and $d$ is a characteristic distance set to 200 km for this example. In this example the vehicle has a range of 460 km and each charging station has one charger and a low vehicle arrival rate. Figure \ref{fig:interactions} show how $R$ is effected by different usability rates and risk attitudes.
-%
-%\end{multicols}
-%
-%\begin{figure}[H]
-%	\centering
-%	\begin{subfigure}{.4\linewidth}
-	%		\centering\includegraphics[width = \linewidth]{figs/interactions_ha.png}
-	%		\captionsetup{width=.8\linewidth}
-	%		\caption{High charger usability and aggressive risk attitude}
-	%	\end{subfigure}%
-%	\begin{subfigure}{.4\linewidth}
-	%		\centering\includegraphics[width = \linewidth]{figs/interactions_hc.png}
-	%		\captionsetup{width=.8\linewidth}
-	%		\caption{High charger usability and cautious risk attitude}
-	%	\end{subfigure}
-%	\begin{subfigure}{.4\linewidth}
-	%		\centering\includegraphics[width = \linewidth]{figs/interactions_la.png}
-	%		\captionsetup{width=.8\linewidth}
-	%		\caption{Low charger usability and aggressive risk attitude}
-	%	\end{subfigure}%
-%	\begin{subfigure}{.4\linewidth}
-	%		\centering\includegraphics[width = \linewidth]{figs/interactions_lc.png}
-	%		\captionsetup{width=.8\linewidth}
-	%		\caption{Low charger usability and cautious risk attitude}
-	%	\end{subfigure}
-%	\caption{Single-origin expected travel time trees with varying charger reliability and driver risk tolerance}
-%	\label{fig:interactions}
-%\end{figure}
-%
-%\begin{multicols}{2}
-%
-%As the example shows, it is possible for the impact of several factors to be additive when made disadvantageous simultaneously. Where the driver has an aggressive risk attitude, chargers are reliable, or both, accessibility is high. Where neither is the case accessibility is low. The differential can be dramatic and this highlights the importance of considering vehicular, infrastructural, and behavioral factors simultaneously to get a complete picture.
