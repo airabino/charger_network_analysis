@@ -117,7 +117,7 @@ def model_anova_tabular(model, df_norm, res_column, n, c = 1):
     m = df_norm.shape[0]
     p = sum([comb(n, k) for k in range(n + 1)]) * c
 
-    print(n, p)
+    # print(n, p)
 
     return anova_tabular(y, y_hat, m, p)
 
@@ -164,4 +164,46 @@ def significant_parameters_tabular(model, alpha = .05, label_substitutions = {})
             )
     
     return out_string
+
+def significant_parameters(model, alpha = .05, label_substitutions = {}):
+    params = model._results.params
+    tvalues = model._results.tvalues
+    pvalues = model._results.pvalues
+    names = np.array(list(dict(model.params).keys()))
+    
+    for idx in range(len(names)):
+
+        name = names[idx]
+
+        for key, val in label_substitutions.items():
+
+            if key in name:
+
+                names[idx] = name.replace(key, val)
+                name = names[idx]
+
+    params = params[pvalues < alpha]
+    tvalues = tvalues[pvalues < alpha]
+    names = names[pvalues < alpha]
+    pvalues = pvalues[pvalues < alpha]
+
+    name_lengths = [len(name) for name in names]
+
+    name_length_order = np.append(0, np.argsort(name_lengths[1:]) + 1)
+
+    params = params[name_length_order]
+    tvalues = tvalues[name_length_order]
+    names = names[name_length_order]
+    pvalues = pvalues[name_length_order]
+
+    out_dict = {}
+    for idx in range(len(names)):
+
+        out_dict[names[idx]] = {
+            'coefficient': params[idx],
+            'tvalue': tvalues[idx],
+            'pvalue': pvalues[idx],
+        }
+    
+    return out_dict
 
