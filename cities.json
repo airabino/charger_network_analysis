@@ -4,91 +4,107 @@
 			"id": "Crescent City",
 			"x": -124.20177,
 			"y": 41.75506,
-			"type": "city"
+			"type": "city",
+			"population": 6000
 		},
 		{
 			"id": "Yreka",
 			"x": -122.63501,
 			"y": 41.73520,
-			"type": "city"
+			"type": "city",
+			"population": 8000
+
 		},
 		{
 			"id": "Redding",
 			"x": -122.39497,
 			"y": 40.58302,
-			"type": "city"
+			"type": "city",
+			"population": 180000
 		},
 		{
 			"id": "Chico",
 			"x": -121.83859,
 			"y": 39.72784,
-			"type": "city"
+			"type": "city",
+			"population": 212000
 		},
 		{
 			"id": "I-80 to Reno (State Line)",
 			"x": -120.00284,
 			"y": 39.46806,
-			"type": "city"
+			"type": "city",
+			"population": 491000
 		},
 		{
 			"id": "Sacramento",
 			"x": -121.49516,
 			"y": 38.57479,
-			"type": "city"
+			"type": "city",
+			"population": 2397000
 		},
 		{
 			"id": "Stockton",
 			"x": -121.29134,
 			"y": 37.95617,
-			"type": "city"
+			"type": "city",
+			"population": 779000
 		},
 		{
 			"id": "San Francisco",
 			"x": -122.42253,
 			"y": 37.77506,
-			"type": "city"
+			"type": "city",
+			"population": 4620000
 		},
 		{
 			"id": "San Jose",
 			"x": -121.88722,
 			"y": 37.33526,
-			"type": "city"
+			"type": "city",
+			"population": 2001000
 		},
 		{
 			"id": "Fresno",
 			"x": -119.78846,
 			"y": 36.73564,
-			"type": "city"
+			"type": "city",
+			"population": 1009000
 		},
 		{
 			"id": "I-15 to Las Vegas (State Line)",
 			"x": -115.39211,
 			"y": 35.60544,
-			"type": "city"
+			"type": "city",
+			"population": 2953000
 		},
 		{
 			"id": "Bakersfield",
 			"x": -119.02273,
 			"y": 35.36908,
-			"type": "city"
+			"type": "city",
+			"population": 909000
 		},
 		{
 			"id": "Los Angeles",
 			"x": -118.24754,
 			"y": 34.05270,
-			"type": "city"
+			"type": "city",
+			"population": 12488000
 		},
 		{
 			"id": "I-10 to Phoenix (State Line)",
 			"x": -114.53176,
 			"y": 33.60511,
-			"type": "city"
+			"type": "city",
+			"population": 4948000
 		},
 		{
 			"id": "San Diego",
 			"x": -117.15992,
 			"y": 32.71429,
-			"type": "city"
+			"type": "city",
+			"population": 3276000
 		}
 	],
 	"links": []

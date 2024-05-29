@@ -173,6 +173,74 @@ def specific_road_trip_accessibility(values, keys = [], field = 'time', expectat
 
     return sum_cost / n
 
+def impedance(values, origins = {}, destinations = {}, **kwargs):
+
+    field = kwargs.get('field', 'time')
+    expectation = kwargs.get('expectation', np.mean)
+    constant = kwargs.get('constant', 1)
+
+
+    if not origins:
+
+        origins = {k: 1 for k in values.keys()}
+
+    if not destinations:
+
+        destinations = {k: 1 for k in values.keys()}
+
+    sum_cost = 0
+
+    n = 0
+
+    for origin, mass_o in origins.items():
+
+        for destination, mass_d in origins.items():
+
+            if origin != destination:
+
+                sum_cost += (
+                    constant * mass_o * mass_d *
+                    expectation(np.atleast_1d(values[origin][destination][field]))
+                    )
+
+            n += 1
+
+    return sum_cost / n
+
+def gravity(values, origins = {}, destinations = {}, **kwargs):
+
+    field = kwargs.get('field', 'time')
+    expectation = kwargs.get('expectation', np.mean)
+    constant = kwargs.get('constant', 1)
+
+
+    if not origins:
+
+        origins = {k: 1 for k in values.keys()}
+
+    if not destinations:
+
+        destinations = {k: 1 for k in values.keys()}
+
+    sum_cost = 0
+
+    n = 0
+
+    for origin, mass_o in origins.items():
+
+        for destination, mass_d in origins.items():
+
+            if origin != destination:
+
+                sum_cost += (
+                    constant * mass_o * mass_d /
+                    expectation(np.atleast_1d(values[origin][destination][field]))
+                    )
+
+            n += 1
+
+    return sum_cost / n
+
 class Objective():
 
     def __init__(self, field = 'weight', limit = np.inf):

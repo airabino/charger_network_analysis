@@ -128,31 +128,45 @@ The focus of this study is long-trip accessibility for road vehicles. The metric
 
 A transportation accessibility metric should have land-use, transportation, temporal, and individual components \cite{Karst_2003}. Road-trip Accessibility contains all of these components. The land-use within a region has two principle effects on Road-trip Accessibility. First, for a multi-city region, peripheral cities should experience worse regional access than central cities. Second, geographically large and/or sparse regions should experience worse overall accessibility than compact regions. The transportation infrastructure determines the efficacy of various modes. Where only vehicular travel is concerned, the mode choice is reduced to vehicle choice. Vehicle specific infrastructure is not necessarily the same for all vehicles of a given fuel type but is necessarily different between fuel types creating effectively separate modes. The temporal component of Road-trip Accessibility arises from the schedules of public transportation services and road traffic patterns. Finally the individual component is the traveler risk attitude and route cost weights.
 
-\subsection*{Road-trip Accessibility Metric Definition}
+\subsection*{Metric Definition}
 
-For region $R$ with a set of $N$ selected locations $O = \{O_1, O_2, \dots, O_N\}$ and a corresponding set of importance weights $W = \{W_0, W_1, \dots, W_N\}$, the Road-trip Accessibility metric $A_{rt}$ is
-
-\begin{equation}
-	A_{rt} = \frac{1}{N^2}\sum_{i = 0}^{N} \sum_{j = 0 }^{N} W_iW_jC(O_i, O_j) \label{eq:a_rt}
-\end{equation}
-
-\noindent where $C(O_i, O_j) $ is the cost of the optimal path from $O_i$ to $O_j$. The specific accessibility metric $A_{rt,i}$ can be computed for region $R$ and origin $i$ as
+When considering regional travel, transportation accessibility is best understood using a gravitational model. For region $R$ with a set of $N$ selected locations $O = \{O_1, O_2, \dots, O_N\}$ and a corresponding set of importance masses $M = \{M_0, M_1, \dots, M_N\}$, the accessibility of the region is quantified by gravity metric $G_{R}$ as
 
 \begin{equation}
-	A_{rt,i} = \frac{1}{N}\sum_{j = 0 }^{N} W_iW_jC(O_i, O_j) \label{eq:a_rt_i}
+	G_{R} = \frac{1}{N^2}\sum_{i = 0}^{N} \sum_{j = 0 }^{N} \frac{CM_iM_j}{Z_{ij}} \label{eq:regional_gravity}
 \end{equation}
 
-for any origin $O_i \in O$. Road-trip Accessibility is a weighted mean of costs to access important locations from either a specific location or for all-pairs. The all-pairs implementation \eqref{eq:a_rt} is titled General Road-trip Accessibility while the single-origin implementation \eqref{eq:a_rt_i} is titled Specific Road-trip Accessibility. A given score applies to a given region, travel mode, and individual person. Comparisons may be made between different combinations by computing scores for each combination.
+\noindent where $Z_{ij}$ is the cost of the optimal path from $O_i$ to $O_j$, and C is a constant. The location specific regional gravity $G_{R,i}$ can be computed for region $R$ and origin $i$ as
 
-\subsection*{Computing the Road-trip Accessibility Metric}
+\begin{equation}
+	G_{R,i} = \frac{1}{N}\sum_{j = 0 }^{N} \frac{CM_iM_j}{Z_{ij}} \label{eq:specific_regional_gravity}
+\end{equation}
 
-Powered vehicles are range-limited due to the finite capacity of their \glspl{ess}. In order to traverse an \gls{od} arc whose energy requirement is greater than a given limit, a vehicle must stop at a supply station. In practical terms, the limit is defined by the vehicle's \gls{ess} capacity, starting \gls{soc}, desired finishing \gls{soc}, and the driver's low \gls{soc} tolerance. Because supply events add time to a trip, they will usually be avoided on short trips. For sufficiently long trips, where at least one supply event is necessary, computing the lowest-cost-path requires considering the time added by supply events and the locations of supply stations. These are, usually, not considered as, for \glspl{icev}, supply events are brief and supply stations are ubiquitous in most areas of the developed world. However, for \glspl{bev}, where supply events are lengthy and where DC supply stations are comparatively rare, ignoring supply events when computing a lowest-cost-path carries non-negligible risk. For this reason, dedicated \gls{bev} routing services compute routes considering supply events [SOURCE  - a better route planner].
+for any origin $O_i \in O$. $G_{R}$ is a weighted mean of gravitational forces resulting from the interactions between important locations in a region and the difficulty to traverse the arcs between them. A strongly connected region will have higher average gravity than a weakly integrated one. All else being equal, regions which are more populated/productive, more compact, and enjoy better transportation networks will experience higher average gravity. Regional Gravity refers the the all-pairs average as in \eqref{eq:regional_gravity} and Specific Regional Gravity refers to the single-origin average as in \eqref{eq:specific_regional_gravity}.
 
-A further complication is that the driver will have limited and uncertain information with which to evaluate alternatives at the beginning of the trip. Variables such as traffic, temporary road closures, supply equipment non-functionality, and queues at supply stations cannot be precisely known at the start of a trip. The ability to estimate delays and the severity of delays vary among the previously mentioned events. As the driver progresses, certainty may increase but factors such as charger availability may change up to the instant that the driver arrives at the charger. As such, the driver will have to plan to optimize the expected result. This is replicated via stochastic optimization.
+This study is primarily concerned with the transportation system which contributes directly to arc traversal cost rather than arc demand. Thus a second metric, Regional Impedance is defined as
+
+\begin{equation}
+	Z_{R} = \frac{1}{N^2}\sum_{i = 0}^{N} \sum_{j = 0 }^{N} CW_iW_jZ_{ij} \label{eq:regional_impedance}
+\end{equation}
+
+\noindent where $W = \{W_0, W_1, \dots, W_N\}$ is the set of importance weights assigned to each origin and destination. Specific Regional impedance is defined as
+
+\begin{equation}
+	Z_{R,i} = \frac{1}{N}\sum_{j = 0 }^{N} CW_iW_jZ_{ij} \label{eq:specific_regional_impedance}
+\end{equation}
+
+for a single origin.
+
+\subsection*{Metric Computation}
+
+Powered vehicles are range-limited due to the finite capacity of their \glspl{ess}. In order to traverse an \gls{od} arc whose energy requirement is greater than a vehicle's \gls{ess} capacity, the vehicle must stop at a supply station. In practical terms, the limit is defined by the vehicle's \gls{ess} capacity, starting \gls{soc}, desired finishing \gls{soc}, and the driver's low \gls{soc} tolerance. Because supply events add time to a trip, they will usually be avoided where possible. For sufficiently long trips, where at least one supply event is necessary, computing the shortest-time path requires considering the time added during supply events and the time required to deviate to supply stations. For \glspl{icev}, supply events are brief and supply stations are ubiquitous in most areas of the developed world. Thus, conventional routing services often neglect supply considerations. For \glspl{bev}, supply events are relatively lengthy and DC supply stations are comparatively rare. Ignoring supply events when computing a shortest-time path for a \gls{bev} carries non-negligible risk of a lengthy stop or an out-of-charge event. For this reason, dedicated \gls{bev} routing services compute routes considering supply events [SOURCE  - a better route planner].
+
+All drivers deal with uncertainty and latency issues when computing an optimal route. Certain categories of disruption such as traffic, accidents, supply equipment functionality, and supply equipment local demand cannot be precisely known at the start of the trip. This uncertainty will cause different drivers to evaluate the same arc differently and may result in the selection of different routes. Compounding uncertainty is latency. Although a driver may have access to on the current state of roads and stations to be encountered in the future this may provide little information about conditions upon arrival. Without the ability to reserve a slot at a supply station, drivers cannot be certain of equipment availability until they physically arrive at the station. As such, drivers have to, and do actually, optimize an expectation of route costs when selecting routes. Such optimization may take the form of electing to take a longer ring highway to avoid city traffic, stopping for fuel more often in a sparsely populated area, sitting through a traffic jam rather than diverting, or any number of other strategies. This mental process is modeled via stochastic optimization.
 
 \subsubsection*{Stochastic Optimal Routing}
 
-The purpose of stochastic optimal routing is to find the expected lowest-cost-paths from a given origin $i \in V$ to a set of destinations $D \in V$ on a graph $G = \{V, E\}$. The output is tree $P$ containing the optimal-feasible paths from the origin to the selected destinations. The objective of routing between nodes $i$ and $j\in D$ is
+The purpose of stochastic optimal routing is to find lowest-expected-cost paths from origin $i \in V$ to a set of destinations $D \in V$ on graph $G = \{V, E\}$. The output is tree $P$ containing the optimal-feasible paths from the origin to the selected destinations. The objective of routing on arc $(i,j)\ i, j \in V$ is
 
 \begin{equation}
 	\min_{U \in \overline({U}_{i,j})}\ \mathbb{E}[J(S_0, U)]
@@ -172,12 +186,12 @@ s.t.
 	 t \in [0, T]\quad k = 1, 2, \dots, M
 \end{gather}
 
-\noindent where $T$ is the final value of time for a route, $S$ is the state vector, $S_0$ is the initial values of the states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi$ is the set of cost functions, $b^k_l$ and $b^k_u$ are the upper and lower bounds for state $k$ respectively, and $b^k_f$ is the final state minimum value for state $k$. $\mathbb{E}$ denotes an expectation. State vector $S$ is initialized and stored as vectors containing $N$ discreet variables. A distribution $D$ for a the state vector at any node and time-step can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if state expectations remain within set bounds. Comparison between routes is performed using cost expectation. Routing depends on vehicle, infrastructural, and individual models.
+\noindent where $T$ is the final value of time for a route, $S$ is the state vector, $S_0$ is the initial values of the states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi$ is the set of cost functions, $b^k_l$ and $b^k_u$ are the upper and lower bounds for state $k$ respectively, and $b^k_f$ is the final state minimum value for state $k$. $\mathbb{E}$ denotes an expectation. State vector $S$ is initialized and stored as vectors containing $N$ discreet variables. A distribution $D$ for a the state vector at any node and time-step can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if state expectations remain within set bounds. Comparison between routes is performed using cost expectation. Routing depends on vehicular, infrastructural, and individual models.
 
 
 \subsubsection*{Vehicle Model}
 
-Vehicles effect routing due to their range limits and supply methods. The vehicle model used herein is highly simplified due to the inexact nature of the problem. Vehicles serve to store energy and consume energy at a constant rate per unit distance driven. More exact information on road conditions, traffic conditions, and atmospheric conditions among others can be used to compute edge-specific efficiencies. Vehicular parameters are listed in Table \ref{tab:param_veh}.
+Vehicles effect routing due to their range limits and supply methods. The vehicle model used herein is highly simplified due to the inexact nature of the problem. Vehicles are modeled as storing energy and consuming energy at a constant rate per unit distance driven. More exact information on road conditions, traffic conditions, and atmospheric conditions among others can be used to compute edge-specific efficiencies. Vehicular parameters are listed in Table \ref{tab:param_veh}.
 
 \begin{table}[H]
 	\centering
@@ -195,32 +209,31 @@ Vehicles effect routing due to their range limits and supply methods. The vehicl
 
 \subsubsection*{Supply Infrastructure Network Model}
 
-Supply networks effect routing both in structure and in the characteristics of individual stations. In this paper, the supply network refers to all stations which the vehicle can utilize rather than the industry definition which covers stations operated by a single \gls{cpo}. Networks ultimately consist of individual supply ports (chargers or fuel pumps) and serve large and geographically distributed demand. A network consisting of more than one port can develop redundancy either by concentrating ports in a single confined space "in-station" or via a more evenly distributed approach "between-station". Network redundancy also varies by location with "thinner" and "thicker" coverage areas.
+Supply networks effect routing both in structure and in the characteristics of individual stations. In this paper, the supply network refers to all stations which the vehicle can utilize rather than the industry definition which covers stations operated by a single \gls{cpo}. Networks ultimately consist of individual supply ports (chargers or fuel pumps) and serve geographically and temporally distributed demand. A network consisting of more than one port can develop redundancy either by concentrating ports in a single confined space "in-station" or via a more evenly distributed approach "between-station". Network redundancy also varies by location with "thinner" and "thicker" coverage areas.
 
-Vehicle optimal routing serves to find the lowest-cost-path between two points on a road atlas atlas. A road atlas is a graph with a large number of nodes and a low edge-to-node ratio. When considering a multi-leg itinerary, such as when solving the Traveling Salesman Problem or Vehicle Routing Problem, the atlas need not be stored in entirety. Only the locations of and relationships between relevant nodes are necessary. The graph formed from the relevant nodes and their relationships is a reduced subgraph with a low number of nodes and relatively high edges-per-node and cycles-per-node ratios. A reduced subgraph is defined as follows. For a graph $G = \{V, E\}$ where $V$ is the set of nodes and $E$ is the set of edges, a reduced subgraph $\hat{G} = \{\hat{V}, \hat{E}\}$ can be computed where $\hat{V} \subseteq V$ and $\hat{E}$ is the set of shortest-paths between all nodes in $\hat{V}$. An example of a reduced subgraph is shown in Figure \ref{fig:reduced_subgraph}.
+Vehicle optimal routing serves to find the lowest-cost-path between two points on a road atlas. A road atlas is a graph with a large number of nodes and a low edge-to-node ratio. When considering a multi-leg itinerary, such as when solving the Traveling Salesman Problem or Vehicle Routing Problem, the atlas need not be stored in entirety. Only the locations of and relationships between relevant nodes are necessary. The graph formed from the relevant nodes and their relationships is a reduced subgraph with a low number of nodes and relatively high edges-per-node and cycles-per-node ratios. A reduced subgraph is defined as follows. For a graph $G = \{V, E\}$ where $V$ is the set of nodes and $E$ is the set of edges, a reduced subgraph $\hat{G} = \{\hat{V}, \hat{E}\}$ can be computed where $\hat{V} \subseteq V$ and $\hat{E} = \{P_{ij}\ \forall\ (i, j)\ \in\ \hat{E}\}$ is the set of shortest-paths between all nodes in $\hat{V}$. An example of a reduced subgraph is shown in Figure \ref{fig:reduced_subgraph}.
 
 \begin{figure}[H]
 	\centering
 	\begin{subfigure}[t]{.5\linewidth}
 		\centering\captionsetup{width = .8\linewidth}
 		\includegraphics[width = \linewidth]{figs/full_graph.png}
-%		\caption{Locations and routes between selected nodes on atlas}
 	\end{subfigure}%
 	\begin{subfigure}[t]{.5\linewidth}
 		\centering\captionsetup{width = .8\linewidth}
 		\includegraphics[width = \linewidth]{figs/reduced_graph.png}
-%		\caption{Reduced graph containing locations of and relationships between selected nodes}
 	\end{subfigure}
-	\caption{Example original graph (a) containing locations and an atlas and reduced subgraph (b) containing locations and arcs.}
-%	The locations selected are key destinations in the state or on its border. Logistical optimization requires, first computing arcs between \gls{od} pairs as in the right pane based on the atlas in the left pane.}
+	\caption{Example original graph (left) containing locations and an atlas and reduced subgraph (right) containing locations and arcs.}
 	\label{fig:reduced_subgraph}
 \end{figure}
 
-For a given vehicle type, the \gls{sng} is the reduced subgraph containing the trip origin, trip destination, and all supply stations reasonably likely to be utilized. Alternatively the \gls{sng} can contain a set of origins and destinations in order to enable further reduction for logistical optimization purposes. In-station redundancy for a \gls{sng} is a node parameter. In-station $R_{is}$ redundancy for any node $v \in V$ on \gls{sng} $G = \{V, E\}$ is the number of ports at node $v$. Between-station redundancy $R_{bs}$ for an \gls{sng} is a clique parameter. Between-station redundancy for any clique $C \subseteq V$ on \gls{sng} $G = \{V, E\}$ is the sum of the ports at nodes $v \in C$. A more meaningful result for $R_{bs}$ may be returned by limiting the cost of edges considered. For example, $R'_{bs}$ may be computed for $G' = \{V, E'\}$ where $E' \subseteq E$ contains all edges of less than 10 minutes drive time.
+For a given vehicle type, the \gls{sng} is the reduced subgraph containing the trip origin, trip destination, and all supply stations reasonably likely to be utilized. In-station redundancy for a \gls{sng} is a nodal parameter. In-station  redundancy $\xi_{is}$ for any node $v \in V$ on \gls{sng} $G = \{V, E\}$ is the number of ports at node $v$. Between-station redundancy $\xi_{bs}$ for an \gls{sng} is a clique parameter. Between-station redundancy for any clique $C \subseteq V$ on \gls{sng} $G = \{V, E\}$ is the sum of the ports at nodes $v \in C$. A more meaningful result for $\xi_{bs}$ may be returned by limiting the cost of edges considered. For example, $\xi'_{bs}$ may be computed for $G' = \{V, E'\}$ where $E' \subseteq E$ contains all edges of less than 10 minutes drive time.
 
-The \gls{sng} is the graph on which long vehicle trips should be optimized if supply events are expensive and/or constraining. In general, because the road atlas will have a low cycle-to-node ratio, the Bellman algorithm will be faster while the Bellman-Ford algorithm (specifically the SPFA variant) will be faster for the \gls{sng} with its high cycle-to-node ratio. The relevant \gls{sng} for \glspl{icev} and \gls{bev} are neither equivalent nor isomorphic. Different vehicles within a given powertrain type may also have different \glspl{sng} but this is far more common for \glspl{ev} than \glspl{icev}. The \gls{sng} informs routing by providing a set of possible paths between origins and destinations. The structure of a network may make for a greater or lesser number of available paths depending on the number and location of stations.
+The \gls{sng} is the graph on which long vehicle trips should be optimized if supply events are expensive and/or constraining. The relevant \gls{sng} for \glspl{icev} and \gls{bev} are neither equivalent nor isomorphic. Different vehicles within a given powertrain type may also have different \glspl{sng} but this is far more common for \glspl{ev} than \glspl{icev}. The \gls{sng} informs routing by providing a set of possible paths between origins and destinations. The structure of a network may make for a greater or lesser number of available paths depending on the number and location of stations.
 
-Supply station characteristics significantly impact the expected cost of utilizing a given station. Supply stations are defined by the number of ports, the reliability of ports, the maximum supply rate of ports, the rate of user arrivals, and the durations of supply events. In combination, these factors determine the likelihood of a port being usable and available as well as the likely duration of queue if no port is usable and available. Supply station parameters are listed in Table \ref{tab:param_supply}.
+\subsubsection*{Supply Station Network Model}
+
+Supply station characteristics significantly impact the expected cost of utilizing a given station. Supply stations are defined by number of ports, reliability of ports, maximum supply rate of ports, durations of supply events, and arrivals ratio. In combination, these factors determine the likelihood of a port being usable and available as well as the likely duration of queue if no port is usable and available. Supply station parameters are listed in Table \ref{tab:param_supply}.
 
 \begin{table}[H]
 	\centering
@@ -237,20 +250,55 @@ Supply station characteristics significantly impact the expected cost of utilizi
 	\end{tabular}
 \end{table}
 
-Unfortunately, with the exception of the number of ports and the maximum supply rate, little of this information is available before arrival [SOURCE]. As a result, arrivals ratio, supply energy, and reliability must be estimated. To reflect this uncertainty, distributions are used for arrivals ratio and supply energy. Information on ports is taken from \gls{afdc} \cite{afdc_2023}, and information on chargers is taken from \cite{Rempel_2023}. The delays which result from DC charging station parameters are modeled as M/M/s queues and are demonstrated in \ref{fig:expected_delay}.
+Information on ports is taken from \gls{afdc} \cite{afdc_2023}, and information on chargers is taken from \cite{Rempel_2023}. Arrivals ratio reflects the scale of vehicle arrivals at the station compared to the ability of the station to process vehicles. Arrivals ratio is defined as
+
+\begin{equation}
+	\rho = \frac{\lambda}{\mu s}\label{eq:rho}
+\end{equation}
+
+where $\lambda$ is the number of vehicle arrivals in a given time period, $\mu$ is the expected number of vehicles that can be served by a port in the same time period, and $s$ is the number of ports. As an example, if a station of 5 ports supplies a mean of 36 kWh per vehicle at a mean rate of 80 kW with 3 minutes between events and receives 10 vehicles per hour then $\rho = 1$ for the station. Unfortunately, with the exception of the number of ports and the maximum supply rate, little of this information is available before arrival [SOURCE]. As a result, arrivals ratio, supply energy, and reliability must be estimated. To reflect this uncertainty, in this study distributions are used for arrivals ratio and supply energy. The delays which result from DC charging station congestion are modeled as M/M/s queues and are demonstrated in \ref{fig:expected_delay}.
+
+\end{multicols}
+
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/expected_delay.png}
+%	\caption{Expected queuing time at charging stations. Low arrival rate is 10 - 60 minutes between arrivals. High arrival rate is 1 - 10 minutes between arrivals. All charge rates are 80 kW and charge events are 60 $\pm$ 15 kWh.}
+%	\label{fig:expected_delay}
+%\end{figure}
+
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{figs/expected_delay.png}
-	\caption{Expected queuing time at charging stations. Low arrival rate is 10 - 60 minutes between arrivals. High arrival rate is 1 - 10 minutes between arrivals. All charge rates are 80 kW and charge events are 60 $\pm$ 15 kWh.}
+	
+	\begin{subfigure}{.33\linewidth}
+		\centering
+		\includegraphics[width = \linewidth]{figs/expected_delay_contourf_1.png}
+		\caption{Mean arrival ratio of $\rho = 1$}
+	\end{subfigure}%
+	\begin{subfigure}{.33\linewidth}
+		\centering
+		\includegraphics[width = \linewidth]{figs/expected_delay_contourf_2.png}
+		\caption{Mean arrival ratio of $\rho = 2$}
+	\end{subfigure}%
+	\begin{subfigure}{.33\linewidth}
+		\centering
+		\includegraphics[width = \linewidth]{figs/expected_delay_contourf_3.png}
+		\caption{Mean arrival ratio of $\rho = 3$}
+	\end{subfigure}
+	
+	\caption{Effects of supply station saturation on expected queue times by in-station redundancy. Contours of PDFs of expected queue times are computed for stations with between 1 and 20 chargers with different arrival ratios. Arrival ratio is defined in equation \eqref{eq:rho}. Higher arrival ratios saturate stations but stations with greater redundancy can better handle high demand per charger.}
 	\label{fig:expected_delay}
+	
 \end{figure}
 
-The mean arrivals rate is not known precisely, nor is the mean service rate so each is sampled from a distribution. In Figure \ref{fig:expected_delay} the columns show different distributions of arrivals rate and the rows show different levels of port redundancy. It can be observed that each factor is substantial in determining expected queue length and that their effects are additive. Without better information, a driver will have to make an educated guess as to how busy a station is likely to be and how many of its listed chargers will be functional. Getting either factor wrong could have serious consequences if the driver does not have the option to easily reach a different station where the driver may have no better information regardless. Reflecting the lack of information this study uses very broad assumptions for arrivals rate distribution and charge energy distribution. Arrivals rate is assumed to be a ratio of vehicles per hour per charger normally distributed as $N(1, 0.5)$. Charge energy delivered is assumed to be normally distributed as $N(60, 15)$ in kWh. \gls{icev} supply infrastructure is assumed to be ubiquitous with massive redundancy within and between stations such that supply requires neither deviation nor delay.
+\begin{multicols}{2}
+
+As can be seen in Figure \ref{fig:expected_delay}, arrivals ratio and in-station redundancy each have a major impact on expected delay time. When $\rho \leq 1$ a decently sized station should be able to accommodate demand with minimal delay. As arrivals increase congestion becomes unavoidable and even large stations can become saturated. Unreliability of equipment can, effectively, reduce in-station redundancy making queues more likely. Without better information, a driver will have to make an educated guess as to how busy a station is likely to be and how many of its listed chargers will be functional. Getting either factor wrong could have serious consequences if the driver does not have the option to easily reach a different station. Even if another station is reachable the driver is unlikely to have better information for that station.
 
 \subsubsection*{Drivers}
 
-Given the same physical circumstances, different drivers will evaluate route costs differently. In a basic sense, drivers will weight several factors such as time, money, distance, and complexity differently. Where any important factor is not known precisely drivers will consider a range of outcomes and decide based on an expectation. Driver risk attitude concerns what range of outcomes will be used to compute expected cost. Risk attitude is modeled using a superquantile risk function defined as
+Given the same underlying circumstances, different drivers will evaluate route costs differently. In a basic sense, drivers will weight several factors such as time, money, distance, and complexity differently. Where any important factor is not known precisely drivers will consider a range of outcomes and decide based on an expectation. Driver risk attitude concerns what range of outcomes will be used to compute expected cost. Risk attitude is modeled using a superquantile risk function defined as
 
 \begin{equation}
 	S(D, p_0, p_1) = \frac{1}{p_1 - p_0}\int_{p_0}^{p_1}Q(D, \alpha)\ d\alpha \label{eq:superquantile}
@@ -270,11 +318,11 @@ Given the same physical circumstances, different drivers will evaluate route cos
 	\end{tabular}
 \end{table}
 
-The driver model serves to bias the routing by selecting a subset of information to use in optimization. As such it reflects individual perception. The results of the routing can be interpreted through the same bias, a different bias, or no bias. Thus Road-trip accessibility can be as perceived (with bias) ot as expected (without bias). In this study, evaluation will be conducted on the basis of expectation.
+The driver model serves to bias the routing by selecting a subset of information to use in optimization. As such it reflects individual perception. The results of the routing can be interpreted through the same bias, a different bias, or no bias. In this study, evaluation will be conducted on the basis of un-biased interpretation of costs.
 
 \subsection*{Randomly Generated Example}
 
-The Road-trip accessibility method and metric is demonstrated using a vehicle on a randomly generated \gls{sng}. In this example, a \gls{sng} containing 15 locations and 85 stations distributed across a 1000 km square is generated with randomized node locations. Edges exist between all nodes and are assigned Pythagorean distances. All edges are assumed to be traversed at 105 kmh. The origin is selected as Location 0 located in the lower-right corner with all other locations as destinations and a Specific Road-trip Accessibility is computed for Location 0. The vehicle used has a relatively short range of 262 km. The charging stations have between 1 and 5 chargers. Arrivals ratio and supply energy are sampled from normal distributions $N(1, 0.5)$ and $N(60, 15)$ respectively. Figure \ref{fig:perceived_srta_random} shows the times to travel to each destination as well as the path taken along the \gls{sng} under four different scenarios.
+The methods and metrics defined above are demonstrated using a vehicle on a randomly generated \gls{sng}. In this example, a \gls{sng} containing 15 locations and 85 stations distributed across a 1000 km square is generated with randomized node locations. Edges exist between all nodes and are assigned Pythagorean distances. All edges are assumed to be traversed at 105 kmh. The origin is selected as Location 0 located in the lower-right corner with all other locations as destinations and a Specific Road-trip Accessibility is computed for Location 0. The vehicle used has a relatively short range of 262 km. The charging stations have between 1 and 5 chargers. Arrivals ratio and supply energy are sampled from normal distributions $N(1, 0.5)$ and $N(60, 15)$ respectively. Figure \ref{fig:perceived_srta_random} shows the times to travel to each destination as well as the path taken along the \gls{sng} under four different scenarios.
 
 \begin{figure}[H]
 	\centering
@@ -388,15 +436,20 @@ For long trips, \glspl{bev} will rely on DC charging stations. The locations of 
 \end{multicols}
 
 \begin{figure}[H]
-	\begin{subfigure}{.5\linewidth}
+	\begin{subfigure}{\linewidth/3}
 		\centering
-		\includegraphics[width = \linewidth]{figs/California_SNG_P.png}
-		\caption{Proprietary Stations}
+		\includegraphics[width = \linewidth]{figs/California_SNG_T.png}
+		\caption{Tesla Stations}
 	\end{subfigure}%
-	\begin{subfigure}{.5\linewidth}
+	\begin{subfigure}{\linewidth/3}
 		\centering
-		\includegraphics[width = \linewidth]{figs/California_SNG_NP.png}
-		\caption{Non-Proprietary Stations}
+		\includegraphics[width = \linewidth]{figs/California_SNG_NT.png}
+		\caption{Non-Tesla Stations}
+	\end{subfigure}
+	\begin{subfigure}{\linewidth/3}
+		\centering
+		\includegraphics[width = \linewidth]{figs/California_SNG_Corridor.png}
+		\caption{Corridor Stations}
 	\end{subfigure}
 	\caption{California DC charging stations from \gls{afdc} (May 2024)}
 	\label{fig:california_stations}
@@ -404,7 +457,7 @@ For long trips, \glspl{bev} will rely on DC charging stations. The locations of 
 
 \begin{multicols}{2}
 
-The proprietary and non-proprietary networks in California are neither equivalent nor isomorphic. There are 419 Tesla and 16 Rivian DC charging stations in the state as compared to 1,254 non-proprietary DC charging stations. In practice, many of these stations will be of little use for long distance travel being located far away from primary and secondary roads. Considering only those stations within 1 km of a highway as "corridor" chargers, there are a total of 477 corridor DC charging stations. Of the corridor stations, 143 are Tesla stations, 6 Rivian stations, and 328 non-Proprietary stations.
+The proprietary and non-proprietary networks in California are neither equivalent nor isomorphic. There are 419 Tesla and 16 Rivian DC charging stations in the state as compared to 1,254 non-proprietary DC charging stations. In practice, many of these stations will be of little use for long distance travel being located far away from primary and secondary roads. Considering only those stations within 1 km of a highway as "corridor" chargers, there are a total of 500 corridor DC charging stations. Of the corridor stations, 156 are Tesla stations, 7 are Rivian stations, and 344 are non-Proprietary stations.
 
 The non-Tesla networks overwhelmingly use combination CCS/ChaDeMo chargers as defined by SAE J1772 \cite{SAE_J1772} which reflect the ports on the overwhelming number of non-Tesla \glspl{bev}. By contrast, Tesla chargers and vehicles use the NACS standard as defined by SAE J3400 \cite{SAE_J3400}. The Tesla and non-Tesla systems are increasingly interoperable with the aid of adapters but should be considered separately in the present. Tesla drivers use Tesla DC chargers almost exclusively \cite{Visaria_2022} and CCS/ChaDeMo to NACS adapters are more common than their counterparts. The Rivian Adventure network is technically interoperable with other J1772 vehicles but is set aside for the exclusive use of Rivian vehicles. The purpose of the Rivian Adventure network serves to allow for Rivian vehicles to charge in remote locations and is not intended to be relied upon exclusively.
 
@@ -519,7 +572,7 @@ The optimal routes generated in this study only selected corridor chargers. Some
 \end{figure}
 
 
-Also include a figure showing locations of utilized vs. non-utilized chargers. Mention that this really only reflects on location and composition and that real differences in equipment reliability are not factored in.
+%Also include a figure showing locations of utilized vs. non-utilized chargers. Mention that this really only reflects on location and composition and that real differences in equipment reliability are not factored in.
 
 
 
@@ -605,27 +658,27 @@ The economic picture is that, broadly speaking, DC fast charging a \gls{bev} pre
 	\label{tab:summary_statistics_afdc}
 	\begin{tabular}{|C{.46\linewidth}|C{.18\linewidth}|C{.18\linewidth}|C{.18\linewidth}|}
 		\hline Network & Chargers & Stations & Chargers per Station \\
-		\hline Non-Networked & 260 & 123 & 2.1 \\
-		\hline POWERFLEX & 43 & 11 & 3.9 \\
-		\hline Blink Network & 30 & 12 & 2.5 \\
-		\hline SHELL_RECHARGE & 84 & 34 & 2.5 \\
-		\hline EV Connect & 122 & 47 & 2.6 \\
-		\hline Tesla & 7093 & 418 & 17.0 \\
-		\hline EVCS & 299 & 72 & 4.2 \\
-		\hline Electrify America & 1152 & 243 & 4.7 \\
-		\hline ChargePoint Network & 417 & 265 & 1.6 \\
-		\hline Volta & 20 & 17 & 1.2 \\
-		\hline EVGATEWAY & 118 & 22 & 5.4 \\
-		\hline BP_PULSE & 49 & 14 & 3.5 \\
-		\hline eVgo Network & 1367 & 339 & 4.0 \\
-		\hline EVRANGE & 22 & 7 & 3.1 \\
-		\hline RIVIAN_ADVENTURE & 30 & 15 & 2.0 \\
-		\hline CHARGELAB & 1 & 1 & 1.0 \\
-		\hline 7CHARGE & 25 & 8 & 3.1 \\
-		\hline CIRCLE_K & 28 & 6 & 4.7 \\
-		\hline LOOP & 13 & 5 & 2.6 \\
-		\hline CHARGENET & 12 & 2 & 6.0 \\
-		\hline NOODOE & 6 & 3 & 2.0 \\
+		\hline Non-Networked & 288 & 51 & 5.6 \\
+		\hline Tesla & 2753 & 156 & 17.6 \\
+		\hline Electrify America & 526 & 77 & 6.8 \\
+		\hline EV Connect & 59 & 19 & 3.1 \\
+		\hline ChargePoint Network & 186 & 79 & 2.4 \\
+		\hline Volta & 2 & 2 & 1.0 \\
+		\hline EVCS & 41 & 11 & 3.7 \\
+		\hline SHELL_RECHARGE & 39 & 11 & 3.5 \\
+		\hline EVGATEWAY & 21 & 5 & 4.2 \\
+		\hline eVgo Network & 332 & 63 & 5.3 \\
+		\hline BP_PULSE & 3 & 2 & 1.5 \\
+		\hline POWERFLEX & 12 & 3 & 4.0 \\
+		\hline FLO & 1 & 1 & 1.0 \\
+		\hline EVRANGE & 11 & 3 & 3.7 \\
+		\hline RIVIAN_ADVENTURE & 14 & 7 & 2.0 \\
+		\hline CIRCLE_K & 16 & 3 & 5.3 \\
+		\hline CHARGENET & 7 & 1 & 7.0 \\
+		\hline Blink Network & 2 & 2 & 1.0 \\
+		\hline NOODOE & 2 & 1 & 2.0 \\
+		\hline LOOP & 6 & 2 & 3.0 \\
+		\hline 7CHARGE & 4 & 1 & 4.0 \\
 		\hline
 	\end{tabular}
 \end{table}
@@ -636,46 +689,47 @@ The economic picture is that, broadly speaking, DC fast charging a \gls{bev} pre
 	\label{tab:summary_statistics_afdc_corridor}
 	\begin{tabular}{|C{.46\linewidth}|C{.18\linewidth}|C{.18\linewidth}|C{.18\linewidth}|}
 		\hline Network & Chargers & Stations & Chargers per Station \\
-		\hline Non-Networked & 258 & 50 & 5.2 \\
-		\hline Tesla & 2471 & 142 & 17.4 \\
-		\hline Electrify America & 468 & 68 & 6.9 \\
-		\hline EV Connect & 66 & 19 & 3.5 \\
-		\hline ChargePoint Network & 188 & 80 & 2.4 \\
-		\hline EVCS & 37 & 11 & 3.4 \\
-		\hline SHELL_RECHARGE & 41 & 11 & 3.7 \\
+		\hline Non-Networked & 274 & 50 & 5.5 \\
+		\hline Tesla & 2745 & 155 & 17.7 \\
+		\hline Electrify America & 518 & 76 & 6.8 \\
+		\hline EV Connect & 58 & 18 & 3.2 \\
+		\hline ChargePoint Network & 184 & 78 & 2.4 \\
+		\hline Volta & 1 & 1 & 1.0 \\
+		\hline EVCS & 35 & 10 & 3.5 \\
+		\hline SHELL_RECHARGE & 37 & 10 & 3.7 \\
 		\hline EVGATEWAY & 19 & 4 & 4.8 \\
-		\hline BP_PULSE & 3 & 2 & 1.5 \\
-		\hline eVgo Network & 311 & 58 & 5.4 \\
-		\hline Blink Network & 1 & 1 & 1.0 \\
-		\hline EVRANGE & 3 & 1 & 3.0 \\
-		\hline RIVIAN_ADVENTURE & 10 & 5 & 2.0 \\
+		\hline eVgo Network & 329 & 62 & 5.3 \\
+		\hline BP_PULSE & 1 & 1 & 1.0 \\
+		\hline POWERFLEX & 10 & 2 & 5.0 \\
+		\hline EVRANGE & 5 & 2 & 2.5 \\
+		\hline RIVIAN_ADVENTURE & 12 & 6 & 2.0 \\
 		\hline CIRCLE_K & 12 & 2 & 6.0 \\
-		\hline 7CHARGE & 4 & 1 & 4.0 \\
+		\hline Blink Network & 1 & 1 & 1.0 \\
 		\hline LOOP & 2 & 1 & 2.0 \\
 		\hline
 	\end{tabular}
 \end{table}
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_1.png}
-	\caption{PDFs of expected delay time for station with mean arrival ratio of 1, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
-	\label{fig:expected_delays_coutnours_1}
-\end{figure}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_2.png}
-	\caption{PDFs of expected delay time for station with mean arrival ratio of 2, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
-	\label{fig:expected_delays_coutnours_2}
-\end{figure}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_3.png}
-	\caption{PDFs of expected delay time for station with mean arrival ratio of 3, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
-	\label{fig:expected_delays_coutnours_3}
-\end{figure}
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_1.png}
+%	\caption{PDFs of expected delay time for station with mean arrival ratio of 1, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
+%	\label{fig:expected_delays_coutnours_1}
+%\end{figure}
+%
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_2.png}
+%	\caption{PDFs of expected delay time for station with mean arrival ratio of 2, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
+%	\label{fig:expected_delays_coutnours_2}
+%\end{figure}
+%
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_3.png}
+%	\caption{PDFs of expected delay time for station with mean arrival ratio of 3, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
+%	\label{fig:expected_delays_coutnours_3}
+%\end{figure}
 
 \end{multicols}
 
