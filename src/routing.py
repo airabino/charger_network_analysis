@@ -137,42 +137,6 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
         return costs, values, paths
 
-def road_trip_accessibility(values, keys = [], field = 'time', expectation = np.mean):
-
-    sum_cost = 0
-
-    n = len(values)
-
-    if not keys:
-
-        keys = list(values.keys())
-
-    for key in keys:
-
-        # print(key)
-
-        sum_cost += specific_road_trip_accessibility(
-            values[key], field = field, expectation = expectation
-            )
-
-    return sum_cost / n
-
-def specific_road_trip_accessibility(values, keys = [], field = 'time', expectation = np.mean):
-
-    sum_cost = 0
-
-    n = len(values)
-
-    if not keys:
-
-        keys = list(values.keys())
-
-    for key in keys:
-
-        sum_cost += expectation(np.atleast_1d(values[key][field]))
-
-    return sum_cost / n
-
 def impedance(values, origins = {}, destinations = {}, **kwargs):
 
     field = kwargs.get('field', 'time')
@@ -194,13 +158,55 @@ def impedance(values, origins = {}, destinations = {}, **kwargs):
 
     for origin, mass_o in origins.items():
 
-        for destination, mass_d in origins.items():
+        for destination, mass_d in destinations.items():
 
             if origin != destination:
 
                 sum_cost += (
                     constant * mass_o * mass_d *
                     expectation(np.atleast_1d(values[origin][destination][field]))
+                    )
+
+            n += 1
+
+            # print(sum_cost)
+
+    return sum_cost / n
+
+def current(values, origins = {}, destinations = {}, **kwargs):
+
+    field = kwargs.get('field', 'time')
+    expectation = kwargs.get('expectation', np.mean)
+    constant = kwargs.get('constant', 1)
+
+
+    if not origins:
+
+        origins = {k: 1 for k in values.keys()}
+
+    if not destinations:
+
+        destinations = {k: 1 for k in values.keys()}
+
+    sum_cost = 0
+
+    n = 0
+
+    total_weight = sum([v for v in origins.values()])
+
+    for origin, weight_o in origins.items():
+
+        for destination, weight_d in destinations.items():
+
+            if origin != destination:
+
+                # print(constant * (voltage_d - voltage_o) )
+
+                sum_cost += (
+                    constant * weight_o * weight_d /
+                    expectation(
+                        np.atleast_1d(values[destination][origin][field]) * total_weight
+                        )
                     )
 
             n += 1
@@ -212,6 +218,7 @@ def gravity(values, origins = {}, destinations = {}, **kwargs):
     field = kwargs.get('field', 'time')
     expectation = kwargs.get('expectation', np.mean)
     constant = kwargs.get('constant', 1)
+    adjustment = kwargs.get('adjustment', 1)
 
 
     if not origins:
@@ -234,7 +241,9 @@ def gravity(values, origins = {}, destinations = {}, **kwargs):
 
                 sum_cost += (
                     constant * mass_o * mass_d /
-                    expectation(np.atleast_1d(values[origin][destination][field]))
+                    (expectation(
+                        np.atleast_1d(values[origin][destination][field])
+                        ) * adjustment) ** 2
                     )
 
             n += 1
@@ -346,11 +355,23 @@ class StochasticVehicle():
                 lambda x: x[0],
                 )
 
+            self.expectation_reverse = kwargs.get(
+                'expectation_reverse',
+                lambda x: x[0],
+                )
+
         else:
 
             self.expectation = kwargs.get(
                 'expectation',
                 lambda x: super_quantile(x, self.risk_attitude),
+                )
+
+            self.expectation_reverse = kwargs.get(
+                'expectation_reverse',
+                lambda x: super_quantile(
+                    x,
+                    (1 - self.risk_attitude[1], 1 - self.risk_attitude[0])),
                 )
             
         self.initial_values = kwargs.get(
@@ -384,7 +405,7 @@ class StochasticVehicle():
         merged_values['soc'] = values_0['soc'] - (1 - values_1['soc'])
         # merged_values['time'] = values_0['merge_time'] + values_1['time']
 
-        feasible = in_range(self.expectation(merged_values['soc']), *self.soc_bounds)
+        feasible = in_range(self.expectation_reverse(merged_values['soc']), *self.soc_bounds)
 
         return merged_values, feasible
 
@@ -421,7 +442,10 @@ class StochasticVehicle():
         updated_values['price'] = values['price'] + link['price']
         updated_values['soc']  = values['soc'] - traversal_delta_soc
 
-        feasible = in_range(self.expectation(updated_values['soc']), *self.soc_bounds)
+        feasible = in_range(
+            self.expectation_reverse(updated_values['soc']),
+            *self.soc_bounds
+            )
 
         if not feasible:
 
