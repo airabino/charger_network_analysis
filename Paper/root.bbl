@@ -1258,6 +1258,77 @@
     \field{year}{2024}
   \endentry
 
+  \entry{Dixon_2020}{article}{}
+    \name{author}{4}{}{%
+      {{hash=DJ}{%
+         family={Dixon},
+         familyi={D\bibinitperiod},
+         given={James},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=APB}{%
+         family={Andersen},
+         familyi={A\bibinitperiod},
+         given={Peter\bibnamedelima Bach},
+         giveni={P\bibinitperiod\bibinitdelim B\bibinitperiod},
+      }}%
+      {{hash=BK}{%
+         family={Bell},
+         familyi={B\bibinitperiod},
+         given={Keith},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=TC}{%
+         family={Træholt},
+         familyi={T\bibinitperiod},
+         given={Chresten},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \keyw{Electric vehicles, Charging, Convenience, E-mobility}
+    \strng{namehash}{DJ+1}
+    \strng{fullhash}{DJAPBBKTC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    This paper presents a quantitative investigation of the inconvenience of
+  electric vehicle (EV) charging relative to internal combustion engine vehicle
+  (ICEV) fuelling in terms of the time penalty likely to be experienced by
+  drivers. A heuristic approach to deriving idealised charging schedules from
+  over 39,000 week-long travel diaries from the UK National Travel Survey is
+  presented in order to quantify the expected convenience parity — the point
+  at which EV charging and ICEV fuelling are of comparable convenience — for
+  combinations of battery capacity, charger power and access to charging at
+  different locations (home, workplace and public destinations). It was found
+  that although the majority — up to 95% — of individuals who can charge at
+  home are expected to be able to reach convenience parity with battery sizes
+  currently available in EV models at the ‘affordable’ end of the market,
+  this is significantly less likely for those who rely on workplace or public
+  charging — and particularly for those who must rely solely on en route
+  charging. These individuals are expected to suffer considerable inconvenience
+  associated with EV charging relative to ICEV fuelling, and although greater
+  battery capacities and charger power ratings are expected to lessen this
+  inconvenience, there remains a significant gap in the convenience of EV
+  ownership between those who can charge while parked at home and those who
+  cannot. Further analysis is carried out to long journeys that cannot be made
+  on a single charge; ‘range anxiety’ being a major obstacle to widespread
+  EV adoption. It was found that if drivers are compliant with the UK Highway
+  Code in taking regular breaks on long journeys, fewer than 0.01% of trips are
+  expected to be delayed by charging when using battery capacities of 40–60
+  kWh.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.apenergy.2019.114090
+    \endverb
+    \field{issn}{0306-2619}
+    \field{pages}{114090}
+    \field{title}{On the ease of being green: An investigation of the
+  inconvenience of electric vehicle charging}
+    \field{volume}{258}
+    \field{journaltitle}{Applied Energy}
+    \field{year}{2020}
+  \endentry
+
   \entry{AAA_2024}{misc}{}
     \name{author}{1}{}{%
       {{hash=AAAA}{%
@@ -1414,86 +1485,646 @@
     \warn{\item Invalid format of field 'month'}
   \endentry
 
-  \entry{Dixon_2020}{article}{}
+  \entry{Skippon_2016}{article}{}
     \name{author}{4}{}{%
-      {{hash=DJ}{%
-         family={Dixon},
-         familyi={D\bibinitperiod},
-         given={James},
+      {{hash=SSM}{%
+         family={Skippon},
+         familyi={S\bibinitperiod},
+         given={Stephen\bibnamedelima M.},
+         giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=KN}{%
+         family={Kinnear},
+         familyi={K\bibinitperiod},
+         given={Neale},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=LL}{%
+         family={Lloyd},
+         familyi={L\bibinitperiod},
+         given={Louise},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Stannard},
+         familyi={S\bibinitperiod},
+         given={Jenny},
          giveni={J\bibinitperiod},
       }}%
-      {{hash=APB}{%
-         family={Andersen},
-         familyi={A\bibinitperiod},
-         given={Peter\bibnamedelima Bach},
-         giveni={P\bibinitperiod\bibinitdelim B\bibinitperiod},
-      }}%
-      {{hash=BK}{%
-         family={Bell},
-         familyi={B\bibinitperiod},
-         given={Keith},
-         giveni={K\bibinitperiod},
-      }}%
-      {{hash=TC}{%
-         family={Træholt},
-         familyi={T\bibinitperiod},
-         given={Chresten},
-         giveni={C\bibinitperiod},
-      }}%
     }
-    \keyw{Electric vehicles, Charging, Convenience, E-mobility}
-    \strng{namehash}{DJ+1}
-    \strng{fullhash}{DJAPBBKTC1}
+    \keyw{Electric vehicle, Consumer, Adoption, Randomised controlled trial,
+  Symbolic, Performance}
+    \strng{namehash}{SSM+1}
+    \strng{fullhash}{SSMKNLLSJ1}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
     \field{abstract}{%
-    This paper presents a quantitative investigation of the inconvenience of
-  electric vehicle (EV) charging relative to internal combustion engine vehicle
-  (ICEV) fuelling in terms of the time penalty likely to be experienced by
-  drivers. A heuristic approach to deriving idealised charging schedules from
-  over 39,000 week-long travel diaries from the UK National Travel Survey is
-  presented in order to quantify the expected convenience parity — the point
-  at which EV charging and ICEV fuelling are of comparable convenience — for
-  combinations of battery capacity, charger power and access to charging at
-  different locations (home, workplace and public destinations). It was found
-  that although the majority — up to 95% — of individuals who can charge at
-  home are expected to be able to reach convenience parity with battery sizes
-  currently available in EV models at the ‘affordable’ end of the market,
-  this is significantly less likely for those who rely on workplace or public
-  charging — and particularly for those who must rely solely on en route
-  charging. These individuals are expected to suffer considerable inconvenience
-  associated with EV charging relative to ICEV fuelling, and although greater
-  battery capacities and charger power ratings are expected to lessen this
-  inconvenience, there remains a significant gap in the convenience of EV
-  ownership between those who can charge while parked at home and those who
-  cannot. Further analysis is carried out to long journeys that cannot be made
-  on a single charge; ‘range anxiety’ being a major obstacle to widespread
-  EV adoption. It was found that if drivers are compliant with the UK Highway
-  Code in taking regular breaks on long journeys, fewer than 0.01% of trips are
-  expected to be delayed by charging when using battery capacities of 40–60
-  kWh.%
+    Uptake of electric vehicles (EVs) by consumers could reduce CO2 emissions
+  from light duty road transport, but little is known about how mass-market
+  consumer drivers will respond to them. Self-Congruity theory proposes that
+  products are preferred whose symbolic meanings are congruent with personal
+  identity. Further, Construal Level theory suggests that only those who are
+  psychologically close to a new product category through direct experience
+  with it can make concrete construals related to their lifestyles; most
+  drivers lack this for EVs. For instance, potential performance benefits of
+  EVs might offset range limitations for consumers who have such direct
+  experience. The effect of direct experience was tested in a randomised
+  controlled trial with 393 mass-market consumer drivers. An experimental group
+  were given direct experience of a modern battery electric vehicle (BEV), and
+  a control group an equivalent conventional car. Despite rating the
+  performance of the BEV more highly than that of the conventional car,
+  willingness to consider a BEV declined after experience, particularly if the
+  range of the BEV considered was short. The participants willing to consider a
+  short-range BEV were those high in self-congruity, for whom the BEV could act
+  as a strong symbol of personal identity.%
     }
     \verb{doi}
-    \verb https://doi.org/10.1016/j.apenergy.2019.114090
+    \verb https://doi.org/10.1016/j.tra.2016.06.034
     \endverb
-    \field{issn}{0306-2619}
-    \field{pages}{114090}
-    \field{title}{On the ease of being green: An investigation of the
-  inconvenience of electric vehicle charging}
-    \field{volume}{258}
-    \field{journaltitle}{Applied Energy}
-    \field{year}{2020}
+    \field{issn}{0965-8564}
+    \field{pages}{26\bibrangedash 42}
+    \field{title}{How experience of use influences mass-market drivers’
+  willingness to consider a battery electric vehicle: A randomised controlled
+  trial}
+    \field{volume}{92}
+    \field{journaltitle}{Transportation Research Part A: Policy and Practice}
+    \field{year}{2016}
   \endentry
 
-  \entry{AFDC_EVs_2023}{misc}{}
-    \list{publisher}{1}{%
-      {Alternative Fuels Data Center (AFDC)}%
+  \entry{Hardman_2016}{article}{}
+    \name{author}{3}{}{%
+      {{hash=HS}{%
+         family={Hardman},
+         familyi={H\bibinitperiod},
+         given={Scott},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=SE}{%
+         family={Shiu},
+         familyi={S\bibinitperiod},
+         given={Eric},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=SWR}{%
+         family={Steinberger-Wilckens},
+         familyi={S\bibinithyphendelim W\bibinitperiod},
+         given={Robert},
+         giveni={R\bibinitperiod},
+      }}%
     }
+    \keyw{Electric vehicle, Marketing, Early adopters, Consumers}
+    \strng{namehash}{HSSESWR1}
+    \strng{fullhash}{HSSESWR1}
+    \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
-  \field{note}{\url{https://afdc.energy.gov/vehicles/search/download.pdf?year=2023}}
-    \field{title}{Model Year 2023 Alternative Fuel and Advanced Technology
-  Vehicles}
-    \field{journaltitle}{Alternative Fuels Data Center (AFDC)}
+    \field{abstract}{%
+    Battery electric vehicle adoption research has been on going for two
+  decades. The majority of data gathered thus far is taken from studies that
+  sample members of the general population and not actual adopters of the
+  vehicles. This paper presents findings from a study involving 340 adopters of
+  battery electric vehicles. The data is used to corroborate some existing
+  assumptions made about early adopters. The contribution of this paper,
+  however, is the distinction between two groups of adopters. These are
+  high-end adopters and low-end adopters. It is found that each group has a
+  different socio-economic profile and there are also some psychographic
+  differences. Further they have different opinions of their vehicles with
+  high-end adopters viewing their vehicles more preferentially. The future
+  purchase intentions of each group are explored and it is found that high-end
+  adopters are more likely to continue with ownership of battery electric
+  vehicles in subsequent purchases. Finally reasons for this are explored by
+  comparing each adopter group’s opinions of their vehicles to their future
+  purchase intentions. From this is it suggested that time to refuel and range
+  for low-end battery electric vehicles should be improved in order to increase
+  chances of drivers continuing with BEV ownership.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.tra.2016.03.010
+    \endverb
+    \field{issn}{0965-8564}
+    \field{pages}{40\bibrangedash 57}
+    \field{title}{Comparing high-end and low-end early adopters of battery
+  electric vehicles}
+    \field{volume}{88}
+    \field{journaltitle}{Transportation Research Part A: Policy and Practice}
+    \field{year}{2016}
+  \endentry
+
+  \entry{Franke_2017}{article}{}
+    \name{author}{4}{}{%
+      {{hash=FT}{%
+         family={Franke},
+         familyi={F\bibinitperiod},
+         given={Thomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=GM}{%
+         family={Günther},
+         familyi={G\bibinitperiod},
+         given={Madlen},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=TM}{%
+         family={Trantow},
+         familyi={T\bibinitperiod},
+         given={Maria},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=KJF}{%
+         family={Krems},
+         familyi={K\bibinitperiod},
+         given={Josef\bibnamedelima F.},
+         giveni={J\bibinitperiod\bibinitdelim F\bibinitperiod},
+      }}%
+    }
+    \keyw{Battery electric vehicles, Range, User satisfaction, Acceptance,
+  Field study}
+    \strng{namehash}{FT+1}
+    \strng{fullhash}{FTGMTMKJF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    User satisfaction is a vital design criterion for sustainable systems. The
+  present research aimed to understand factors relating to individually
+  perceived range satisfaction of battery electric vehicle (BEV) users. Data
+  from a large-scale BEV field trial (N=2) were analyzed. Apart from an initial
+  drop in range satisfaction, increasing practical experience was related to
+  increased range satisfaction. Classical indicators of users' mobility
+  profiles (daily travel distances) were only weakly related to lower range
+  satisfaction (not significant), after controlling for practical experience
+  and preferred coverage of mobility needs. The regularity/predictability of
+  users' mobility patterns, the percentage of journeys not coverable because of
+  range issues, and users’ individual comfortable range accounted for
+  variance in range satisfaction. Finally, range satisfaction was related to
+  key indicators of general BEV acceptance (e.g., purchase intentions). These
+  results underline the complex dynamics involved in individual range
+  satisfaction, as well as its central role for BEV acceptance.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.apergo.2017.06.013
+    \endverb
+    \field{issn}{0003-6870}
+    \field{pages}{191\bibrangedash 199}
+    \field{title}{Does this range suit me? Range satisfaction of battery
+  electric vehicle users}
+    \verb{url}
+    \verb https://www.sciencedirect.com/science/article/pii/S0003687017301461
+    \endverb
+    \field{volume}{65}
+    \field{journaltitle}{Applied Ergonomics}
+    \field{year}{2017}
+  \endentry
+
+  \entry{Schmalfuss_2017}{article}{}
+    \name{author}{3}{}{%
+      {{hash=SF}{%
+         family={Schmalfuß},
+         familyi={S\bibinitperiod},
+         given={Franziska},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=MK}{%
+         family={Mühl},
+         familyi={M\bibinitperiod},
+         given={Kristin},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=KJF}{%
+         family={Krems},
+         familyi={K\bibinitperiod},
+         given={Josef\bibnamedelima F.},
+         giveni={J\bibinitperiod\bibinitdelim F\bibinitperiod},
+      }}%
+    }
+    \keyw{Battery electric vehicle, Experience, Theory of planned behavior,
+  Acceptance, Test trial, Online survey}
+    \strng{namehash}{SFMKKJF1}
+    \strng{fullhash}{SFMKKJF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    Battery electric vehicles (BEVs) can contribute to the realization of more
+  sustainable mobility systems. The actual adoption rate however of BEVs in
+  Germany remains low, and strategies for enhancing BEV acceptance are
+  required. Providing direct experience can, for instance, help to overcome
+  prejudices relating to relatively new products, with this being a potential
+  marketing strategy. The present research contributes to the question of what
+  role direct experience plays in acceptance of BEVs. Two studies were
+  conducted to address the relationship between these variables: (1) an online
+  survey (N=286) and (2) a 24-h field test (N=30). Both studies showed several
+  experience-based differences in evaluations of BEV attributes, attitude and
+  purchase intention, with most BEV attributes being evaluated more positively
+  when people had BEV experience. Path analyses revealed a direct experience
+  effect on purchase intention in the online study. Findings from the 24-h
+  field test, showed effects of BEV experience on BEV attributes and attitudes,
+  but no BEV experience effect for purchase intention was found. Based on the
+  results of both studies, we can conclude that practical (and also short-term)
+  experience with BEVs has the potential to change the evaluation of BEVs and
+  psychological factors relevant for determining behavioral intention. As many
+  effects were positive, providing short-term BEV experience to enhance
+  acceptance has the potential to change BEV evaluation as well as the
+  satisfaction with such a vehicle and might be a promising strategy for
+  promoting BEVs.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.trf.2017.01.004
+    \endverb
+    \field{issn}{1369-8478}
+    \field{pages}{47\bibrangedash 69}
+    \field{title}{Direct experience with battery electric vehicles (BEVs)
+  matters when evaluating vehicle attributes, attitude and purchase intention}
+    \verb{url}
+    \verb https://www.sciencedirect.com/science/article/pii/S1369847817300591
+    \endverb
+    \field{volume}{46}
+    \field{journaltitle}{Transportation Research Part F: Traffic Psychology and
+  Behaviour}
+    \field{year}{2017}
+  \endentry
+
+  \entry{Bhat_2022}{article}{}
+    \name{author}{2}{}{%
+      {{hash=BF}{%
+         family={Bhat},
+         familyi={B\bibinitperiod},
+         given={Furqan},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=VA}{%
+         family={Verma},
+         familyi={V\bibinitperiod},
+         given={Ashish},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BFVA1}
+    \strng{fullhash}{BFVA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb https://doi.org/10.1007/s40890-022-00175-2
+    \endverb
+    \field{number}{5}
+    \field{title}{A Bibliometric Analysis and Review of Adoption Behaviour of
+  Electric Vehicles}
+    \field{volume}{9}
+    \field{journaltitle}{Transportation in Developing Economies}
+    \field{year}{2022}
+    \warn{\item Invalid format of field 'month'}
+  \endentry
+
+  \entry{Paradies_2023}{article}{}
+    \name{author}{4}{}{%
+      {{hash=PGL}{%
+         family={Paradies},
+         familyi={P\bibinitperiod},
+         given={Geerte\bibnamedelima L.},
+         giveni={G\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=UOA}{%
+         family={Usmani},
+         familyi={U\bibinitperiod},
+         given={Omar\bibnamedelima A.},
+         giveni={O\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=LS}{%
+         family={Lamboo},
+         familyi={L\bibinitperiod},
+         given={Sam},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=vRW}{%
+         family={{van den Brink}},
+         familyi={v\bibinitperiod},
+         given={Ruud\bibnamedelima W.},
+         giveni={R\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+    }
+    \keyw{Innovation adoption, Electric vehicles, Modelling, Decision
+  behaviour, Policy support, Energy transition}
+    \strng{namehash}{PGL+1}
+    \strng{fullhash}{PGLUOALSvRW1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    The widespread adoption of battery electric vehicles (BEVs) is a crucial
+  element in climate policy for the transport sector. To design effective
+  policies to stimulate the uptake of BEVs, it is essential to understand the
+  barriers and drivers that influence consumers' choices for a BEV. To this
+  aim, we present a computational model named CODEC, a hybrid choice model that
+  estimates the future market share of different vehicle types. The model gives
+  insight into the different effects of technical, financial and other
+  behavioural factors that influence the adoption decision. We included social
+  factors and routine behaviour, which are rarely analysed in other research.
+  We assessed the share in sales of BEVs and gasoline vehicles in the
+  Netherlands between 2020 and 2030 for privately owned new cars. To initialize
+  the model we used data from a survey on the perceptions of prospective car
+  buyers (n=1522). Our analysis shows that the BEV market share in new car
+  sales will be between 26 and 40% in 2030, well below the government target of
+  100%. The analysis also shows that current barriers for BEV adoption: higher
+  purchase price and lower driving range, will become less important over time.
+  In 2030 routine purchasing behaviour and social factors are the main barriers
+  for widespread BEV adoption. New policy measures are needed to lower these
+  barriers. Factors that affect BEV adoption positively have a relatively small
+  effect, so also measures to reduce the attractiveness of gasoline vehicles
+  should be considered.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.erss.2023.102968
+    \endverb
+    \field{issn}{2214-6296}
+    \field{pages}{102968}
+    \field{title}{Falling short in 2030: Simulating battery-electric vehicle
+  adoption behaviour in the Netherlands}
+    \field{volume}{97}
+    \field{journaltitle}{Energy Research \& Social Science}
+    \field{year}{2023}
+  \endentry
+
+  \entry{Corradi_2023}{article}{}
+    \name{author}{3}{}{%
+      {{hash=CC}{%
+         family={Corradi},
+         familyi={C\bibinitperiod},
+         given={Chiara},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=SE}{%
+         family={Sica},
+         familyi={S\bibinitperiod},
+         given={Edgardo},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=MP}{%
+         family={Morone},
+         familyi={M\bibinitperiod},
+         given={Piergiuseppe},
+         giveni={P\bibinitperiod},
+      }}%
+    }
+    \keyw{Sustainable transition, Road transport, Electric vehicles,
+  Multi-level perspective}
+    \strng{namehash}{CCSEMP1}
+    \strng{fullhash}{CCSEMP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    A sustainable transition towards a net zero emission economy is a primary
+  goal of climate change mitigation. Such a transition should involve each
+  socio-technical system, including the transport system. Adopting a
+  multi-level perspective, the present study explores the behaviour of actors
+  within the road passenger transport sector by investigating roadblocks to the
+  shift towards electric mobility. The study focuses specifically on regime
+  actors, i.e. the whole of consumers (car drivers), industry actors (car
+  manufacturers, suppliers), policymakers, and civil society (citizens,
+  workers, trade unions, environmental organisations, NGOs) acting at regime
+  level. Although these actors provide stability to the socio-technical system,
+  they do not always oppose change. Indeed, they can actively support the
+  transition pushing a reform agenda that fits their interests. The reframing
+  of their behaviour becomes therefore essential for the regime change to
+  occur. The analysis involved the systematic literature review of studies
+  concerning the road transport regime actors. These included 44 publications
+  related to the European continent in the period 2015–2020. The findings
+  reveal a recent re-orientation of regime actors, with the presence of factors
+  supporting change along with those reinforcing resistance. The firsts include
+  the role of electric vehicles as symbols of social status and innovativeness,
+  their environmentally sound for decarbonising transport, and the possibility
+  for firms to pursue new business opportunities and models. In contrast, the
+  emerged factors of resistance include uncertainty in demand and production
+  scalability, the risk of job losses, the rigid value chain, and the lack of
+  charging stations that makes electric vehicles not suitable in everyday
+  life.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.erss.2022.102908
+    \endverb
+    \field{issn}{2214-6296}
+    \field{pages}{102908}
+    \field{title}{What drives electric vehicle adoption? Insights from a
+  systematic review on European transport actors and behaviours}
+    \verb{url}
+    \verb https://www.sciencedirect.com/science/article/pii/S221462962200411X
+    \endverb
+    \field{volume}{95}
+    \field{journaltitle}{Energy Research \& Social Science}
+    \field{year}{2023}
+  \endentry
+
+  \entry{Philip_2023}{article}{}
+    \name{author}{3}{}{%
+      {{hash=PT}{%
+         family={Philip},
+         familyi={P\bibinitperiod},
+         given={Thara},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=WJ}{%
+         family={Whitehead},
+         familyi={W\bibinitperiod},
+         given={Jake},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=PCG}{%
+         family={Prato},
+         familyi={P\bibinitperiod},
+         given={Carlo\bibnamedelima G.},
+         giveni={C\bibinitperiod\bibinitdelim G\bibinitperiod},
+      }}%
+    }
+    \keyw{Battery electric vehicles, Vehicle-to-grid, Willingness-to-pay,
+  Australia, Discrete choice modelling, Consumer preferences}
+    \strng{namehash}{PTWJPCG1}
+    \strng{fullhash}{PTWJPCG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    Increasing electrification of the global transport system is critical in
+  the transition towards a net zero economy. While electric vehicle (EV) uptake
+  is increasing in many countries, some nations – like Australia – are EV
+  laggards. Here we analyse the stated preferences towards EVs of a
+  representative sample of 500 Australian consumers by estimating a mixed logit
+  model, which will help inform policy-makers in similar markets on how to
+  potentially accelerate uptake. Additionally, the findings of this study are
+  useful to EV manufacturers in exploring the specific vehicle features that
+  are most attractive to consumers, and that are likely to be required to
+  stimulate uptake in car-dependent markets, like Australia, with longer
+  distances between urban areas. The attributes examined in this study include
+  purchase price, driving range, fast charging time, public fast charger
+  availability, financial incentives, and vehicle-to-grid (V2G) capabilities.
+  As one of the first consumer preference studies to include V2G capabilities,
+  this study also aims to understand how broader potential energy benefits
+  stemming from EV ownership are perceived by consumers, and whether these
+  features could further stimulate uptake. As expected, purchase price, driving
+  range, fast charging time, public fast charger availability and financial
+  incentives in the form of energy bill discounts were found to be significant
+  factors affecting the choice to purchase an EV. Interestingly, the
+  availability of V2G was found to have a significant impact on consumer
+  choice, with consumers’ marginal willingness-to-pay for these features
+  ranging from AUD 2,319 to AUD 5,346, depending on the technical details of
+  its implementation. As identified in other studies, younger consumers were
+  found to be more likely to purchase an EV, and higher levels of EV awareness
+  also have a significant positive impact.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.tra.2022.11.015
+    \endverb
+    \field{issn}{0965-8564}
+    \field{pages}{103555}
+    \field{title}{Adoption of electric vehicles in a laggard, car-dependent
+  nation: Investigating the potential influence of V2G and broader energy
+  benefits on adoption}
+    \verb{url}
+    \verb https://www.sciencedirect.com/science/article/pii/S0965856422002981
+    \endverb
+    \field{volume}{167}
+    \field{journaltitle}{Transportation Research Part A: Policy and Practice}
+    \field{year}{2023}
+  \endentry
+
+  \entry{Chakraborty_2022}{article}{}
+    \name{author}{3}{}{%
+      {{hash=CD}{%
+         family={Chakraborty},
+         familyi={C\bibinitperiod},
+         given={Debapriya},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=HS}{%
+         family={Hardman},
+         familyi={H\bibinitperiod},
+         given={Scott},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=TG}{%
+         family={Tal},
+         familyi={T\bibinitperiod},
+         given={Gil},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \keyw{Vehicle miles traveled, Plug-in Electric Vehicles, Multivariate
+  analysis}
+    \strng{namehash}{CDHSTG1}
+    \strng{fullhash}{CDHSTG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{abstract}{%
+    Household vehicle miles traveled (VMT) has traditionally been studied in
+  the context of gasoline vehicles. In this study, we analyze VMT of Plug-in
+  Electric Vehicles (PEVs) to understand PEV use and the factors that influence
+  their use in a household. We use data from a unique repeat survey of PEV
+  owners in California who were originally surveyed when they first bought
+  their vehicle. Having two survey responses per household allows us to obtain
+  more reliable VMT data and analyze the change in VMT over the vehicle
+  ownership period. The results show that PEV VMT is correlated with
+  traditional factors like population density, built environment, attitudes
+  towards technology, and lifestyle preferences. Specific to PEVs, electric
+  driving range and access to infrastructure, have a major influence on PEV
+  VMT. Moreover, while lower electricity price at home may lead to a higher
+  share of PEV VMT in total household VMT, we do not identify the presence of
+  “rebound effect”. Overall, we observe that factors influencing PEV VMT
+  are like those observed for conventional gasoline vehicles. We find that PEVs
+  drive a similar amount as conventional vehicles, not less (due to range
+  anxiety) as some have suggested. The results have implications for emissions
+  impact assessments and travel demand models that depend on assumptions of
+  average annual VMT for policymaking.%
+    }
+    \verb{doi}
+    \verb https://doi.org/10.1016/j.tbs.2021.09.004
+    \endverb
+    \field{issn}{2214-367X}
+    \field{pages}{67\bibrangedash 83}
+    \field{title}{Integrating plug-in electric vehicles (PEVs) into household
+  fleets- factors influencing miles traveled by PEV owners in California}
+    \verb{url}
+    \verb https://www.sciencedirect.com/science/article/pii/S2214367X21000867
+    \endverb
+    \field{volume}{26}
+    \field{journaltitle}{Travel Behaviour and Society}
+    \field{year}{2022}
+  \endentry
+
+  \entry{Hoogland_2023}{article}{}
+    \name{author}{4}{}{%
+      {{hash=HK}{%
+         family={Hoogland},
+         familyi={H\bibinitperiod},
+         given={Kelly},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=KK}{%
+         family={Kurani},
+         familyi={K\bibinitperiod},
+         given={Ken},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=HS}{%
+         family={Hardman},
+         familyi={H\bibinitperiod},
+         given={Scott},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=CD}{%
+         family={Chakraborty},
+         familyi={C\bibinitperiod},
+         given={Debrapriya},
+         giveni={D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HK+1}
+    \strng{fullhash}{HKKKHSCD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb https://doi.org/10.21203/rs.3.rs-2561573/v1
+    \endverb
+    \field{title}{Understanding the Impact of Public Charging Infrastructure on
+  the Consideration to Purchase an Electric Vehicle in California}
+    \field{journaltitle}{Research Square Preprint}
+    \field{year}{2024}
+  \endentry
+
+  \entry{Rabinowitz_2023}{article}{}
+    \name{author}{4}{}{%
+      {{hash=RAI}{%
+         family={Rabinowitz},
+         familyi={R\bibinitperiod},
+         given={Aaron\bibnamedelima I.},
+         giveni={A\bibinitperiod\bibinitdelim I\bibinitperiod},
+      }}%
+      {{hash=SJG}{%
+         family={Smart},
+         familyi={S\bibinitperiod},
+         given={John\bibnamedelima G.},
+         giveni={J\bibinitperiod\bibinitdelim G\bibinitperiod},
+      }}%
+      {{hash=CTC}{%
+         family={Coburn},
+         familyi={C\bibinitperiod},
+         given={Timothy\bibnamedelima C.},
+         giveni={T\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+      {{hash=BTH}{%
+         family={Bradley},
+         familyi={B\bibinitperiod},
+         given={Thomas\bibnamedelima H.},
+         giveni={T\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+    }
+    \keyw{Cost function;Electric vehicles;Batteries;Systems engineering and
+  theory;Mathematical models;Automobiles;Vehicle dynamics;Battery electric
+  vehicle;BEV convenience;EV equity;EVSE infrastructure}
+    \strng{namehash}{RAI+1}
+    \strng{fullhash}{RAISJGCTCBTH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1109/ACCESS.2023.3255103
+    \endverb
+    \field{pages}{30486\bibrangedash 30497}
+    \field{title}{Assessment of Factors in the Reduction of BEV Operational
+  Inconvenience}
+    \field{volume}{11}
+    \field{journaltitle}{IEEE Access}
     \field{year}{2023}
   \endentry
 \enddatalist
