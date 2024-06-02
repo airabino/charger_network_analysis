@@ -129,4 +129,4 @@ def random_completely_connected_graph(n, m, **kwargs):
 				'price': 0,
 			})
 
-	return graph_from_nlg({'nodes': nodes, 'links': links})
+	return graph_from_nlg({'nodes': nodes, 'links': links}, **kwargs.get('graph', {}))
