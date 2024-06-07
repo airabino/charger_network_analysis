@@ -137,14 +137,20 @@ def plot_route_tree(ax, graph, values = {}, paths = {}, destinations = [], **kwa
 			stations_used, ax = ax, show_links = False, **kwargs.get('stations_used_kw', {})
 			)
 
-def colormap(colors):
+def colormap(colors, reverse = False):
 
 	if type(colors) == str:
 
 		if colors in colormaps.keys():
 
+			colors_list = colormaps[colors]
+
+			if reverse:
+
+				colors_list = np.flip(colors_list)
+
 			colormap_out = LinearSegmentedColormap.from_list(
-				'custom', colormaps[colors], N = 256)
+				'custom', colors_list, N = 256)
 
 		else:
 

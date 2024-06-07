@@ -59,7 +59,7 @@ def dijkstra(graph, origins, **kwargs):
 
     destinations = kwargs.get('destinations', [])
     objective = kwargs.get('objective', Objective())
-    return_paths = kwargs.get('return_paths', False)
+    return_paths = kwargs.get('return_paths', True)
 
     infinity = objective.infinity()
 
@@ -130,14 +130,14 @@ def dijkstra(graph, origins, **kwargs):
         # Iterating through the current source node's adjacency
         for target, edge in edges[source].items():
 
-            node = nodes[target]
+            if edge.get('feasible', True):
 
-            # Updating states for edge traversal
-            values_target, feasible = objective.update(
-                values, edge, node,
-                )
+                node = nodes[target]
 
-            if feasible:
+                # Updating states for edge traversal
+                values_target = objective.update(
+                    values, edge,
+                    )
 
                 # Updating the weighted cost for the path
                 cost, savings = objective.compare(

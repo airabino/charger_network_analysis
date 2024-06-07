@@ -188,32 +188,23 @@ s.t.
 	 t \in [0, T]\quad k = 1, 2, \dots, M
 \end{gather}
 
-\noindent where $T$ is the final value of time for a route, $S$ is the state vector, $S_0$ is the initial values of the states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi$ is the set of cost functions, $b^k_l$ and $b^k_u$ are the upper and lower bounds for state $k$ respectively, and $b^k_f$ is the final state minimum value for state $k$. $\mathbb{E}$ denotes an expectation. State vector $S$ is initialized and stored as vectors containing $N$ discreet variables. A distribution $D$ for a the state vector at any node and time-step can be computed from a histogram of the values. States can be changed at nodes and edges. Routes are considered feasible if state expectations remain within set bounds. Comparison between routes is performed using cost expectation. Routing depends on vehicular, infrastructural, and individual models.
+\noindent where $T$ is the final value of time for a route, $S$ is the state vector, $S_0$ is the initial values of the states, $U$ is a control (route) between $i$ and $j$, $\overline{U}_{i,j}$ is the set of possible routes between $i$, and $j$, $\Phi$ is the set of cost functions, $b^k_l$ and $b^k_u$ are the upper and lower bounds for state $k$ respectively, and $b^k_f$ is the final state minimum value for state $k$. $\mathbb{E}$ denotes an expectation. State vector $S$ is initialized and stored as vectors containing $N$ discreet variables. A distribution $D$ for a the state vector at any node and time-step can be computed from a histogram of the values. Routes are considered feasible if state expectations remain within set bounds. Comparison between routes is performed using cost expectation.
 
+For vehicle routing, common states are time, distance, price, number of stops, and remaining range. Limits are, often, placed on states and these may not be violated at any time. Limits may also be placed on the final value of a state. Time, distance, price, and number of stops are examples of metrics of minimization which may be used individually or in combination. Upper limits may be set on metrics of optimization in order to terminate the optimization when it is no longer possible to find a feasible route. Remaining range will, necessarily, be subject to upper and lower limits and may be subject to a final value limit (an example of this would be preserving enough range for a return trip).
 
-\subsubsection*{Vehicle Model}
+The values of states are static at nodes and are changed in the process of traversing edges. Intuitively, if a vehicle has 50 km or remaining range at node $i$ and traverses edge $(i, j)$ of distance 20 km ($\Phi_d(i,j) = 20$) then it will arrive at node $j$ with 30 km of remaining range. If node $j$ contains a supply station then range can be added before progressing further. Adding range will cost time and money and should, therefore, be done sparingly. In order to progress from node $j$ to node $k$, the vehicle needs only sufficient range to avoid violating the associated lower bound, in this case 10 km. If $\Phi_d(j,k) \leq 20$ then no resupply is needed. If $\Phi_d(j,k) > 20$ then a resupply event is needed and should add only enough range to make $(j,k)$ feasible. Thus the cost of traversing $(j,k)$ depends on whether or not and how much resupply is needed. 
 
-Vehicles effect routing due to their range limits and supply methods. The vehicle model used herein is highly simplified due to the inexact nature of the problem. Vehicles are modeled as storing energy and consuming energy at a constant rate per unit distance driven. More exact information on road conditions, traffic conditions, and atmospheric conditions among others can be used to compute edge-specific efficiencies. Vehicular parameters are listed in Table \ref{tab:param_veh}.
+The extent to which range can be added via resupply is limited by the capacity of the vehicle's \gls{ess} and remaining range constraints. Certain edges will be infeasible regardless of supply as a result. In addition, supply will not be available at all nodes and the cost of supply is neither guaranteed to be homogeneous throughout a network nor to be linear with respect to range added.
 
-\begin{table}[H]
-	\centering
-	\caption{Vehicle Parameters for Routing}
-	\label{tab:param_veh}
-	\begin{tabular}{|C{\linewidth*3/8}|C{\linewidth*3/8}|C{\linewidth*2/8}|}
-		\hline Parameter & Description & Unit \\
-		\hline \gls{ess} Capacity & Accessible energy storage capacity & [kWh] \\
-		\hline Energy Consumption & Energy required to move the vehicle & [kJ/km] \\
-		\hline Supply Rate & \gls{ess} maximum energy addition rate & [kW] \\
-		\hline Supply Limits & \gls{soc} bounds for supply & [-] \\
-		\hline
-	\end{tabular}
-\end{table}
+The structure of the optimization process is as follows. First, a graph is created to represent the supply network and its interactions among itself and with origins and destinations of interest. All arcs which are feasible should be included as edges in this graph, including those directly between origins and destinations. This graph is described in the \gls{sng} subsection. Second, edge costs in terms of problem states are assigned using models which will be described in the Driver Model, Vehicle model, and Supply Station Model subsections. Third, stochastic optimization is performed using an optimal routing algorithm such as the Dijkstra or Bellman-Ford algorithm.
 
-\subsubsection*{Supply Infrastructure Network Model}
+\subsubsection*{Supply Network Graph}
 
-Supply networks effect routing both in structure and in the characteristics of individual stations. In this paper, the supply network refers to all stations which the vehicle can utilize rather than the industry definition which covers stations operated by a single \gls{cpo}. Networks ultimately consist of individual supply ports (chargers or fuel pumps) and serve geographically and temporally distributed demand. A network consisting of more than one port can develop redundancy either by concentrating ports in a single confined space "in-station" or via a more evenly distributed approach "between-station". Network redundancy also varies by location with "thinner" and "thicker" coverage areas.
+Supply networks effect routing both in structure and in the characteristics of individual stations. In this paper, the supply network refers to all stations which the vehicle can utilize.Supply networks ultimately consist of individual supply ports (chargers or fuel pumps) and serve geographically and temporally distributed demand. A network consisting of more than one port can develop redundancy either by concentrating ports in a single confined space "in-station" or via a more evenly distributed approach "between-station". Network redundancy also varies by location with "thinner" and "thicker" coverage areas.
 
-Vehicle optimal routing serves to find the lowest-cost-path between two points on a road atlas. A road atlas is a graph with a large number of nodes and a low edge-to-node ratio. When considering a multi-leg itinerary, such as when solving the Traveling Salesman Problem or Vehicle Routing Problem, the atlas need not be stored in entirety. Only the locations of and relationships between relevant nodes are necessary. The graph formed from the relevant nodes and their relationships is a reduced subgraph with a low number of nodes and relatively high edges-per-node and cycles-per-node ratios. A reduced subgraph is defined as follows. For a graph $G = \{V, E\}$ where $V$ is the set of nodes and $E$ is the set of edges, a reduced subgraph $\hat{G} = \{\hat{V}, \hat{E}\}$ can be computed where $\hat{V} \subseteq V$ and $\hat{E} = \{P_{ij}\ \forall\ (i, j)\ \in\ \hat{E}\}$ is the set of shortest-paths between all nodes in $\hat{V}$. An example of a reduced subgraph is shown in Figure \ref{fig:reduced_subgraph}.
+The physical connection between supply stations is provide by the road network. Without consideration of range, each station, origin, and destination is reachable from all others. The \gls{sng} is formed from these nodes. Edges are created for all origins and destinations based on shortest paths computed on the road map. Only the locations of and relationships between relevant nodes are necessary. The graph formed from the relevant nodes and their relationships is a reduced subgraph with a low number of nodes and relatively high edges-per-node and cycles-per-node ratios when compared ot the road map.
+
+A reduced subgraph is defined as follows. For a graph $G = \{V, E\}$ where $V$ is the set of nodes and $E$ is the set of edges, a reduced subgraph $\hat{G} = \{\hat{V}, \hat{E}\}$ can be computed where $\hat{V} \subseteq V$ and $\hat{E} = \{P_{ij}\ \forall\ (i, j)\ \in\ \hat{E}\}$ is the set of shortest-paths between all nodes in $\hat{V}$. An example of a reduced subgraph is shown in Figure \ref{fig:reduced_subgraph}.
 
 \begin{figure}[H]
 	\centering
@@ -229,78 +220,13 @@ Vehicle optimal routing serves to find the lowest-cost-path between two points o
 	\label{fig:reduced_subgraph}
 \end{figure}
 
-For a given vehicle type, the \gls{sng} is the reduced subgraph containing the trip origin, trip destination, and all supply stations reasonably likely to be utilized. In-station redundancy for a \gls{sng} is a nodal parameter. In-station  redundancy $\xi_{is}$ for any node $v \in V$ on \gls{sng} $G = \{V, E\}$ is the number of ports at node $v$. Between-station redundancy $\xi_{bs}$ for an \gls{sng} is a clique parameter. Between-station redundancy for any clique $C \subseteq V$ on \gls{sng} $G = \{V, E\}$ is the sum of the ports at nodes $v \in C$. A more meaningful result for $\xi_{bs}$ may be returned by limiting the cost of edges considered. For example, $\xi'_{bs}$ may be computed for $G' = \{V, E'\}$ where $E' \subseteq E$ contains all edges of less than 10 minutes drive time.
+Most of the nodes on the \gls{sng} will be supply stations each with different equipment types and numbers of ports. In-station redundancy for a \gls{sng} is a nodal parameter. In-station redundancy $\xi_{is}$ for any node $v \in V$ on \gls{sng} $G = \{V, E\}$ is the number of ports at node $v$. Between-station redundancy $\xi_{bs}$ for an \gls{sng} can be computed for cliques of nodes after solving the maximal clique problem. Between-station redundancy for any clique $C \subseteq V$ on \gls{sng} $G = \{V, E\}$ is the sum of the ports at nodes $v \in C$. Meaningful cliques may be attained by removing edges above a set cost before solving for maximal cliques. For example, cliques may be found on $G' = \{V, E'\}$ where $E' \subseteq E$ contains all edges of less than 10 minutes drive time.
 
 The \gls{sng} is the graph on which long vehicle trips should be optimized if supply events are expensive and/or constraining. The relevant \gls{sng} for \glspl{icev} and \gls{bev} are neither equivalent nor isomorphic. Different vehicles within a given powertrain type may also have different \glspl{sng} but this is far more common for \glspl{ev} than \glspl{icev}. The \gls{sng} informs routing by providing a set of possible paths between origins and destinations. The structure of a network may make for a greater or lesser number of available paths depending on the number and location of stations.
 
-\subsubsection*{Supply Station Network Model}
+\subsubsection*{Driver Model}
 
-Supply station characteristics significantly impact the expected cost of utilizing a given station. Supply stations are defined by number of ports, reliability of ports, maximum supply rate of ports, durations of supply events, and arrivals ratio. In combination, these factors determine the likelihood of a port being usable and available as well as the likely duration of queue if no port is usable and available. Supply station parameters are listed in Table \ref{tab:param_supply}.
-
-\begin{table}[H]
-	\centering
-	\caption{Supply Station Parameters for Routing}
-	\label{tab:param_supply}
-	\begin{tabular}{|C{\linewidth*2/8}|C{\linewidth*3/8}|C{\linewidth*3/8}|}
-		\hline Parameter & Description & Unit \\
-		\hline Arrivals Ratio & Arrival rate at station per port and unit of time & [cars/port/hour] \\
-		\hline Supply Rate & Maximum rate of energy supply & [kW] \\
-		\hline Supply Energy & Expected energy supplied to vehicles & [kWh] \\
-		\hline Ports & Number of chargers/pumps at a station which can be used simultaneously & [-] \\
-		\hline Reliability & Percentage of the time that a given pump will be usable & [-] \\ 
-		\hline
-	\end{tabular}
-\end{table}
-
-Information on ports is taken from \gls{afdc} \cite{afdc_2023}, and information on chargers is taken from \cite{Rempel_2023}. Arrivals ratio reflects the scale of vehicle arrivals at the station compared to the ability of the station to process vehicles. Arrivals ratio is defined as
-
-\begin{equation}
-	\rho = \frac{\lambda}{\mu s}\label{eq:rho}
-\end{equation}
-
-where $\lambda$ is the number of vehicle arrivals in a given time period, $\mu$ is the expected number of vehicles that can be served by a port in the same time period, and $s$ is the number of ports. As an example, if a station of 5 ports supplies a mean of 36 kWh per vehicle at a mean rate of 80 kW with 3 minutes between events and receives 10 vehicles per hour then $\rho = 1$ for the station. Unfortunately, with the exception of the number of ports and the maximum supply rate, little of this information is available before arrival. As a result, arrivals ratio, supply energy, and reliability must be estimated. To reflect this uncertainty, in this study distributions are used for arrivals ratio and supply energy. The delays which result from DC charging station congestion are modeled as M/M/s queues and are demonstrated in \ref{fig:expected_delay}.
-
-\end{multicols}
-
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width = \linewidth]{figs/expected_delay.png}
-%	\caption{Expected queuing time at charging stations. Low arrival rate is 10 - 60 minutes between arrivals. High arrival rate is 1 - 10 minutes between arrivals. All charge rates are 80 kW and charge events are 60 $\pm$ 15 kWh.}
-%	\label{fig:expected_delay}
-%\end{figure}
-
-
-\begin{figure}[H]
-	\centering
-	
-	\begin{subfigure}{.33\linewidth}
-		\centering
-		\includegraphics[width = \linewidth]{figs/expected_delay_contourf_1.png}
-		\caption{Mean arrival ratio of $\rho = 1$}
-	\end{subfigure}%
-	\begin{subfigure}{.33\linewidth}
-		\centering
-		\includegraphics[width = \linewidth]{figs/expected_delay_contourf_2.png}
-		\caption{Mean arrival ratio of $\rho = 2$}
-	\end{subfigure}%
-	\begin{subfigure}{.33\linewidth}
-		\centering
-		\includegraphics[width = \linewidth]{figs/expected_delay_contourf_3.png}
-		\caption{Mean arrival ratio of $\rho = 3$}
-	\end{subfigure}
-	
-	\caption{Effects of supply station saturation on expected queue times by in-station redundancy. Contours of PDFs of expected queue times are computed for stations with between 1 and 20 chargers with different arrival ratios. Arrival ratio is defined in equation \eqref{eq:rho}. Higher arrival ratios saturate stations but stations with greater redundancy can better handle high demand per charger.}
-	\label{fig:expected_delay}
-	
-\end{figure}
-
-\begin{multicols}{2}
-
-As can be seen in Figure \ref{fig:expected_delay}, arrivals ratio and in-station redundancy each have a major impact on expected delay time. When $\rho \leq 1$ a decently sized station should be able to accommodate demand with minimal delay. As arrivals increase congestion becomes unavoidable and even large stations can become saturated. Unreliability of equipment can, effectively, reduce in-station redundancy making queues more likely. Without better information, a driver will have to make an educated guess as to how busy a station is likely to be and how many of its listed chargers will be functional. Getting either factor wrong could have serious consequences if the driver does not have the option to easily reach a different station. Even if another station is reachable the driver is unlikely to have better information for that station.
-
-\subsubsection*{Drivers}
-
-Given the same underlying circumstances, different drivers will evaluate route costs differently. In a basic sense, drivers will weight several factors such as time, money, distance, and complexity differently. Where any important factor is not known precisely drivers will consider a range of outcomes and decide based on an expectation. Driver risk attitude concerns what range of outcomes will be used to compute expected cost. Risk attitude is modeled using a superquantile risk function defined as
+Different drivers will have different perceptions of cost for the same fundamentals based on their priorities and risk attitudes. In a basic sense, drivers will prioritize factors such as time, money, distance, and complexity differently. These priorities are modeled by computing overall cost as a linear combination of individual costs using constant weights. Where any important factor is not known precisely drivers will consider a range of outcomes and decide based on an expectation. Driver risk attitude concerns what range of outcomes will be used to compute expected cost. Risk attitude is modeled using a superquantile risk function defined as
 
 \begin{equation}
 	S(D, p_0, p_1) = \frac{1}{p_1 - p_0}\int_{p_0}^{p_1}Q(D, \alpha)\ d\alpha \label{eq:superquantile}
@@ -314,13 +240,124 @@ Given the same underlying circumstances, different drivers will evaluate route c
 	\label{tab:param_driver}
 	\begin{tabular}{|C{\linewidth*3/8}|C{\linewidth*3/8}|C{\linewidth*2/8}|}
 		\hline Parameter & Description & Unit \\
-		\hline Route Cost Weights $W$ & Set of multipliers for route costs to be used in computation of weighted sum & [-] \\
-		\hline Probability Range $(p_0, p_1)$ & Range of probabilities for superquantile function & [-] \\
+		\hline Priorities $W$ & Set of multipliers for route costs to be used in computation of weighted sum & [-] \\
+		\hline Risk Attitude $(p_0, p_1)$ & Range of probabilities for superquantile function & [-] \\
 		\hline
 	\end{tabular}
 \end{table}
 
-Where a quantity is to be maximized the Probability Range parameters can be adjusted as $p_0' = 1 - p_1$ and $p_1' = 1 - p_0$. This is particularly applicable when evaluating states such as \gls{soc} where a cautious driver will underestimate the quantity and an aggressive driver will overestimate the quantity. The driver model serves to bias the routing by selecting a subset of information to use in optimization. As such it reflects individual perception. The results of the routing can be interpreted through the same bias, a different bias, or no bias. In this study, evaluation will be conducted on the basis of un-biased interpretation of costs.
+The driver model serves to bias the routing by selecting a subset of information to use in optimization. As such it reflects individual perception. The results of the routing can be interpreted through the same bias, a different bias, or no bias. In this study, evaluation will be conducted on the basis of un-biased interpretation of costs.
+
+\subsubsection*{Vehicle Model}
+
+Vehicles effect routing due to their range limits and supply methods. The vehicle model used herein is highly simplified due to the inexact nature of the problem. Vehicles are modeled as storing energy and consuming energy at a constant rate per unit distance driven. More exact information on road conditions, traffic conditions, and atmospheric conditions among others can be used to compute edge-specific efficiencies. Vehicular parameters are listed in Table \ref{tab:param_veh}.
+
+\begin{table}[H]
+	\centering
+	\caption{Vehicle Parameters for Routing}
+	\label{tab:param_veh}
+	\begin{tabular}{|C{\linewidth*3/8}|C{\linewidth*3/8}|C{\linewidth*2/8}|}
+		\hline Parameter & Description & Unit \\
+		\hline \gls{ess} Capacity & Accessible energy storage capacity & [kWh] \\
+		\hline Energy Consumption & Energy required to move the vehicle & [kJ/km] \\
+		\hline Maximum Supply Rate & \gls{ess} maximum energy addition rate & [kW] \\
+		\hline Linear Charging Fraction & Percentage of the battery capacity which can be charged in the linear (constant current) range & [kW] \\
+		\hline \gls{soc} Bounds & Range in which \gls{soc} must be maintained & [-] \\
+		\hline
+	\end{tabular}
+\end{table}
+
+DC charging is modeled using a CC-CV relationship wherein the first part of charging is linear and the second part follows exponential decay \cite{Marra_2012}. The inflection point which separates the linear and exponential decay sections is the Linear Charging Fraction $\eta$. The time required for a given charge event is
+
+\begin{gather}
+	\Delta T = \Delta T_{l} + \Delta T_{e} \\
+	\Delta T_{l} = \begin{cases}
+		\frac{(SOC_f - SOC_i) C}{\nu} &  SOC_i \leq SOC_f \leq \eta \\
+		\frac{(\eta - SOC_i) C}{\nu} &  SOC_i \leq \eta \leq SOC_f \\
+		0 &  \eta \leq SOC_i \leq SOC_f
+	\end{cases} \\
+	\Delta T_{e} = \begin{cases}
+		0 & SOC_i \leq SOC_f \leq \eta \\
+		-\frac{1}{\alpha}\ln{\left(1-\frac{SOC_f - \eta}{1-\eta}\right)} &  SOC_i \leq \eta \leq SOC_f \\
+		-\frac{1}{\alpha}\ln{\left(1-\frac{SOC_f - SOC_i}{1-\eta}\right)} &  \eta \leq SOC_i \leq SOC_f \\
+	\end{cases} \\
+	\alpha = \frac{\nu}{\eta C}
+\end{gather}
+
+Where $C$ is the vehicle \gls{ess} capacity, $\nu$ is the actual power of the charge event, $\Delta T_l$ and $\Delta T_e$ are the time spent in the linear and exponential decay portions of the charge event, and $SOC_i$ and $SOC_f$ are the initial and final values of \gls{soc} for the charge event. Charge events are modeled to occur at the minimum of the maximum powers for the vehicle and charger. A typical value for $\eta$ will be in the range of 0.7 to 0.8. DC charging for a given quantity of energy past $\eta$ will take substantially longer than the same quantity below $\eta$. The difference in effective charging rate may serve to favor more DC charge events in a given arc which terminate at a lower \gls{soc}.
+
+\subsubsection*{Supply Station Model}
+
+Supply station design parameters are number of ports, reliability of ports, and the maximum supply rate of ports. The probability of port availability at a station is determined by the rate at which vehicles arrive at the station and how long they spend at the station. In combination, these factors determine the likelihood of a port being usable and available as well as the likely duration of queue if no port is usable and available. Supply station parameters are listed in Table \ref{tab:param_supply}.
+
+\begin{table}[H]
+	\centering
+	\caption{Supply Station Parameters}
+	\label{tab:param_supply}
+	\begin{tabular}{|C{\linewidth*2/8}|C{\linewidth*3/8}|C{\linewidth*3/8}|}
+		\hline Parameter & Description & Unit \\
+		\hline Supply Rate & Maximum rate of energy supply & [kW] \\
+		\hline Ports & Number of chargers/pumps at a station which can be used simultaneously & [-] \\
+		\hline Reliability & Percentage of the time that a given pump will be usable & [-] \\ 
+		\hline
+	\end{tabular}
+\end{table}
+
+Information on ports is taken from \gls{afdc} \cite{afdc_2023}, information on equipment reliability is taken from \cite{Rempel_2023}, and information on port supply rates is taken from Google Maps.
+
+Queue waiting time is computed using the M/M/c queuing formula with parametric uncertainty. The expected waiting time in an M/M/c queue is computed as
+
+\begin{gather}
+	W_q = \pi_0\frac{\rho(c\rho)^c}{\lambda(1-\rho)^2c!}\\
+	\pi_0=\left[\left(\sum_{k = 0}^{c - 1}\frac{(c\rho)^k}{k!}\right) + \frac{(c\rho)^c}{c!(1 - \rho)}\right]
+	\rho = \frac{\lambda}{c\mu}
+\end{gather}
+
+where $\lambda$ is the arrival frequency, $\mu$ is the service completion frequency, $c$ is the number of homogeneous servers, $\rho$ is the ratio of arrival frequency to composite maximum service completion frequency, and $\pi_0$ is the probability of an empty system. M/M/c queues assume an exponential distribution for both arrival and service completion frequency centered on a known mean. Reflecting the lack of information on charger accessibility accessible to drivers, these parameters must be sampled from distributions. Arrival frequency is much more uncertain than service completion frequency for drivers unfamiliar with a station. As such the drivers are modeled as assuming that charge event times will reflect the time required to fulfill a charge event sampled from a normal distribution and then picking values of $\rho$ based on their risk attitudes. In this study, charging event times in minutes are sampled from the normal distribution $N(30, 10)$. The effects of $\rho$ and in-station redundancy are shown in Figure \ref{fig:reduncancy_rho_wq}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/waiting_time_rho_ports.png}
+	\caption{Effects of in-station redundancy and $\rho$ on expected waiting time. Projected times of greater than 2 hours omitted in order to preserve scale.}
+	\label{fig:reduncancy_rho_wq}
+\end{figure}
+
+Without prior information, a reasonable assumption is that a station will be sized, roughly, to meet demand. The $\rho$ parameter reflects the ratio of demand to maximum capacity and scales with redundancy all else being equal. However, unless completely saturated, a station with more port will be able to handle the same relative demand with a shorter queue due to heterogeneity in individual supply event times. With low demand, durable queues are unlikely to form at any station. As $\rho$ approaches 1, the expected duration of a queue grows toward infinity in a phenomenon known as queue instability. The rate of queue growth as a function of demand growth is determined by redundancy. In practice, a queue of sufficient length will be intolerable to any driver in almost any circumstance limiting queue growth. If this limit is 2 hours then, as seen in figure \ref{fig:reduncancy_rho_wq}, a cautious driver may view 1 and 2 port stations as ineligible.
+
+\subsubsection*{Summary}
+
+The Regional Impedance metric $Z_R$ quantifies the weighted average time of arcs between important locations in a region. $Z_R$ can be computed for any mode or set of modes. For the context of road vehicles, those vehicles which must resupply energy from different networks are, in effect, different modes. $Z_R$ is computed for a driver vehicle by building the relevant \gls{sng} and performing optimal routing based on the drivers preferences and perceptions and the physical characteristics of the vehicle and \gls{sng}. In this study the cost in question is total travel time. The total travel time is the combination of driving time, supply event time, and time spent queuing at supply stations. Each aspect of total travel time must be estimated by the driver with imperfect information when planning a route. Pure driving time is relatively knowable and a decent estimation may be obtained from many routing services. Supply event time is also relatively knowable, especially for experience drivers. Queue waiting time is far less knowable as accurate and timely information on charger utilization and equipment functionality is difficult to come by. Even where it is available beforehand, it may change by the time the driver arrives. These uncertainty and latency issues can substantially increase total travel times. In this study, queue waiting times are estimated by the driver based on the number of ports listed at a station while the actual queue waiting times are computed based on the number of functional ports. When equipment reliability is low drivers may end up spending more time than anticipated, especially if redundancy is also low. In the following case studies $Z_R$ is used as a metric of evaluation to study the impacts of model parameters on transportation accessibility.
+
+%\end{multicols}
+%
+%\begin{figure}[H]
+%	\centering
+%	
+%	\begin{subfigure}{.33\linewidth}
+%		\centering\captionsetup{width = .8\linewidth}
+%		\includegraphics[width = \linewidth]{figs/waiting_time_aggressive.png}
+%		\caption{($p_0 = 0$, $p_1 = .33$)}
+%	\end{subfigure}%
+%	\begin{subfigure}{.33\linewidth}
+%		\centering\captionsetup{width = .8\linewidth}
+%		\includegraphics[width = \linewidth]{figs/waiting_time_neutral.png}
+%		\caption{($p_0 = .33$, $p_1 = .66$)}
+%	\end{subfigure}%
+%	\begin{subfigure}{.33\linewidth}
+%		\centering\captionsetup{width = .8\linewidth}
+%		\includegraphics[width = \linewidth]{figs/waiting_time_cautious.png}
+%		\caption{($p_0 = .66$, $p_1 = .99$)}
+%	\end{subfigure}
+%	
+%	\caption{Perception of waiting time ranges at supply stations by risk attitude.}
+%	\label{fig:expected_delay}
+%	
+%\end{figure}
+%
+%\begin{multicols}{2}
+
+%As can be seen in Figure \ref{fig:expected_delay}, arrivals ratio and in-station redundancy each have a major impact on expected delay time. When $\rho \leq 1$ a decently sized station should be able to accommodate demand with minimal delay. As arrivals increase congestion becomes unavoidable and even large stations can become saturated. Unreliability of equipment can, effectively, reduce in-station redundancy making queues more likely. Without better information, a driver will have to make an educated guess as to how busy a station is likely to be and how many of its listed chargers will be functional. Getting either factor wrong could have serious consequences if the driver does not have the option to easily reach a different station. Even if another station is reachable the driver is unlikely to have better information for that station.
+
 
 \subsection*{Randomly Generated Example}
 
@@ -515,7 +552,7 @@ Regional Impedance for \glspl{icev} was computed under the assumption of petrole
 		\hline \gls{ess} Max Charge Rate & [50 kW, 200 kW] \\
 		\hline Driver Risk-Attitude Mean & [.1, .9] \\
 		\hline \gls{evse} Reliability & [.5, 1] \\
-		\hline Station Arrival Ratio Mean & [1, 3] \\
+%		\hline Station Arrival Ratio Mean & [1, 3] \\
 		\hline
 	\end{tabular}
 \end{table}

@@ -38,28 +38,48 @@ parser.add_argument(
     type = int,
     )
 
-_vehicle_param = {
+_vehicle_kwargs = {
     'capacity': lambda rng: (rng.random() * 80 + 40) * 3.6e6,
-    'charge_rate': lambda rng: (rng.random() * 150 + 50) * 1e3,
+    'power': lambda rng: (rng.random() * 150 + 50) * 1e3,
     'risk_attitude': lambda rng: (rng.random() * .8 + .1) + np.array([-.1, .1]),
-    'cases': lambda rng: 1,
-    'charge_target_soc': lambda rng: .8,
-    'soc_bounds': lambda rng: (.1, 1),
-    'efficiency': lambda rng: 550,
-    'max_charge_start_soc': lambda rng: .5,
+    'cases': 1,
+    'soc_bounds': (.1, 1),
+    'efficiency': 550,
+    'linear_fraction': .8,
 }
 
-_station_param = {
-    'reliability': lambda rng: rng.random() * .5 + .5,
-    'base_delay': lambda rng: 60,
-    'cases': lambda rng: 100,
-    'arrival_param': lambda rng: (rng.random() * 2 + 1) * np.array([1, .25]),
-    'service_param': lambda rng: (45 * 3.6e6, 0),
+_network_power = {
+    'Tesla': [250e3],
+    'Electrify America': [150e3],
+    'ChargePoint Network': [62.5e3],
+    'eVgo Network': [50e3, 100e3, 350e3],
+    'default': [50e3],
 }
 
-sng_combined = src.graph.graph_from_json('Outputs/sng_combined.json')
-sng_tesla = src.graph.graph_from_json('Outputs/sng_tesla.json')
-sng_other = src.graph.graph_from_json('Outputs/sng_other.json')
+_station_kwargs = {
+    'destination': {
+        'cases': 100,
+        'type': 'ac',
+        'access': 'private',
+        'price': .4 / 3.6e6,
+        'setup_time': 0,
+        'rng': lambda rng: rng,
+    },
+    'station': {
+        'reliability': lambda rng: rng.random() * .5 + .5,
+        'cases': 100,
+        'type': 'dc',
+        'access': 'public',
+        'power': _network_power,
+        'price': .5 / 3.6e6,
+        'setup_time': 300,
+        'rng': lambda rng: rng,
+    },
+}
+
+sng_combined = src.graph.graph_from_json('Outputs/sng_combined_directed.json')
+sng_tesla = src.graph.graph_from_json('Outputs/sng_tesla_directed.json')
+sng_other = src.graph.graph_from_json('Outputs/sng_other_directed.json')
 
 graphs = [sng_combined, sng_tesla, sng_other]
 
@@ -70,13 +90,13 @@ def main(index = 0, cases = 1, seed = None):
     for idx in range(index, index + cases):
 
         _, vehicle_kw, station_kw = src.experiments.generate_case(
-            graphs, _vehicle_param, _station_param, rng = rng,
+            graphs, _vehicle_kwargs, _station_kwargs, rng = rng,
         )
 
         for idx_graph in range(len(graphs)):
 
             costs, values, paths = src.experiments.run_case(
-                graphs[idx_graph], vehicle_kw, station_kw, seed = None, method = 'dijkstra',
+                graphs[idx_graph], vehicle_kw, station_kw, method = 'dijkstra',
             )
 
             pkl.dump(

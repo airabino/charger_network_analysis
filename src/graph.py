@@ -399,6 +399,30 @@ def mark_nodes(graph, nodes, field, value, **kwargs):
 
 	return graph
 
+def remove_edges(graph, criteria = []):
+
+	_adj = {}
+
+	for source, adj in graph._adj.items():
+
+		_adj[source] = {}
+
+		for target, edge in adj.items():
+
+			keep = True
+
+			for fun in criteria:
+
+				keep *= fun(edge)
+
+			if keep:
+
+				_adj[source][target] = edge
+
+	graph._adj = _adj
+
+	return graph
+
 def subgraph(graph, nodes):
 
 	subgraph = graph.__class__()

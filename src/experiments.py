@@ -1,24 +1,45 @@
 import numpy as np
 
-from .routing import StochasticVehicle, StochasticStation, all_pairs_shortest_paths
+from .routing import Vehicle, Station, all_pairs_shortest_paths, supply_costs
 from .utilities import full_factorial
 
-default_vehicle_param = {
+_vehicle_kwargs = {
     'capacity': lambda rng: (rng.random() * 80 + 40) * 3.6e6,
-    'charge_rate': lambda rng: (rng.random() * 150 + 50) * 1e3,
+    'power': lambda rng: (rng.random() * 150 + 50) * 1e3,
     'risk_attitude': lambda rng: (rng.random() * .8 + .1) + np.array([-.1, .1]),
-    'cases': lambda rng: 1,
-    'charge_target_soc': lambda rng: .8,
-    'soc_bounds': lambda rng: (.1, 1),
-    'efficiency': lambda rng: 550,
+    'cases': 1,
+    'soc_bounds': (.1, 1),
+    'efficiency': 550,
+    'linear_fraction': .8,
 }
 
-default_station_param = {
-    'reliability': lambda rng: rng.random() * .5 + .5,
-    'base_delay': lambda rng: 60,
-    'cases': lambda rng: 100,
-    'arrival_param': lambda rng: (rng.random() * 2 + 1) * np.array([1, .25]),
-    'service_param': lambda rng: (45 * 3.6e6, 0),
+_network_power = {
+    'Tesla': [250e3],
+    'Electrify America': [150e3],
+    'ChargePoint Network': [62.5e3],
+    'eVgo Network': [50e3, 100e3, 350e3],
+    'default': [50e3],
+}
+
+_station_kwargs = {
+    'destination': {
+        'cases': 100,
+        'type': 'ac',
+        'access': 'private',
+        'price': .4 / 3.6e6,
+        'setup_time': 0,
+        'rng': lambda rng: rng,
+    },
+    'station': {
+        'reliability': lambda rng: rng.random() * .5 + .5,
+        'cases': 100,
+        'type': 'dc',
+        'access': 'public',
+        'power': _network_power,
+        'price': .5 / 3.6e6,
+        'setup_time': 300,
+        'rng': lambda rng: rng,
+    },
 }
 
 def generate_case(graphs, vehicle_param, station_param, rng = np.random.default_rng()):
@@ -28,40 +49,45 @@ def generate_case(graphs, vehicle_param, station_param, rng = np.random.default_
     vehicle_kw = {}
     station_kw = {}
 
-    for key, fun in vehicle_param.items():
+    for key, val in vehicle_param.items():
 
-        vehicle_kw[key] = fun(rng)
+        if callable(val):
 
-    for key, fun in station_param.items():
+            vehicle_kw[key] = val(rng)
 
-        station_kw[key] = fun(rng)
+        else:
+
+            vehicle_kw[key] = val
+
+    for key, val in station_param.items():
+
+        station_kw[key] = {}
+
+        for k, v in val.items():
+
+            if callable(v):
+
+                station_kw[key][k] = v(rng)
+
+            else:
+
+                station_kw[key][k] = v
 
     return graph_index, vehicle_kw, station_kw
 
 
-def run_case(graph, vehicle_kw, station_kw, seed = None, method = 'dijkstra'):
+def run_case(graph, vehicle_kw, station_kw, method = 'dijkstra'):
 
-    vehicle = StochasticVehicle(**vehicle_kw)
+    vehicle = Vehicle(**vehicle_kw)
 
-    cities = [k for k, v in graph._node.items() if v['type'] == 'city']
-    
-    for source, node in graph._node.items():
-    
-        if node['type'] == 'station':
-    
-            node['station'] = StochasticStation(
-                chargers = node['n_dcfc'], **station_kw, seed = seed,
-            )
+    origins = [k for k, v in graph._node.items() if v['type'] == 'destination']
 
-            if vehicle.cases == 1:
-
-                node['station'].expect(vehicle)
+    graph = supply_costs(graph, vehicle, station_kw)
     
     costs, values, paths = all_pairs_shortest_paths(
-        graph, cities,
+        graph, origins,
         objective = vehicle,
         method = method,
-        return_paths = True,
         progress_bar_kw = {'disp': False},
     )
 

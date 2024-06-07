@@ -8,6 +8,15 @@ from scipy.special import factorial
 from .progress_bar import ProgressBar
 from .dijkstra import dijkstra, multi_directional_dijkstra
 from .bellman import bellman
+from .queuing import queuing_time_distribution
+
+_network_power = {
+    'Tesla': [250e3],
+    'Electrify America': [150e3],
+    'ChargePoint Network': [62.5e3],
+    'eVgo Network': [50e3, 100e3, 350e3],
+    'default': [50e3],
+}
 
 def in_range(x, lower, upper):
 
@@ -20,6 +29,23 @@ def super_quantile(x, p = (0, 1), n = 100):
     q_k = np.quantile(x, p_k)
 
     return np.nan_to_num(q_k.mean(), nan = np.inf)
+
+def origins_destinations(graph, origins, destinations):
+
+    for source, adj in graph._adj.items():
+        for target, edge in adj.items():
+
+            # Edges from a non-origin destination are disallowed
+            if (source in destinations) and (source not in origins):
+
+                edge['feasible'] = False
+
+            # Edges to and origin are disallowed
+            if target in origins:
+
+                edge['feasible'] = False
+
+    return graph
 
 def shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
     '''
@@ -46,6 +72,10 @@ def shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
     the values argument and a boolean savings.
     '''
 
+    destinations = kwargs.get('destinations', list(graph.nodes))
+
+    graph = origins_destinations(graph.copy(), origins, destinations)
+
     if method == 'dijkstra':
 
         costs, values, paths = dijkstra(graph, origins, **kwargs)
@@ -54,25 +84,17 @@ def shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
         costs, values, paths = bellman(graph, origins, **kwargs)
 
-    destinations = kwargs.get('destinations', [])
-    
-    if destinations:
+    costs_d = {}
+    values_d = {}
+    paths_d = {}
 
-        costs_d = {}
-        values_d = {}
-        paths_d = {}
+    for destination in destinations:
 
-        for destination in destinations:
+        costs_d[destination] = costs[destination]
+        values_d[destination] = values[destination]
+        paths_d[destination] = paths[destination]
 
-            costs_d[destination] = costs[destination]
-            values_d[destination] = values[destination]
-            paths_d[destination] = paths[destination]
-
-        return costs_d, values_d, paths_d
-
-    else:
-
-        return costs, values, paths
+    return costs_d, values_d, paths_d
 
 def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
     '''
@@ -139,7 +161,7 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
 def impedance(values, origins = {}, destinations = {}, **kwargs):
 
-    field = kwargs.get('field', 'time')
+    field = kwargs.get('field', 'total_time')
     expectation = kwargs.get('expectation', np.mean)
     constant = kwargs.get('constant', 1)
 
@@ -168,8 +190,6 @@ def impedance(values, origins = {}, destinations = {}, **kwargs):
                     )
 
             n += 1
-
-            # print(sum_cost)
 
     return sum_cost / n
 
@@ -213,43 +233,6 @@ def current(values, origins = {}, destinations = {}, **kwargs):
 
     return sum_cost / n
 
-def gravity(values, origins = {}, destinations = {}, **kwargs):
-
-    field = kwargs.get('field', 'time')
-    expectation = kwargs.get('expectation', np.mean)
-    constant = kwargs.get('constant', 1)
-    adjustment = kwargs.get('adjustment', 1)
-
-
-    if not origins:
-
-        origins = {k: 1 for k in values.keys()}
-
-    if not destinations:
-
-        destinations = {k: 1 for k in values.keys()}
-
-    sum_cost = 0
-
-    n = 0
-
-    for origin, mass_o in origins.items():
-
-        for destination, mass_d in origins.items():
-
-            if origin != destination:
-
-                sum_cost += (
-                    constant * mass_o * mass_d /
-                    (expectation(
-                        np.atleast_1d(values[origin][destination][field])
-                        ) * adjustment) ** 2
-                    )
-
-            n += 1
-
-    return sum_cost / n
-
 class Objective():
 
     def __init__(self, field = 'weight', limit = np.inf):
@@ -274,20 +257,6 @@ class Objective():
     def compare(self, values, approximation):
 
         return values, values < approximation
-
-def edge_types(graph):
-
-    _adj = graph._adj
-    _node = graph._node
-
-    for source, adj in _adj.items():
-        for target, edge in adj.items():
-
-            edge['type'] = (
-                f"{_node[source].get('type', 'none')}_{_node[target].get('type', 'none')}"
-                )
-
-    return graph
 
 class Scout():
 
@@ -329,34 +298,67 @@ class Scout():
 
         return values, values * (1 + self.disambiguation) < approximation
 
-class StochasticVehicle():
+def edge_types(graph):
+
+    _adj = graph._adj
+    _node = graph._node
+
+    for source, adj in _adj.items():
+        for target, edge in adj.items():
+
+            edge['type'] = (
+                f"to_{_node[target].get('type', 'none')}"
+                )
+
+    return graph
+
+def supply_costs(graph, vehicle, station_kw):
+
+    graph = edge_types(graph)
+
+    for source, node in graph._node.items():
+
+        if node['type'] in station_kw:
+
+            kw = station_kw[node['type']]
+
+            node['station'] = Station(node, **kw)
+
+    for source, adj in graph._adj.items():
+        for target, edge in adj.items():
+
+            station = graph._node[source]['station']
+
+            if station is not None:
+
+                edge = station.update(vehicle, edge)
+
+    return graph
+
+class Vehicle():
 
     def __init__(self, **kwargs):
 
-        self.ddd = [0, 0]
-
         self.cases = kwargs.get('cases', 1) # [-]
+
         self.capacity = kwargs.get('capacity', 80 * 3.6e6) # [J]
-        self.efficiency = kwargs.get('efficiency', 550) # [J/m]
-        self.charge_rate = kwargs.get('charge_rate', 80e3) # [W]
+        self.consumption = kwargs.get('consumption', 550) # [J/m]
+        self.power = kwargs.get('power', 80e3) # [W]
+
         self.soc_bounds = kwargs.get('soc_bounds', (0, 1)) # ([-], [-])
-        self.charge_target_soc = kwargs.get('charge_target_soc', 1) # [-]
-        self.max_charge_start_soc = kwargs.get(
-            'max_charge_start_soc', self.charge_target_soc) # [-]
+        self.max_charge_start_soc = kwargs.get('max_charge_start_soc', 1) # [-]
+        self.linear_fraction = kwargs.get('linear_fraction', .8) # [-]
+
         self.risk_attitude = kwargs.get('risk_attitude', (0, 1)) # ([-], [-])
+
         self.out_of_charge_penalty = kwargs.get('out_of_charge_penalty', 4 * 3600) # [s]
 
-        self.field = kwargs.get('field', 'time')
+        self.cost = kwargs.get('cost', 'routing_time')
 
         if self.cases == 1:
 
             self.expectation = kwargs.get(
                 'expectation',
-                lambda x: x[0],
-                )
-
-            self.expectation_reverse = kwargs.get(
-                'expectation_reverse',
                 lambda x: x[0],
                 )
 
@@ -366,30 +368,27 @@ class StochasticVehicle():
                 'expectation',
                 lambda x: super_quantile(x, self.risk_attitude),
                 )
-
-            self.expectation_reverse = kwargs.get(
-                'expectation_reverse',
-                lambda x: super_quantile(
-                    x,
-                    (1 - self.risk_attitude[1], 1 - self.risk_attitude[0])),
-                )
             
         self.initial_values = kwargs.get(
             'initial_values',
             {
-                'time': np.zeros(self.cases), # [s]
-                'merge_time': np.zeros(self.cases), # [s]
-                'routing_time': np.zeros(self.cases), # [s]
+                'total_time': np.zeros(self.cases), # [s]
                 'driving_time': np.zeros(self.cases), # [s]
+                'charging_time': np.zeros(self.cases), # [s]
+                'routing_time': np.zeros(self.cases), # [s]
                 'distance': np.zeros(self.cases), # [m]
                 'price': np.zeros(self.cases), # [$]
-                'soc': np.ones(self.cases), # [dim]
             },
         )
 
-        self.range = (
-            (self.soc_bounds[1] - self.soc_bounds[0]) * self.capacity / self.efficiency
+        self.usable_capacity = (
+            (self.soc_bounds[1] - self.soc_bounds[0]) * self.capacity
             )
+
+        self.range = self.usable_capacity / self.consumption
+
+        self.min_edge_distance = (1 - self.max_charge_start_soc) * self.range
+
 
     def select_case(self, case):
 
@@ -397,17 +396,6 @@ class StochasticVehicle():
         new_object.expectation = lambda x: x[case]
 
         return new_object
-
-    def combine(self, values_0, values_1):
-
-        merged_values = {k: values_0[k] + values_1[k] for k in values_0.keys()}
-
-        merged_values['soc'] = values_0['soc'] - (1 - values_1['soc'])
-        # merged_values['time'] = values_0['merge_time'] + values_1['time']
-
-        feasible = in_range(self.expectation_reverse(merged_values['soc']), *self.soc_bounds)
-
-        return merged_values, feasible
 
     def initial(self):
 
@@ -417,196 +405,243 @@ class StochasticVehicle():
 
         return {k: np.ones(self.cases) * np.inf for k in self.initial_values.keys()}
 
-    def update(self, values, link, node):
-
-        if (
-            (node['type'] != 'city') and
-            not in_range(
-                link['distance'],
-                (1 - self.max_charge_start_soc) * self.range,
-                self.range
-            )):
-
-            return values, False
-
-        traversal_energy = self.efficiency * link['distance']
-        traversal_delta_soc = traversal_energy / self.capacity
+    def update(self, values, edge):
 
         updated_values = {}
 
-        updated_values['time'] = values['time'] + link['time']
-        updated_values['merge_time'] = values['time'] + link['time']
-        updated_values['routing_time'] = values['routing_time'] + link['time']
-        updated_values['driving_time'] = values['driving_time'] + link['time']
-        updated_values['distance'] = values['distance'] + link['distance']
-        updated_values['price'] = values['price'] + link['price']
-        updated_values['soc']  = values['soc'] - traversal_delta_soc
+        updated_values['total_time'] = values['total_time'] + edge['total_time']
+        updated_values['routing_time'] = values['routing_time'] + edge['routing_time']
+        updated_values['driving_time'] = values['driving_time'] + edge['time']
+        updated_values['charging_time'] = values['charging_time'] + edge['charging_time']
+        updated_values['distance'] = values['distance'] + edge['distance']
+        updated_values['price'] = values['price'] + edge['price']
+
+        return updated_values
+
+    def compare(self, values, approximation):
+
+        values_expectation = self.expectation(values[self.cost])
+        approximation_expectation  = self.expectation(approximation[self.cost])
+
+        savings = values_expectation < approximation_expectation 
+
+        return values_expectation, savings
+
+    def edge_feasible(self, edge):
+
+        if edge.get('type', '') == 'to_destination':
+
+            min_edge_distance = 0
+
+        else:
+
+            min_edge_distance = self.min_edge_distance
 
         feasible = in_range(
-            self.expectation_reverse(updated_values['soc']),
-            *self.soc_bounds
+            edge['distance'],
+            min_edge_distance,
+            self.range,
             )
 
-        if not feasible:
+        return feasible
 
-            updated_values['time'] += self.out_of_charge_penalty
-            updated_values['routing_time'] += self.out_of_charge_penalty
-            # updated_values['driving_time'] += self.out_of_charge_penalty
+    def dc_charge(self, initial_soc, final_soc, power, capacity):
 
-            feasible = True
+        final_soc = min([final_soc, .99])
+        
+        alpha = power / capacity / (1 - self.linear_fraction) # Exponential charging factor
 
-        if node['type'] == 'station':
+        duration_linear = 0
 
-            updated_values = node['station'].update(
-                updated_values, self,
+        if self.linear_fraction > initial_soc:
+
+            delta_soc_linear = min([final_soc, self.linear_fraction]) - initial_soc
+
+            duration_linear = (
+                delta_soc_linear * capacity / power
                 )
 
-        return updated_values, feasible
+        duration_exponential = 0
 
-    def compare(self, values, comparison):
+        if self.linear_fraction < final_soc:
 
-        values_exp = self.expectation(values[self.field])
-        comparison_exp = self.expectation(comparison[self.field])
+            delta_soc_exponential = final_soc - max([initial_soc, self.linear_fraction])
 
-        savings = values_exp < comparison_exp
+            duration_exponential = (
+                -np.log(
+                    1 - delta_soc_exponential / (1 - self.linear_fraction)
+                    ) / alpha
+                )
 
-        return values_exp, savings
+        return duration_linear + duration_exponential
 
-class StochasticStation():
+    def ac_charge(self, initial_soc, final_soc, power, capacity):
+        
+        duration_linear = (final_soc - initial_soc) * capacity / power
 
-    def __init__(self, **kwargs):
+        return duration_linear
 
-        self.cases = kwargs.get('cases', 1) # [-]
+    def energy(self, station, edge):
+
+        power = min([self.power, station.power])
+
+        edge_energy = self.consumption * edge['distance']
+
+        initial_soc = self.soc_bounds[0]
+
+        final_soc = initial_soc + edge_energy / self.capacity
+
+        feasible = self.edge_feasible(edge)
+
+        if feasible:
+
+            if station.type == 'ac':
+
+                charge_duration = self.ac_charge(
+                    initial_soc, final_soc, power, self.capacity
+                    )
+
+            elif station.type == 'dc':
+
+                charge_duration = self.dc_charge(
+                    initial_soc, final_soc, power, self.capacity
+                    )
+
+            return feasible, edge_energy, charge_duration
+
+        else:
+
+            if station.type == 'ac':
+
+                charge_duration = self.ac_charge(
+                    self.soc_bounds[0], self.soc_bounds[1], power, self.usable_capacity
+                    ) + self.out_of_charge_penalty
+
+            elif station.type == 'dc':
+
+                charge_duration = self.dc_charge(
+                    self.soc_bounds[0], self.soc_bounds[1], power, self.usable_capacity
+                    ) + self.out_of_charge_penalty
+
+            return feasible, edge_energy, charge_duration
+
+class Station():
+
+    def __init__(self, node = {}, **kwargs):
+
         self.seed = kwargs.get('seed', None)
         self.rng = kwargs.get('rng', np.random.default_rng(self.seed))
-        self.chargers = kwargs.get('chargers', 1)
-        self.expected_charge_rate = kwargs.get('expected_charge_rate', 80e3)
-        self.max_charge_rate = kwargs.get('max_charge_rate', 400e3)
-        self.charge_price = kwargs.get('charge_price', .5 / 3.6e6) # [$/J]
-        self.base_delay = kwargs.get('base_delay', 0) # [s]
 
-        self.arrival_param = kwargs.get('arrival_param', (1, .5))
-        self.arrival_limits = kwargs.get('arrival_limits', (.1, np.inf))
+        self.type = kwargs.get('type', 'ac') # {'ac', 'dc'}
 
-        self.service_param = kwargs.get('service_param', (45 * 3.6e6, 0))
-        self.service_limits = kwargs.get('service_limits', (.1, np.inf))
-        
+        # Private chargers do not generate queues, public ones do
+        self.access = kwargs.get('access', 'private') # {'private', 'public'}
+
+        self.cases = kwargs.get('cases', 1) # [-]
+
+        # Parameters for charge events
+        power_input = kwargs.get('power', np.inf)
+
+        if type(power_input) == dict:
+
+            
+            self.power = self.rng.choice(
+                power_input.get(node.get('network', ''), power_input['default'])
+                )
+
+        elif type(power_input) == float:
+
+            self.power = power_input
+
+        self.price = kwargs.get('price', .5 / 3.6e6) # [$/J]
+
         self.reliability = kwargs.get('reliability', 1)
-        self.energy_price = kwargs.get('energy_price', .5 / 3.6e6)
 
-        self.populate()
+        self.ports = kwargs.get('ports', node.get('n_dcfc', 1))
 
-    def recompute(self, **kwargs):
-
-        for key, val in kwargs.items():
-
-            setattr(self, key, val)
-
-        self.populate()
-
-    def clip_norm(self, param, limits):
-
-        return np.clip(self.rng.normal(*param, size = self.cases), *limits)
-
-    def populate(self):
-
-        self.functional_chargers = self.functionality()
-        self.at_least_one_functional_charger = self.functional_chargers > 0
-
-        self.service = (
-            self.clip_norm(self.service_param, self.service_limits) /
-            self.expected_charge_rate + self.base_delay
+        self.usable_ports = sum(
+            [self.rng.random() < self.reliability for idx in range(self.ports)]
             )
 
-        self.arrival = (
-            self.service.mean() / (
-                self.chargers * self.clip_norm(self.arrival_param, self.arrival_limits)
-                )
+        self.setup_time = kwargs.get('setup_time', 0) # [s]
+
+        self.queue_kw = kwargs.get('queue', {})
+        
+        self.vehicle = None
+        self.delay_time = None
+        self.delay_time_expected = None
+
+    def estimate(self):
+
+        if self.access == 'public':
+
+            if self.usable_ports > 0:
+
+                rho = np.linspace(*self.vehicle.risk_attitude, 100)
+
+                self.queue_time = queuing_time_distribution(
+                    self.usable_ports, rho, self.power, **self.queue_kw,
+                    ).rvs(size = self.cases, random_state = self.rng)
+
+                if self.usable_ports != self.ports:
+
+                    self.queue_time_nominal = queuing_time_distribution(
+                        self.ports, rho, self.power, **self.queue_kw,
+                        ).rvs(size = self.cases, random_state = self.rng)
+                else:
+
+                    self.queue_time_nominal = self.queue_time
+
+            else:
+
+                self.queue_time = np.inf
+                self.queue_time_nominal = np.inf
+
+        else:
+
+            self.queue_time = 0
+            self.queue_time_nominal = 0
+
+        self.delay_time = np.zeros(self.cases) + self.queue_time + self.setup_time
+        self.delay_time_expected = np.median(self.delay_time)
+
+        self.delay_time_nominal = (
+            np.zeros(self.cases) + self.queue_time_nominal + self.setup_time
             )
+        self.delay_time_nominal_expected = np.median(self.delay_time_nominal)
 
-        self.delay_time = np.zeros(self.cases) + self.base_delay
+    def update(self, vehicle, edge):
 
-        for idx in range(self.cases):
+        if vehicle is not self.vehicle:
 
-            self.delay_time[idx] += self.queuing_time(
-                1 / self.arrival[idx],
-                1 / self.service[idx],
-                self.functional_chargers[idx]
-                )
+            self.vehicle = vehicle
 
-        self.functions = {
-            'time': lambda x: self.time(x),
-            'price': lambda x: self.price(x),
-            'soc': lambda x: self.soc(x),
-        }
+            self.estimate()
 
-    def queuing_time(self, l, m, c):
+        if self.vehicle.cases == 1:
 
-        rho = l / (c * m)
+            delay_time = self.delay_time_expected
+            delay_time_nominal = self.delay_time_nominal_expected
 
-        k = np.arange(0, c, 1)
+        else:
 
-        p_0 = 1 / (
-            sum([(c * rho) ** k / factorial(k) for k in k]) +
-            (c * rho) ** c / (factorial(c) * (1 - rho))
-        )
+            delay_time = self.delay_time
+            delay_time_nominal = self.delay_time_nominal
+        
+        feasible, charge_energy, charge_duration = self.vehicle.energy(self, edge)
 
-        l_q = (p_0 * (l / m) ** c * rho) / (factorial(c) * (1 - rho))
+        if self.power == np.inf:
 
-        w_q = l_q / l
+            charge_duration = 0
+            delay_time = 0
 
-        return np.nanmax([w_q, 0])
+        # print(delay_time, delay_time_nominal)
 
-    def functionality(self):
+        edge['feasible'] = feasible
+        edge['energy'] = charge_energy
+        edge['charging_time'] = charge_duration
+        edge['delay_time'] = delay_time
+        edge['total_time'] = edge['time'] + delay_time + charge_duration
+        edge['routing_time'] = edge['time'] + delay_time_nominal + charge_duration
 
-        rn = self.rng.random(size = (self.chargers, self.cases))
-
-        return (rn <= self.reliability).sum(axis = 0)
-
-    def expect(self, vehicle):
-
-        self.delay_time = super_quantile(self.delay_time, vehicle.risk_attitude)
-
-        self.at_least_one_functional_charger = super_quantile(
-            self.functional_chargers,
-            (1 - vehicle.risk_attitude[1], 1 - vehicle.risk_attitude[0])
-            ) > 1
-
-    def update(self, x, vehicle):
-
-        capacity = vehicle.capacity
-        target = vehicle.charge_target_soc
-        rate = min([self.max_charge_rate, vehicle.charge_rate])
-
-        x = self.time(x, capacity, rate, target)
-        x = self.price(x, capacity, rate, target)
-        x = self.soc(x, capacity, rate, target)
-
-        return x
-
-    def time(self, x, capacity, rate, target):
-
-        full_charge_time = capacity / rate
-        charge_time = full_charge_time * np.clip(target - x['soc'], 0, 1)
-
-        x['time'] += charge_time + self.delay_time
-
-        x['routing_time'] += full_charge_time + self.delay_time
-
-        return x
-
-    def price(self, x, capacity, rate, target):
-
-        price = (
-            (capacity * np.clip(target - x['soc'], 0, 1) * self.charge_price)
-            )
-
-        x['price'] += price
-
-        return x
-
-    def soc(self, x, capacity, rate, target):
-
-        x['soc'] += np.clip(target - x['soc'], 0, 1) * self.at_least_one_functional_charger
-
-        return x
+        return edge

@@ -982,6 +982,61 @@
     \field{year}{1996}
   \endentry
 
+  \entry{Marra_2012}{inproceedings}{}
+    \name{author}{6}{}{%
+      {{hash=MF}{%
+         family={Marra},
+         familyi={M\bibinitperiod},
+         given={Francesco},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=YG}{%
+         family={Yang},
+         familyi={Y\bibinitperiod},
+         given={Guangya},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=TC}{%
+         family={Træholt},
+         familyi={T\bibinitperiod},
+         given={Chresten},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=LE}{%
+         family={Larsen},
+         familyi={L\bibinitperiod},
+         given={Esben},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=RC}{%
+         family={Rasmussen},
+         familyi={R\bibinitperiod},
+         given={C.N.},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=YS}{%
+         family={You},
+         familyi={Y\bibinitperiod},
+         given={Shi},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MF+1}
+    \strng{fullhash}{MFYGTCLERCYS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1109/PESGM.2012.6345063
+    \endverb
+    \field{isbn}{978-1-4673-2727-5}
+    \field{pages}{1\bibrangedash 7}
+    \field{title}{Demand profile study of battery electric vehicle under
+  different charging options}
+    \field{journaltitle}{Power and Energy Society General Meeting, 2012 IEEE}
+    \field{month}{07}
+    \field{year}{2012}
+  \endentry
+
   \entry{afdc_2023}{misc}{}
     \name{author}{1}{}{%
       {{hash=AAFDC}{%

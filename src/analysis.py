@@ -117,7 +117,7 @@ def model_anova_tabular(model, df_norm, res_column, n, c = 1):
     m = df_norm.shape[0]
     p = sum([comb(n, k) for k in range(n + 1)]) * c
 
-    # print(n, p)
+    print(n, p)
 
     return anova_tabular(y, y_hat, m, p)
 
