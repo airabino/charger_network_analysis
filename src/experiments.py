@@ -22,7 +22,7 @@ _network_power = {
 }
 
 _station_kwargs = {
-    'destination': {
+    'community': {
         'cases': 100,
         'type': 'ac',
         'access': 'private',
@@ -80,7 +80,7 @@ def run_case(graph, vehicle_kw, station_kw, method = 'dijkstra'):
 
     vehicle = Vehicle(**vehicle_kw)
 
-    origins = [k for k, v in graph._node.items() if v['type'] == 'destination']
+    origins = [k for k, v in graph._node.items() if v['type'] == 'community']
 
     graph = supply_costs(graph, vehicle, station_kw)
     

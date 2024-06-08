@@ -102,7 +102,7 @@ class Graph_From_Atlas():
 
         return {self.fields[idx]: np.inf for idx in range(self.n)}
 
-    def update(self, values, link, node):
+    def update(self, values, link):
 
         feasible = True
 
@@ -116,6 +116,8 @@ class Graph_From_Atlas():
 
             feasible *= values_new[self.fields[idx]] <= self.limits[idx]
 
+        # print('bbb', values_new)
+
         return values_new, feasible
 
     def compare(self, values, comparison):
@@ -124,6 +126,8 @@ class Graph_From_Atlas():
         cost_current = 0
 
         for idx in range(self.n):
+
+            # print(values, self.fields[idx])
 
             cost_new += values[self.fields[idx]] * self.weights[idx]
             cost_current += comparison[self.fields[idx]] * self.weights[idx]
@@ -155,7 +159,12 @@ def adjacency(atlas, graph, objective = Graph_From_Atlas(), algorithm = dijkstra
 
         adj = {}
 
-        for destination in destinations_atlas:
+        destinations_reached = np.intersect1d(
+            list(values.keys()),
+            destinations_atlas,
+            )
+
+        for destination in destinations_reached:
 
             nodes = atlas_to_graph[destination]
 

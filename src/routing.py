@@ -74,7 +74,7 @@ def shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
     destinations = kwargs.get('destinations', list(graph.nodes))
 
-    graph = origins_destinations(graph.copy(), origins, destinations)
+    # graph = origins_destinations(graph.copy(), origins, destinations)
 
     if method == 'dijkstra':
 
@@ -84,11 +84,13 @@ def shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
 
         costs, values, paths = bellman(graph, origins, **kwargs)
 
+    # return costs, values, paths
+
     costs_d = {}
     values_d = {}
     paths_d = {}
 
-    for destination in destinations:
+    for destination in np.intersect1d(list(costs.keys()), destinations):
 
         costs_d[destination] = costs[destination]
         values_d[destination] = values[destination]
@@ -324,7 +326,13 @@ def supply_costs(graph, vehicle, station_kw):
 
             node['station'] = Station(node, **kw)
 
+    
+    # _adj = {}
+
     for source, adj in graph._adj.items():
+
+        # _adj[source] = {}
+
         for target, edge in adj.items():
 
             station = graph._node[source]['station']
@@ -332,6 +340,12 @@ def supply_costs(graph, vehicle, station_kw):
             if station is not None:
 
                 edge = station.update(vehicle, edge)
+
+            # if edge['feasible']:
+
+                 # _adj[source][target] = edge
+
+    # graph._adj = _adj
 
     return graph
 
@@ -416,7 +430,7 @@ class Vehicle():
         updated_values['distance'] = values['distance'] + edge['distance']
         updated_values['price'] = values['price'] + edge['price']
 
-        return updated_values
+        return updated_values, True
 
     def compare(self, values, approximation):
 
@@ -429,7 +443,7 @@ class Vehicle():
 
     def edge_feasible(self, edge):
 
-        if edge.get('type', '') == 'to_destination':
+        if edge.get('type', '') != 'to_station':
 
             min_edge_distance = 0
 

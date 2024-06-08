@@ -8,6 +8,7 @@ mkdir -p Data/Generated_Data
 mkdir -p Data/AFDC
 mkdir -p Data/State
 mkdir -p Data/Watts
+mkdir -p Data/COUSUB
 
 if [ ! -f Data/AFDC/evse_stations.json ]; then
 	afdc_url="https://developer.nrel.gov/api/alt-fuel-stations/v1.json?fuel_type=ELEC&limit=all&api_key=${afdc_key}"
@@ -30,6 +31,20 @@ if [ ! -f Data/State/tl_2023_us_state.shp ]; then
 	echo "State Geometries Unzipped"
 else
 	echo "State Geometries Unzipped"
+fi
+
+if [ ! -f Data/COUSUB/tl_2023_06_cousub.zip ]; then
+	url="https://www2.census.gov/geo/tiger/TIGER2023/COUSUB/tl_2023_06_cousub.zip"
+	curl -o Data/COUSUB/tl_2023_06_cousub.zip $url
+else
+	echo "COUSUB Geometries Downloaded"
+fi
+
+if [ ! -f Data/COUSUB/tl_2023_06_cousub.shp ]; then
+	unzip Data/COUSUB/tl_2023_06_cousub.zip -d Data/COUSUB
+	echo "COUSUB Geometries Unzipped"
+else
+	echo "COUSUB Geometries Unzipped"
 fi
 
 # Download files one by one
