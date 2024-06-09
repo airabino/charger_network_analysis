@@ -195,6 +195,32 @@ def impedance(values, origins = {}, destinations = {}, **kwargs):
 
     return sum_cost / n
 
+def specific_impedance(values, destinations = {}, **kwargs):
+
+    field = kwargs.get('field', 'total_time')
+    expectation = kwargs.get('expectation', np.mean)
+    constant = kwargs.get('constant', 1)
+
+
+    if not destinations:
+
+        destinations = {k: 1 for k in values.keys()}
+
+    sum_cost = 0
+
+    n = -1
+
+    for destination, mass_d in destinations.items():
+
+        sum_cost += (
+            constant * mass_d *
+            expectation(np.atleast_1d(values[destination][field]))
+            )
+
+        n += 1
+
+    return sum_cost / n
+
 def current(values, origins = {}, destinations = {}, **kwargs):
 
     field = kwargs.get('field', 'time')
@@ -326,12 +352,7 @@ def supply_costs(graph, vehicle, station_kw):
 
             node['station'] = Station(node, **kw)
 
-    
-    # _adj = {}
-
     for source, adj in graph._adj.items():
-
-        # _adj[source] = {}
 
         for target, edge in adj.items():
 
@@ -340,12 +361,6 @@ def supply_costs(graph, vehicle, station_kw):
             if station is not None:
 
                 edge = station.update(vehicle, edge)
-
-            # if edge['feasible']:
-
-                 # _adj[source][target] = edge
-
-    # graph._adj = _adj
 
     return graph
 

@@ -195,6 +195,11 @@ def plot_graph(graph, ax = None, **kwargs):
 
 		values = np.array([v.get(node_field, np.nan) for v in graph._node.values()])
 
+		indices = np.argsort(values)
+
+		values = values[indices]
+		coords = coords[indices]
+
 		vmin = scatter_kw.get('vmin', np.nanmin(values))
 		vmax = scatter_kw.get('vmax', np.nanmax(values))
 

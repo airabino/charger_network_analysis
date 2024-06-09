@@ -20,13 +20,24 @@
 # python run_random_experiment.py -i 800 -c 1 &
 # python run_random_experiment.py -i 900 -c 1 &
 
-python run_random_experiment.py -i 8000 -c 50 &
-python run_random_experiment.py -i 8100 -c 50 &
-python run_random_experiment.py -i 8200 -c 50 &
-python run_random_experiment.py -i 8300 -c 50 &
-python run_random_experiment.py -i 8400 -c 50 &
-python run_random_experiment.py -i 8500 -c 50 &
-python run_random_experiment.py -i 8600 -c 50 &
-python run_random_experiment.py -i 8700 -c 50 &
-python run_random_experiment.py -i 8800 -c 50 &
-python run_random_experiment.py -i 8900 -c 50 &
+# python run_random_experiment.py -i 8000 -c 50 &
+# python run_random_experiment.py -i 8100 -c 50 &
+# python run_random_experiment.py -i 8200 -c 50 &
+# python run_random_experiment.py -i 8300 -c 50 &
+# python run_random_experiment.py -i 8400 -c 50 &
+# python run_random_experiment.py -i 8500 -c 50 &
+# python run_random_experiment.py -i 8600 -c 50 &
+# python run_random_experiment.py -i 8700 -c 50 &
+# python run_random_experiment.py -i 8800 -c 50 &
+# python run_random_experiment.py -i 8900 -c 50 &
+
+python run_random_experiment.py -i 9000 -c 50 &
+python run_random_experiment.py -i 9100 -c 50 &
+python run_random_experiment.py -i 9200 -c 50 &
+python run_random_experiment.py -i 9300 -c 50 &
+python run_random_experiment.py -i 9400 -c 50 &
+python run_random_experiment.py -i 9500 -c 50 &
+python run_random_experiment.py -i 9600 -c 50 &
+python run_random_experiment.py -i 9700 -c 50 &
+python run_random_experiment.py -i 9800 -c 50 &
+python run_random_experiment.py -i 9900 -c 50 &

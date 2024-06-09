@@ -57,7 +57,7 @@ _network_power = {
 }
 
 _station_kwargs = {
-    'destination': {
+    'place': {
         'cases': 100,
         'type': 'ac',
         'access': 'private',

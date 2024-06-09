@@ -1,55 +1,146 @@
-\section{Appendix: Stochastic Optimization Example - Crop Allocation}
+\appendix
 
-\noindent Problem Description:
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/California_RIS_SF_All.png}
+	\caption{In-station redundancy for DC Charging networks in California}
+	\label{fig:ris_top_networks}
+\end{figure}
 
-\medskip
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/California_RIS_SF_Corridor.png}
+	\caption{In-station redundancy for DC Charging networks in California}
+	\label{fig:ris_top_networks_corridor}
+\end{figure}
 
-A farmer has 100 total acres of fields to plant and may choose from among three crops. Each crop has a different cost per acre for seeds. Depending on meteorological conditions, each crop will have a different revenue per acre in  low, medium, and high yield scenarios. Seeds must be purchased in the fall but the farmer has until the spring to actually decide what to plant and at that point he will have more information about the weather for the coming year. Any excess seeds may be re-sold for a 20\% loss. What quantities of seed should the farmer purchase in order to maximize profit?
 
-\medskip
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/California_RBS_300_SF_All.png}
+%	\caption{In-station redundancy for DC Charging networks in California}
+%	\label{fig:rbs_300_top_8_networks}
+%\end{figure}
+%
+%
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/California_RBS_600_SF_All.png}
+%	\caption{In-station redundancy for DC Charging networks in California}
+%	\label{fig:rbs_600_top_8_networks}
+%\end{figure}
 
-\noindent Discussion:
+\begin{table}[H]
+	\centering
+	\caption{Summary statistics for California DC charging networks from \gls{afdc}}
+	\label{tab:summary_statistics_afdc}
+	\begin{tabular}{|C{.46\linewidth}|C{.18\linewidth}|C{.18\linewidth}|C{.18\linewidth}|}
+		\hline Network & Chargers & Stations & Chargers per Station \\
+		\hline Non-Networked & 288 & 51 & 5.6 \\
+		\hline Tesla & 2753 & 156 & 17.6 \\
+		\hline Electrify America & 526 & 77 & 6.8 \\
+		\hline EV Connect & 59 & 19 & 3.1 \\
+		\hline ChargePoint Network & 186 & 79 & 2.4 \\
+		\hline Volta & 2 & 2 & 1.0 \\
+		\hline EVCS & 41 & 11 & 3.7 \\
+		\hline SHELL_RECHARGE & 39 & 11 & 3.5 \\
+		\hline EVGATEWAY & 21 & 5 & 4.2 \\
+		\hline eVgo Network & 332 & 63 & 5.3 \\
+		\hline BP_PULSE & 3 & 2 & 1.5 \\
+		\hline POWERFLEX & 12 & 3 & 4.0 \\
+		\hline FLO & 1 & 1 & 1.0 \\
+		\hline EVRANGE & 11 & 3 & 3.7 \\
+		\hline RIVIAN_ADVENTURE & 14 & 7 & 2.0 \\
+		\hline CIRCLE_K & 16 & 3 & 5.3 \\
+		\hline CHARGENET & 7 & 1 & 7.0 \\
+		\hline Blink Network & 2 & 2 & 1.0 \\
+		\hline NOODOE & 2 & 1 & 2.0 \\
+		\hline LOOP & 6 & 2 & 3.0 \\
+		\hline 7CHARGE & 4 & 1 & 4.0 \\
+		\hline
+	\end{tabular}
+\end{table}
 
-\medskip
+\begin{table}[H]
+	\centering
+	\caption{Summary statistics for California DC charging networks from \gls{afdc} (corridor stations)}
+	\label{tab:summary_statistics_afdc_corridor}
+	\begin{tabular}{|C{.46\linewidth}|C{.18\linewidth}|C{.18\linewidth}|C{.18\linewidth}|}
+		\hline Network & Chargers & Stations & Chargers per Station \\
+		\hline Non-Networked & 274 & 50 & 5.5 \\
+		\hline Tesla & 2745 & 155 & 17.7 \\
+		\hline Electrify America & 518 & 76 & 6.8 \\
+		\hline EV Connect & 58 & 18 & 3.2 \\
+		\hline ChargePoint Network & 184 & 78 & 2.4 \\
+		\hline Volta & 1 & 1 & 1.0 \\
+		\hline EVCS & 35 & 10 & 3.5 \\
+		\hline SHELL_RECHARGE & 37 & 10 & 3.7 \\
+		\hline EVGATEWAY & 19 & 4 & 4.8 \\
+		\hline eVgo Network & 329 & 62 & 5.3 \\
+		\hline BP_PULSE & 1 & 1 & 1.0 \\
+		\hline POWERFLEX & 10 & 2 & 5.0 \\
+		\hline EVRANGE & 5 & 2 & 2.5 \\
+		\hline RIVIAN_ADVENTURE & 12 & 6 & 2.0 \\
+		\hline CIRCLE_K & 12 & 2 & 6.0 \\
+		\hline Blink Network & 1 & 1 & 1.0 \\
+		\hline LOOP & 2 & 1 & 2.0 \\
+		\hline
+	\end{tabular}
+\end{table}
 
-In the example the farmer has to make one set of decisions (what quantities of seeds to buy for the three crops) which holds for all yield scenarios. These are general controls. The farmer then has a set of decisions (what quantities of seed to plant and to resell for each crop) which may vary in different yield scenarios. These are specific controls. The problem contains 3 general controls and 9 specific controls (3 per scenario) for a total of 12 controls. The expected profit for the farmer at the time of seed purchase is the total cost from \eqref{eq:stochastic_optimization} over the number of scenarios.
+\begin{table}[H]
+	\centering
+	\caption{Linear Regression Analysis ANOVA}
+	\label{tab:regression_anova}
+	\begin{tabular}{|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline R & R-Squared & Adjusted R-Squared & Std. Error \\
+		\hline 0.930 & 0.865 & 0.860 & 0.000 \\
+		\hline
+		\hline Category & Sum of Squares & DOF & Mean Squares \\
+		\hline Model & 405.979 & 47 & 8.638 \\
+		\hline Error & 63.621 & 1452 & 0.044 \\
+		\hline Total & 469.601 & 1499 & 0.313 \\
+		\hline  \multicolumn{2}{|c|}{$F$} &  \multicolumn{2}{c|}{$P(>F)$}  \\
+		\hline  \multicolumn{2}{|c|}{197.138} &  \multicolumn{2}{c|}{0.000}  \\
+		\hline
+	\end{tabular}
+\end{table}
 
-If the farmer had complete information about the following year's weather at the time of seed purchase he could optimize both seed purchase and seed planting for specific scenarios. In this case the farmer could compute optimal controls for each scenario individually (6 specific controls per scenario). The difference between the expected profit from the stochastic optimization and the mean value of the profits from the deterministic optimizations is called the "cost-of-uncertainty" or the "value-of-information".
+\begin{table}[H]
+	\centering
+	\caption{Linear Regression Analysis Coefficients and P-Values}
+	\label{tab:regression_coefficients}
+	\begin{tabular}{|C{.5\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline Parameter & Coefficient & P-Value \\
+		\hline {\small Intercept } & 5.245 & 0.000 \\
+		\hline {\small capacity } & -1.417 & 0.000 \\
+		\hline {\small Tesla Only } & 0.037 & 0.005 \\
+		\hline {\small charge_rate } & -0.273 & 0.000 \\
+		\hline {\small reliability } & -0.504 & 0.000 \\
+		\hline {\small arrival_ratio } & 0.701 & 0.000 \\
+		\hline {\small risk_attitude } & 0.669 & 0.000 \\
+		\hline {\small Non-Tesla Only } & 0.102 & 0.000 \\
+		\hline
+	\end{tabular}
+\end{table}
 
-A few things are worth mentioning specifically. first, the cost-of-uncertainty should be positive (expected profit less than mean profit). In the example, the farmer may have to buy more seeds than he can possibly plant due to uncertainty and have to sell the excess at a loss. In the deterministic scenarios the optimal solution will never call for purchasing more seeds than needed for planting if the resell value is less than the purchase value. It is intuitive to see that the farmer is paying a price for his decision to purchase seeds before it is possible to predict the weather with sufficient accuracy. Second, stochastic optimization reduces to deterministic optimization with the removal of general controls. In other words, a stochastic optimization problem is an optimization problem with at least one general control and need not have any specific controls.
-
-\section{Appendix: Generic Routing Algorithm Formulations}
-
-\noindent A generic formulation of Dijkstra's algorithm is as follows:
-
-\begin{algorithm}[H]
-	\caption{Dijkstra Routing Algorithm}
-	\begin{algorithmic}
-		\State $G = \{V, E\}$ \Comment{Graph consisting of nodes and links}
-		\State $C = \{C_V, C_E\}$ \Comment{Traversal costs corresponding to each node and link}
-		\State $O\in V$ \Comment{Single origin node}
-		\State $D\in V$ \Comment{Set of destination nodes}
-		\State
-		\State $S = \{\}$ \Comment{Set of visited nodes}
-		\State $W = \{\infty\}_{v \in V}$ \Comment{All node weights initialized to infinity}
-		\State $P = \{\{\}\}_{d \in D}$ \Comment{Initializing empty path for each destination}
-		\State $F = \{(w_{o_0}, o_0)\}$
-		\State\Comment{Heap queue containing nodes to be visited. Elements are tuples (weight, node) and the heap is ordered by weight. The heap is initialized with the origin node.}
-		\State
-		\While {$F\neq \emptyset$} \Comment{Iterate while there are reachable nodes which have not been visited}
-		\State $w_v, v = f_0$
-		\State $F = F \not\cup f_0$ \Comment{Remove current node from heap queue}
-		\State $E_v = \{(v_s, v_t)\in E| v_s = v\}$
-		\ForAll{$(v, v_t) \in E_v$} \Comment{Iterate through links of $v$}
-		\If{$w_v + c_{v,(v, v_t)} < w_{v_t}$} \Comment{If current path represents savings ...}
-		\State $p_{v_t} = p_{v}\cup \{v_t\}$ \Comment{Update path to $v_t$}
-		\State $w_{v_t} = w_v + c_{v,(v, v_t)}$ \Comment{Update cost at $v_t$}
-		\If{$v_t \not\in S$} 
-		\State $F = F \cup \{(w_t, v_t)\}$ \Comment{If $v_t$ has not been visited add to heap queue}
-		\EndIf
-		\EndIf
-		\EndFor
-		\State $S = S\cup\{v\}$ \Comment{Add current node to set of visited nodes}
-		\EndWhile
-	\end{algorithmic}
-\end{algorithm}
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_1.png}
+%	\caption{PDFs of expected delay time for station with mean arrival ratio of 1, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
+%	\label{fig:expected_delays_coutnours_1}
+%\end{figure}
+%
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_2.png}
+%	\caption{PDFs of expected delay time for station with mean arrival ratio of 2, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
+%	\label{fig:expected_delays_coutnours_2}
+%\end{figure}
+%
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_3.png}
+%	\caption{PDFs of expected delay time for station with mean arrival ratio of 3, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
+%	\label{fig:expected_delays_coutnours_3}
+%\end{figure}
