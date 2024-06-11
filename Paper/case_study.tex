@@ -47,7 +47,7 @@ For long trips, \glspl{bev} will rely on DC charging stations. The locations of 
 \end{subfigure}
 \begin{subfigure}{\linewidth/3}
 	\centering
-	\includegraphics[width = \linewidth]{figs/California_SNG_Corridor.png}
+	\includegraphics[width = \linewidth]{figs/California_SNG_C.png}
 	\caption{Corridor Stations}
 \end{subfigure}
 \caption{California DC charging stations from \gls{afdc} (May 2024)}
@@ -70,51 +70,47 @@ The difference between the Tesla DC charging network and the non-Tesla networks 
 	\label{fig:network_histograms}
 \end{figure}
 
-The Tesla DC charging network develops redundancy primarily in-station where the non-proprietary networks develop redundancy primarily between stations. Non-Tesla chargers are also more likely to be sighted in urban areas suggesting a desire to capture local as well as corridor travel demand. Tesla stations are more often sighted along travel corridors suggesting a focus on enabling long distance travel. In more remote parts of California the proprietary networks nearly match the non-proprietary networks in station numbers. In-station redundancies for DC charging networks in California can be found in Figures \ref{fig:ris_top_networks} and \ref{fig:ris_top_networks_corridor} in the Appendix. Summary statistics for DC charging networks in California can be found in Tables \ref{tab:summary_statistics_afdc} and \ref{tab:summary_statistics_afdc_corridor} in the appendix.
+The Tesla DC charging network develops redundancy primarily in-station where the non-proprietary networks develop redundancy primarily between stations. Non-Tesla chargers are also more likely to be sighted in urban areas suggesting a desire to capture local as well as corridor travel demand. Tesla stations are more often sighted along travel corridors suggesting a focus on enabling long distance travel. In more remote parts of California the proprietary networks nearly match the non-proprietary networks in station numbers. In-station redundancies for DC charging networks in California can be found in Figures \ref{fig:ris_top_networks} and \ref{fig:ris_top_networks_corridor} in the Appendix. Summary statistics for DC charging networks in California can be found in the DC Charger Network Details section of the appendix.
 
 California \glspl{icev} utilize a third and completely separate network of supply stations. There are estimated to be over 8,000 gasoline stations in California \cite{CEC_2022} and these are widely and proportionally distributed. Because no public database for the locations of gasoline stations in the state exists, and due to their ubiquity it is assumed in this study that \gls{icev} driver optimal paths will not be effected by fueling station availability. For this reason, \glspl{icev} are, herein, assumed to take the "direct" path between cities where \glspl{bev} need to find optimal paths on their \glspl{sng}.
 
 \subsection*{Experiment}
 
-In order to understand the effects of vehicular, infrastructural, and behavioral parameters on road-trip accessibility an experiment was carried out on randomly generated combinations. As a baseline, three \glspl{icev} were also modeled. These \glspl{icev} represent different levels of efficiency present in the \gls{icev} fleet. \gls{ess} capacity numbers are pulled from manufacturer websites and energy consumption rates are computed from EPA highway fuel economy ratings \cite{DOE_EPA_2024}. Although substantially less efficient than equivalent \glspl{bev} the comparatively high specific energy of liquid petroleum allows for \glspl{icev} to have higher maximum ranges. \gls{icev} supply infrastructure is modeled to dispense fuel at the normal US rate of 7 gallons per minute which is an equivalent energy supply rate of 14.15 MW. When refueling, the Prius. Golf, and Pacifica, add highway range at rates of 631, 462, and 282 km per minute respectively. The \gls{icev} models and corresponding Regional Impedance values are shown in Table \ref{tab:icev_models}.
-
+In order to understand the effects of vehicular, infrastructural, and behavioral parameters on road-trip accessibility an experiment was carried out on randomly generated combinations. As a baseline, three \glspl{icev} were also modeled. These \glspl{icev} represent different levels of efficiency present in the \gls{icev} fleet. The \gls{icev} models use \gls{ess} capacity numbers are pulled from manufacturer websites and energy consumption rates from \cite{DOE_EPA_2024}. Although substantially less efficient than equivalent \glspl{bev} the comparatively high specific energy of liquid petroleum allows for \glspl{icev} to have high full-tank ranges. \gls{icev} supply infrastructure is modeled to dispense fuel at the normal US rate of 7 gallons per minute which is an equivalent energy supply rate of 14.15 MW. When refueling, the Prius. Golf, and Pacifica, add highway range at rates of 631, 462, and 282 km per minute respectively. The \gls{icev} models are shown in Table \ref{tab:icev_models}.
+	
 \begin{table}[H]
 	\centering
 	\caption{\gls{icev} models}
 	\label{tab:icev_models}
-	\begin{tabular}{|C{.45\linewidth}|C{.3\linewidth}|C{.25\linewidth}|}
-		\hline Vehicle Model & Parameter & Value \\
-		\cline{1-3} & \gls{ess} Capacity & 381 [kWh] \\
-		\cline{2-3} & Energy Consumption & 1,346 [kJ/km] \\
-		\cline{2-3} 2024 Toyota Prius & Full-Tank Range & 1,018 [km] \\
-		\cline{2-3} & California Regional Impedance & 4.131 [hours] \\
+	\begin{tabular}{|C{.4\linewidth}|C{.35\linewidth}|C{.25\linewidth}|}
+		\hline \rowcolor{lightgray} Vehicle Model & Parameter & Value \\
+		\hline & \gls{ess} Capacity & 381 [kWh] \\
+		\cline{2-3} 2024 Toyota Prius & Energy Consumption & 1,346 [kJ/km] \\
+		\cline{2-3} & Full-Tank Range & 1,018 [km] \\
 		\cline{1-3} & \gls{ess} Capacity & 445 [kWh] \\
-		\cline{2-3} & Energy Consumption & 1,839 [kJ/km] \\
-		\cline{2-3} 2024 Volkswagen Golf & Full-Tank Range & 871 [km] \\
-		\cline{2-3} & California Regional Impedance & 4.151 [hours] \\
+		\cline{2-3} 2024 Volkswagen Golf & Energy Consumption & 1,839 [kJ/km] \\
+		\cline{2-3} & Full-Tank Range & 871 [km] \\
 		\cline{1-3} & \gls{ess} Capacity & 640 [kWh] \\
-		\cline{2-3} & Energy Consumption & 3,015 [kJ/kM] \\
-		\cline{2-3} 2024 Chrysler Pacifica & Full-Tank Range & 764 [km] \\
-		\cline{2-3} & California Regional Impedance & 4.161 [hours] \\
+		\cline{2-3} 2024 Chrysler Pacifica & Energy Consumption & 3,015 [kJ/kM] \\
+		\cline{2-3} & Full-Tank Range & 764 [km] \\
 		\hline
 	\end{tabular}
 \end{table}
 
-Regional Impedance for \glspl{icev} was computed under the assumption of petroleum supply infrastructure ubiquity. As such, \glspl{icev} were given the "direct" path between locations with stop times added where additional range was needed. For each necessary stop, time was added for refueling to full as well as 10 minutes to divert from the road and handle the transaction prior to refueling. Additionally, drivers of the \glspl{icev} were assumed to keep a 10\% buffer of remaining range. The \glspl{icev} each had similar road-trip accessibility scores of roughly 5.5 hours. The longest arc considered in Crescent City (Location 0) to Phoenix - State Line (Location 13) which is roughly 1,530 km just exceeding double the usable range of the Pacifica. The Prius, Golf, and Pacifica required averages of 0.43, 0.31, and 0.19 supply stops per route respectively.
+Regional Impedance for \glspl{icev} was computed under the assumption of petroleum supply infrastructure ubiquity. As such, \glspl{icev} were given the "direct" path between locations with stop times added where additional range was needed. For each necessary stop, time was added for refueling to full as well as 10 minutes to divert from the road and handle the transaction prior to refueling. Additionally, drivers of the \glspl{icev} were assumed to keep a 10\% buffer of remaining range. The \glspl{icev} each had similar road-trip accessibility scores of roughly 5.5 hours. The longest arc considered in Crescent City (Location 0) to Phoenix - State Line (Location 13) which is roughly 1,530 km just exceeding double the usable range of the Pacifica.
 
-500 random scenarios were generated by uniform random sampling of the parameters listed in Table \ref{tab:experimental_parameters} and run on three \glspl{sng} as described in \ref{tab:experimental_sngs}. All randomly sampled \glspl{bev} in this study are assumed to have an energy consumption rate of 608 kJ/km this being the EPA energy consumption rate of a Tesla Model 3 in highway operation \cite{DOE_EPA_2024}. Highway operation is assumed herein due to the focus on long trips. Thus \gls{bev} full-charge ranges will be between 237 and 711 km. Vehicles are assumed to fast charge only up to 80\% \gls{soc} in order to remain in the constant current range. When charging, sampled \glspl{bev} add highway range at a rate between 4.9 and 19.7 km per minute. Risk attitude was modeled as in \eqref{eq:superquantile} with the range centered around the mean parameter $\overline{p}$ where $p_0 = \overline{p} - .1$ and $p_1 = \overline{p} + .1$. 
+500 random scenarios were generated by uniform random sampling of the parameters listed in Table \ref{tab:experimental_parameters} and run on three \glspl{sng} as described in \ref{tab:experimental_sngs}. All randomly sampled \glspl{bev} in this study are assumed to have an energy consumption rate of 608 kJ/km this being the EPA energy consumption rate of a Tesla Model 3 in highway operation \cite{DOE_EPA_2024}. Highway operation is assumed herein due to the focus on long trips. Thus \gls{bev} full-charge ranges will be between 237 and 711 km. When charging, sampled \glspl{bev} add highway range at a rate between 4.9 and 19.7 km per minute. Risk attitude is modeled as in \eqref{eq:superquantile} with the range centered around the mean parameter $\overline{p}$ where $p_0 = \overline{p} - .1$ and $p_1 = \overline{p} + .1$. 
 
 \begin{table}[H]
 	\centering
 	\caption{Parameters and ranges for experiment.}
 	\label{tab:experimental_parameters}
 	\begin{tabular}{|C{\linewidth/2}|C{\linewidth/2}|}
-		\hline Parameter & Range \\
+		\hline \rowcolor{lightgray} Parameter & Range \\
 		\hline \gls{ess} Capacity & [40 kWh, 120 kWh] \\
 		\hline \gls{ess} Max Charge Rate & [50 kW, 200 kW] \\
 		\hline Driver Risk-Attitude Mean & [.1, .9] \\
 		\hline \gls{evse} Reliability & [.5, 1] \\
-		%		\hline Station Arrival Ratio Mean & [1, 3] \\
 		\hline
 	\end{tabular}
 \end{table}
@@ -124,7 +120,7 @@ Regional Impedance for \glspl{icev} was computed under the assumption of petrole
 	\caption{\glspl{sng} used in experiment.}
 	\label{tab:experimental_sngs}
 	\begin{tabular}{|C{\linewidth/3}|C{\linewidth*2/3}|}
-		\hline Label & Networks Included \\
+		\hline \rowcolor{lightgray} Label & Networks Included \\
 		\hline Combined & All stations \\
 		\hline Tesla & Only Tesla stations \\
 		\hline Non-Tesla & All non-Tesla stations \\
@@ -132,22 +128,52 @@ Regional Impedance for \glspl{icev} was computed under the assumption of petrole
 	\end{tabular}
 \end{table}
 
-Outputs were processed to compute a population weighted Regional Impedance as in \eqref{eq:regional_impedance}. Impedance was selected as the metric of evaluation rather than accessibility as travel demand for each arc was the same for all cases. Linear regression was performed on the results of the random experiment. Using as output, the neutral expectation of road-trip accessibility for each of the 500 randomly sampled vehicles on each of the \glspl{sng}. Significant parameters from the regression are shown in Figure \ref{fig:significant_parameters}.
+Outputs were processed to compute neutral expectations of Regional Gravity and Regional Impedance as in \eqref{eq:regional_gravity} and \eqref{eq:regional_impedance} respectively. Linear regression was performed on the results of the random experiment and the experimental parameters for each \gls{sng}. Significant parameters from the regression are shown in Figure \ref{fig:significant_parameters_0}. Regression details are tabulated in the Regression Details section of the Appendix. 
+
+\end{multicols}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{figs/significant_parameters.png}
-	\caption{Coefficients for significant parameters from linear regression}
-	\label{fig:significant_parameters}
+
+\begin{subfigure}[t]{.33\linewidth}
+	\centering\captionsetup{width = .8\linewidth}
+	\includegraphics[width = \linewidth]{figs/significant_parameters_0.png}
+	\caption{Complete network}
+\end{subfigure}%
+\begin{subfigure}[t]{.33\linewidth}
+	\centering\captionsetup{width = .8\linewidth}
+	\includegraphics[width = \linewidth]{figs/significant_parameters_1.png}
+	\caption{Tesla stations only}
+\end{subfigure}%
+\begin{subfigure}[t]{.33\linewidth}
+	\centering\captionsetup{width = .8\linewidth}
+	\includegraphics[width = \linewidth]{figs/significant_parameters_2.png}
+	\caption{Non-Tesla stations only}
+\end{subfigure}
+
+\caption{Coefficients for significant parameters from linear regression}
+\label{fig:significant_parameters_0}
+
 \end{figure}
 
-Regression details are provided in Tables \ref{tab:regression_anova} and \ref{tab:regression_coefficients} in the Appendix. The regression analysis shows that vehicular, infrastructural, and behavioral parameters have significant impacts on road-trip accessibility. The vehicular parameters of capacity and charge rate have the predictable effect of reducing expected travel times. Capacity being the more more important parameter is explicable as higher capacity vehicles offer the ability to stop less frequently. Saving an entire charging event can be very impactful in a region the size of California. Among the infrastructure parameters, higher reliability contributed to lower travel times where higher arrival ratios contributed to higher travel times. Both reliability and arrival ratio primarily effect queuing times as, even with 50\% equipment reliability, most stations have sufficient redundancy to guarantee at least one operational charger. The range of arrivals ratios considered goes from normal to swamped and long queues can be expected for high arrival ratios even at high redundancy stations. Risk attitude was also significant in determining outcomes as those drivers with more cautious risk attitudes will tend to maintain higher \gls{soc} and utilize more reliable and redundant routes. finally, access to the entire network is better than restriction to just part of it but being restricted to only Tesla stations should be slightly less damaging than access to only non-Tesla stations. Boxplots of expected travel times are shown in Figure \ref{fig:networks_boxplots}.
+\begin{multicols}{2}
+	
+!!!!!!!!!!!!! Need to redo this starting here !!!!!!!!!!!!!!
+
+The regression analysis shows that vehicular, infrastructural, and behavioral parameters have significant impacts on road-trip accessibility. The vehicular parameters of capacity and charge rate have the predictable effect of reducing expected travel times. Capacity being the more more important parameter is explicable as higher capacity vehicles offer the ability to stop less frequently. Saving an entire charging event can be very impactful in a region the size of California. Among the infrastructure parameters, higher reliability contributed to lower travel times where higher arrival ratios contributed to higher travel times. Both reliability and arrival ratio primarily effect queuing times as, even with 50\% equipment reliability, most stations have sufficient redundancy to guarantee at least one operational charger. The range of arrivals ratios considered goes from normal to swamped and long queues can be expected for high arrival ratios even at high redundancy stations. Risk attitude was also significant in determining outcomes as those drivers with more cautious risk attitudes will tend to maintain higher \gls{soc} and utilize more reliable and redundant routes. finally, access to the entire network is better than restriction to just part of it but being restricted to only Tesla stations should be slightly less damaging than access to only non-Tesla stations. Boxplots of expected travel times are shown in Figure \ref{fig:networks_boxplots_impedance}.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Weighted_Impedance.png}
-	\caption{Boxplots of experiment outputs by \gls{sng}}
-	\label{fig:networks_boxplots}
+	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Impedance.png}
+	\caption{Boxplots of $Z_R$ outputs by \gls{sng}}
+	\label{fig:networks_boxplots_impedance}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Gravity.png}
+	\caption{Boxplots of $G_R$ outputs by \gls{sng}}
+	\label{fig:networks_boxplots_gravity}
 \end{figure}
 
 While the differences between the \glspl{bev} on the basis of \gls{sng} access are observed to be slight, the differences between the means of each and the worst of the \glspl{icev} is quite large. The difference is roughly 45 minutes much of which can be explained by the shorter ranges and longer supply times inherent to the \glspl{bev}. In the best of circumstances, \glspl{bev} can reach near parity with \glspl{icev}. However, \glspl{bev} impedance will, nearly always, be substantially higher than \gls{icev} impedance due to the necessity of charging events. Some will argue that this difference is unimportant as \gls{bev} drivers can charge their vehicles while stopping for meals or during other natural breaks. This logic has been used to show that \glspl{bev} may approach convenience parity with \glspl{icev} in reasonable circumstances \cite{Dixon_2020}. However, where such long breaks are optional for \gls{icev} drivers, they are mandatory for \gls{bev} drivers and must be taken at specific points throughout the trip to coincide with charging. This loss of optionality must be accounted an inconvenience even for drivers who accustomed to long breaks.
@@ -156,41 +182,55 @@ Most of the difference in impedance is due to charging and queuing times while o
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Weighted_Impedance_Driving.png}
-	\caption{Boxplots of experiment outputs by \gls{sng} (driving time only)}
+	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Impedance_Driving.png}
+	\caption{Boxplots of $Z_R$ outputs by \gls{sng} neglecting supply time}
 	\label{fig:networks_boxplots_driving}
 \end{figure}
 
 Different parts of the state will have different experiences. Residents of large population centers which are proximate to other large population centers will expect to have lower travel needs than those in more remote areas. In general, the impedance disparities associated with different vehicular, infrastructural, and behavioral characteristics will also scale with impedance. As California is a large state with a diversity of land use and road infrastructure volume, there is a pronounced difference in Specific Regional Impedance as shown in Figure \ref{fig:networks_boxplots_locations}.
 
-\end{multicols}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Weighted_Specific_Impedance_2.png}
-\caption{Boxplots of experiment outputs on combined \gls{sng} for each origin in California}
-\label{fig:networks_boxplots_locations}
-\end{figure}
-
-\begin{multicols}{2}
-	
+%\end{multicols}
+%
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Weighted_Specific_Impedance_2.png}
+%\caption{Boxplots of experiment outputs on combined \gls{sng} for each origin in California}
+%\label{fig:networks_boxplots_locations}
+%\end{figure}
+%
+%\begin{multicols}{2}
+%	
 \section*{Discussion}
 
 The optimal routes generated in this study only selected corridor chargers. Some insight into the utility provided by each network can be gained by looking into utilization rates for networks and stations when using the combined \gls{sng}. Ratio of stations utilized at least once to total corridor stations in the combined \gls{sng} for each network is shown in Figure \ref{fig:utilization_rates}. Log of utilization (number of times utilized in random experiment) for corridor stations in the combined \gls{sng} is displayed in Figure \ref{fig:utilized_stations}.
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/corridor_station_utilization.png}
-	\caption{Corridor DC charging network utilization rates}
-	\label{fig:utilization_rates}
-\end{figure}
+
+\end{multicols}
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/California_SNG_Utilization.png}
-	\caption{Corridor DC charging station log utilization}
-	\label{fig:utilized_stations}
+
+\begin{subfigure}{\linewidth/3}
+	\centering\captionsetup{width = .8\linewidth}
+	\includegraphics[width = \linewidth]{figs/corridor_station_utilization_0.png}
+	\caption{Coefficients for significant parameters from linear regression}
+\end{subfigure}%
+\begin{subfigure}{\linewidth/3}
+	\centering\captionsetup{width = .8\linewidth}
+	\includegraphics[width = \linewidth]{figs/corridor_station_utilization_1.png}
+	\caption{Coefficients for significant parameters from linear regression}
+\end{subfigure}%
+\begin{subfigure}{\linewidth/3}
+	\centering\captionsetup{width = .8\linewidth}
+	\includegraphics[width = \linewidth]{figs/corridor_station_utilization_2.png}
+	\caption{Coefficients for significant parameters from linear regression}
+\end{subfigure}
+
+\caption{Corridor DC charging network utilization rates}
+\label{fig:utilization_rates}
+
 \end{figure}
+
+\begin{multicols}{2}
 
 It follows intuition that those chargers most useful for drivers are those located between cities on busy transportation corridors and this is backed up in this study. It also follows intuition that those chargers most likely to see use are those with higher redundancy in-station and lower redundancy in-corridor. In this sense Tesla stations are well positioned to absorb traffic should they become fully open to the general light duty \gls{ev} fleet. When one single entity has control over the locations of all stations in a network, that entity can concentrate chargers to maximize in-station redundancy and minimize between-station redundancy. That entity can, then strategically locate the highly concentrated stations. The result should be a network which experiences high utilization at each station and can benefit from economies of scale. When each network is developed by an independent actor these actors must build out their networks under the fear that a competitor could build a competing station near any of their stations at any time. The risk of building a large station only to lose business to a nearby competitor combined with the opportunity cost of not using limited capital to do the same inevitably results in a more inefficient combined network. However, many of the issues inherent with the distributed structure could be mitigated if the uncertainty and latency issues inherent to such a network could be mitigated. These issues can, possibly, be mitigated by an integrated status reporting and reservation system.
 
@@ -201,12 +241,12 @@ Often, the case for \glspl{bev} is made on an economic basis as \gls{bev} may ha
 	\centering
 	\caption{Residential electricity and petroleum average prices USD}
 	\label{tab:energy_costs}
-	\begin{tabular}{|C{.31\linewidth}|C{.23\linewidth}|C{.23\linewidth}|C{.23\linewidth}|}
-		\hline Source & US & California & Percentage Increase \\
-		\hline Petroleum [gallon] & 3.609 & 5.138 & 42.37 \\
-		\hline Residential Electricity [kWh] & 0.1668 & 0.3247 & 94.66 \\
-		\hline Transportation Electricity [kWh] & 0.1520 & 0.1191 & 27.62 \\
-		\hline DC Fast Charging (Estimated) [kWh] & 0.35 - 0.50 & 0.35 - 0.60 & 0 - 20 \\
+	\begin{tabular}{|C{.5\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline \rowcolor{lightgray} Source & US & California \\
+		\hline Petroleum [gallon] & 3.609 & 5.138 \\
+		\hline Residential Electricity [kWh] & 0.1668 & 0.3247 \\
+		\hline Transportation Electricity [kWh] & 0.1520 & 0.1191 \\
+		\hline DC Fast Charging (Estimated) [kWh] & 0.35 - 0.50 & 0.35 - 0.60 \\
 		\hline
 	\end{tabular}
 \end{table}
@@ -218,7 +258,7 @@ Petroleum prices are from AAA \cite{AAA_2024} and electricity prices are from EI
 	\caption{Expected energy costs per highway km traveled in US cents.}
 	\label{tab:expected_energy_costs_per_km}
 	\begin{tabular}{|C{\linewidth / 4}|C{\linewidth / 4}|C{\linewidth / 4}|C{\linewidth / 4}|}
-		\hline Vehicle & Source & US Price & CA Price \\
+		\hline \rowcolor{lightgray} Vehicle & Source & US Price & CA Price \\
 		\hline Prius & Petroleum & 4.00 & 5.70 \\
 		\hline Golf & Petroleum & 5.47 & 7.78 \\
 		\hline Pacifica & Petroleum & 8.97 & 12.77 \\

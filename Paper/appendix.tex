@@ -1,4 +1,11 @@
+\newpage
 \appendix
+
+\section*{Appendix}
+
+\subsection*{DC Charger Network Details}
+
+Network characteristics for DC charging networks in California are shown in Figure \ref{fig:ris_top_networks} and in Table \ref{tab:summary_statistics_afdc}. Data pulled from \gls{afdc} in May 2024.
 
 \begin{figure}[H]
 	\centering
@@ -6,29 +13,6 @@
 	\caption{In-station redundancy for DC Charging networks in California}
 	\label{fig:ris_top_networks}
 \end{figure}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/California_RIS_SF_Corridor.png}
-	\caption{In-station redundancy for DC Charging networks in California}
-	\label{fig:ris_top_networks_corridor}
-\end{figure}
-
-
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width = \linewidth]{figs/California_RBS_300_SF_All.png}
-%	\caption{In-station redundancy for DC Charging networks in California}
-%	\label{fig:rbs_300_top_8_networks}
-%\end{figure}
-%
-%
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width = \linewidth]{figs/California_RBS_600_SF_All.png}
-%	\caption{In-station redundancy for DC Charging networks in California}
-%	\label{fig:rbs_600_top_8_networks}
-%\end{figure}
 
 \begin{table}[H]
 	\centering
@@ -61,6 +45,15 @@
 	\end{tabular}
 \end{table}
 
+Network characteristics for DC charging networks in California, conunting only corridor chargers, are shown in Figure \ref{fig:ris_top_networks} and in Table \ref{tab:summary_statistics_afdc}. Data pulled from \gls{afdc} in May 2024.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/California_RIS_SF_Corridor.png}
+	\caption{In-station redundancy for DC Charging networks in California}
+	\label{fig:ris_top_networks_corridor}
+\end{figure}
+
 \begin{table}[H]
 	\centering
 	\caption{Summary statistics for California DC charging networks from \gls{afdc} (corridor stations)}
@@ -88,59 +81,112 @@
 	\end{tabular}
 \end{table}
 
+\subsection*{Regression Details}
+
+Details of linear regression on random experiment results are displayed in the following tables. Tables \ref{tab:regression_anova_c} and \ref{tab:regression_coefficients_c} concern the combined network, Tables \ref{tab:regression_anova_t} and \ref{tab:regression_coefficients_t} concern the Tela network, and Tables \ref{tab:regression_anova_nt} and \ref{tab:regression_coefficients_nt} concern the non-Tesla network.
+
 \begin{table}[H]
 	\centering
-	\caption{Linear Regression Analysis ANOVA}
-	\label{tab:regression_anova}
+	\caption{Combined Network Linear Regression Analysis ANOVA}
+	\label{tab:regression_anova_c}
 	\begin{tabular}{|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
 		\hline R & R-Squared & Adjusted R-Squared & Std. Error \\
-		\hline 0.930 & 0.865 & 0.860 & 0.000 \\
+		\hline 0.926 & 0.858 & 0.853 & 0.000 \\
 		\hline
 		\hline Category & Sum of Squares & DOF & Mean Squares \\
-		\hline Model & 405.979 & 47 & 8.638 \\
-		\hline Error & 63.621 & 1452 & 0.044 \\
-		\hline Total & 469.601 & 1499 & 0.313 \\
+		\hline Model & 28.706 & 15 & 1.914 \\
+		\hline Error & 4.754 & 484 & 0.010 \\
+		\hline Total & 33.460 & 499 & 0.067 \\
 		\hline  \multicolumn{2}{|c|}{$F$} &  \multicolumn{2}{c|}{$P(>F)$}  \\
-		\hline  \multicolumn{2}{|c|}{197.138} &  \multicolumn{2}{c|}{0.000}  \\
+		\hline  \multicolumn{2}{|c|}{194.848} &  \multicolumn{2}{c|}{0.000}  \\
 		\hline
 	\end{tabular}
 \end{table}
 
 \begin{table}[H]
 	\centering
-	\caption{Linear Regression Analysis Coefficients and P-Values}
-	\label{tab:regression_coefficients}
+	\caption{Combined Network Linear Regression Analysis Coefficients}
+	\label{tab:regression_coefficients_c}
 	\begin{tabular}{|C{.5\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
 		\hline Parameter & Coefficient & P-Value \\
-		\hline {\small Intercept } & 5.245 & 0.000 \\
-		\hline {\small capacity } & -1.417 & 0.000 \\
-		\hline {\small Tesla Only } & 0.037 & 0.005 \\
-		\hline {\small charge_rate } & -0.273 & 0.000 \\
-		\hline {\small reliability } & -0.504 & 0.000 \\
-		\hline {\small arrival_ratio } & 0.701 & 0.000 \\
-		\hline {\small risk_attitude } & 0.669 & 0.000 \\
-		\hline {\small Non-Tesla Only } & 0.102 & 0.000 \\
+		\hline {\small Intercept } & 7.121 & 0.000 \\
+		\hline {\small power } & -1.009 & 0.000 \\
+		\hline {\small capacity } & -1.031 & 0.000 \\
+		\hline {\small reliability } & -0.227 & 0.040 \\
+		\hline {\small capacity:power } & 0.984 & 0.000 \\
+		\hline {\small capacity:reliability } & 0.422 & 0.036 \\
 		\hline
 	\end{tabular}
 \end{table}
 
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_1.png}
-%	\caption{PDFs of expected delay time for station with mean arrival ratio of 1, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
-%	\label{fig:expected_delays_coutnours_1}
-%\end{figure}
-%
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_2.png}
-%	\caption{PDFs of expected delay time for station with mean arrival ratio of 2, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
-%	\label{fig:expected_delays_coutnours_2}
-%\end{figure}
-%
-%\begin{figure}[H]
-%	\centering
-%	\includegraphics[width = \linewidth]{figs/expected_delay_contourf_3.png}
-%	\caption{PDFs of expected delay time for station with mean arrival ratio of 3, constant mean charge energy delivered of 45 kWh, and different in-station redundancy.}
-%	\label{fig:expected_delays_coutnours_3}
-%\end{figure}
+\begin{table}[H]
+	\centering
+	\caption{Tesla Network Linear Regression Analysis ANOVA}
+	\label{tab:regression_anova_t}
+	\begin{tabular}{|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline R & R-Squared & Adjusted R-Squared & Std. Error \\
+		\hline 0.926 & 0.857 & 0.852 & 0.000 \\
+		\hline
+		\hline Category & Sum of Squares & DOF & Mean Squares \\
+		\hline Model & 27.188 & 15 & 1.813 \\
+		\hline Error & 4.541 & 480 & 0.009 \\
+		\hline Total & 31.728 & 495 & 0.064 \\
+		\hline  \multicolumn{2}{|c|}{$F$} &  \multicolumn{2}{c|}{$P(>F)$}  \\
+		\hline  \multicolumn{2}{|c|}{191.609} &  \multicolumn{2}{c|}{0.000}  \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{Tesla Network Linear Regression Analysis Coefficients}
+	\label{tab:regression_coefficients_t}
+	\begin{tabular}{|C{.5\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline Parameter & Coefficient & P-Value \\
+		\hline {\small Intercept } & 7.218 & 0.000 \\
+		\hline {\small power } & -1.099 & 0.000 \\
+		\hline {\small capacity } & -1.179 & 0.000 \\
+		\hline {\small reliability } & -0.220 & 0.047 \\
+		\hline {\small capacity:power } & 1.130 & 0.000 \\
+		\hline {\small power:risk_attitude } & 0.479 & 0.035 \\
+		\hline {\small capacity:reliability } & 0.481 & 0.016 \\
+		\hline {\small capacity:power:risk_attitude } & -0.879 & 0.028 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{Non-Tesla Network Linear Regression Analysis ANOVA}
+	\label{tab:regression_anova_nt}
+	\begin{tabular}{|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline R & R-Squared & Adjusted R-Squared & Std. Error \\
+		\hline 0.866 & 0.750 & 0.742 & 0.000 \\
+		\hline
+		\hline Category & Sum of Squares & DOF & Mean Squares \\
+		\hline Model & 72.583 & 15 & 4.839 \\
+		\hline Error & 24.215 & 484 & 0.050 \\
+		\hline Total & 96.798 & 499 & 0.194 \\
+		\hline  \multicolumn{2}{|c|}{$F$} &  \multicolumn{2}{c|}{$P(>F)$}  \\
+		\hline  \multicolumn{2}{|c|}{96.720} &  \multicolumn{2}{c|}{0.000}  \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{Non-Tesla Network Linear Regression Analysis Coefficients}
+	\label{tab:regression_coefficient_nt}
+	\begin{tabular}{|C{.5\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline Parameter & Coefficient & P-Value \\
+		\hline {\small Intercept } & 7.095 & 0.000 \\
+		\hline {\small power } & -1.373 & 0.000 \\
+		\hline {\small capacity } & -1.130 & 0.000 \\
+		\hline {\small risk_attitude } & 0.954 & 0.001 \\
+		\hline {\small capacity:power } & 1.505 & 0.004 \\
+		\hline {\small power:risk_attitude } & 1.429 & 0.006 \\
+		\hline {\small capacity:power:risk_attitude } & -1.915 & 0.037 \\
+		\hline {\small power:reliability:risk_attitude } & -1.744 & 0.047 \\
+		\hline
+	\end{tabular}
+\end{table}

@@ -117,7 +117,7 @@ def model_anova_tabular(model, df_norm, res_column, n, c = 1):
     m = df_norm.shape[0]
     p = sum([comb(n, k) for k in range(n + 1)]) * c
 
-    print(n, p)
+    print(n, p, c)
 
     return anova_tabular(y, y_hat, m, p)
 
@@ -165,7 +165,7 @@ def significant_parameters_tabular(model, alpha = .05, label_substitutions = {})
     
     return out_string
 
-def significant_parameters(model, alpha = .05, label_substitutions = {}):
+def significant_parameters(model, alpha = .05, just = 0, label_substitutions = {}):
     params = model._results.params
     tvalues = model._results.tvalues
     pvalues = model._results.pvalues
@@ -199,7 +199,17 @@ def significant_parameters(model, alpha = .05, label_substitutions = {}):
     out_dict = {}
     for idx in range(len(names)):
 
-        out_dict[names[idx]] = {
+        name_parts = names[idx].split(':')
+
+        name = ''
+
+        for part in name_parts:
+
+            name += part.rjust(just) + '\n'
+
+        name = name[:-1]
+
+        out_dict[name] = {
             'coefficient': params[idx],
             'tvalue': tvalues[idx],
             'pvalue': pvalues[idx],

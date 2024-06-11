@@ -20,6 +20,8 @@
 \usepackage{fancybox}
 \usepackage{breqn}
 \usepackage{array}
+\usepackage{colortbl}
+\usepackage{booktabs}
 \usepackage{caption}
 \usepackage{subcaption}
 %\usepackage{comment}
@@ -55,7 +57,15 @@
 \raggedbottom
 \raggedcolumns
 
-\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1-2\tabcolsep}}
+\setlength{\arrayrulewidth}{.5mm}
+
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1-2\tabcolsep - \arrayrulewidth}}
+
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+\definecolor{lightgray}{rgb}{.85, .85, .85}
+\definecolor{whitesmoke}{rgb}{.95, .95, .95}
+
+
 
 \usepackage[%
 backend=bibtex,     % biber or bibtex
@@ -74,7 +84,7 @@ natbib=true,         % if you need natbib functions
 \addbibresource{./sources/sources.bib,}  % better than \bibliography
 
 \title{A Quantitative Framework for Assessing Long-Trip Transportation Accessibility for Road Vehicles}
-\author{Aaron I. Rabinowitz, Vaishnavi Karanam, Radhika Gupta, Gil Tal\\(Alan Jenn?, Tom Bradley?, Susan Handy?, Yueyue Fan?)}
+\author{Aaron I. Rabinowitz*, Vaishnavi Karanam, Radhika Gupta, Gil Tal**}
 \date{}
 
 \input{gloss}
