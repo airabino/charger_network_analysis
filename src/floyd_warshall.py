@@ -112,8 +112,6 @@ def floyd_warshall(graph, origins, **kwargs):
 
             #     previous[source][target] = None
 
-    # print(costs)
-
     for pivot in pivots:
         for source in graph.nodes:
             for target in graph.nodes:
