@@ -7,7 +7,7 @@ _vehicle_kwargs = {
     'capacity': lambda rng: (rng.random() * 80 + 40) * 3.6e6,
     'power': lambda rng: (rng.random() * 150 + 50) * 1e3,
     'risk_attitude': lambda rng: (rng.random() * .8 + .1) + np.array([-.1, .1]),
-    'cases': 1,
+    'cases': 30,
     'soc_bounds': (.1, 1),
     'efficiency': 550,
     'linear_fraction': .8,
@@ -23,7 +23,7 @@ _network_power = {
 
 _station_kwargs = {
     'place': {
-        'cases': 100,
+        'cases': 30,
         'type': 'ac',
         'access': 'private',
         'price': .4 / 3.6e6,
@@ -32,7 +32,7 @@ _station_kwargs = {
     },
     'station': {
         'reliability': lambda rng: rng.random() * .5 + .5,
-        'cases': 100,
+        'cases': 30,
         'type': 'dc',
         'access': 'public',
         'power': _network_power,

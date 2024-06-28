@@ -6,7 +6,7 @@ from scipy.stats import norm
 from scipy.special import factorial
 
 from .progress_bar import ProgressBar
-from .dijkstra import dijkstra, multi_directional_dijkstra
+from .dijkstra import dijkstra
 from .bellman import bellman
 from .queuing import queuing_time_distribution
 
@@ -123,43 +123,32 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
     the values argument and a boolean savings.
     '''
 
-    # print(origins)
-    # print(kwargs.get('progress_bar_kw', {}))
+    if method == 'dijkstra':
 
-    # print(graph.nodes)
+        routing_function = dijkstra
 
-    if method == 'multi_dijkstra':
+    elif method == 'bellman':
 
-        return multi_directional_dijkstra(graph, origins, **kwargs)
+        routing_function = bellman
 
-    else:
+    costs = {}
+    values = {}
+    paths = {}
 
-        if method == 'dijkstra':
+    for origin in ProgressBar(origins, **kwargs.get('progress_bar_kw', {})):
 
-            routing_function = dijkstra
+        result = shortest_paths(
+            graph, [origin],
+            destinations = origins,
+            method = method, 
+            **kwargs
+            )
 
-        elif method == 'bellman':
+        costs[origin] = result[0]
+        values[origin] = result[1]
+        paths[origin] = result[2]
 
-            routing_function = bellman
-
-        costs = {}
-        values = {}
-        paths = {}
-
-        for origin in ProgressBar(origins, **kwargs.get('progress_bar_kw', {})):
-
-            result = shortest_paths(
-                graph, [origin],
-                destinations = origins,
-                method = method, 
-                **kwargs
-                )
-
-            costs[origin] = result[0]
-            values[origin] = result[1]
-            paths[origin] = result[2]
-
-        return costs, values, paths
+    return costs, values, paths
 
 def gravity(values, origins = {}, destinations = {}, **kwargs):
 
@@ -246,7 +235,7 @@ def specific_impedance(values, destinations = {}, **kwargs):
 
     sum_cost = 0
 
-    n = -1
+    n = 0
 
     for destination, mass_d in destinations.items():
 
@@ -259,52 +248,13 @@ def specific_impedance(values, destinations = {}, **kwargs):
 
     return sum_cost / n
 
-def current(values, origins = {}, destinations = {}, **kwargs):
-
-    field = kwargs.get('field', 'time')
-    expectation = kwargs.get('expectation', np.mean)
-    constant = kwargs.get('constant', 1)
-
-
-    if not origins:
-
-        origins = {k: 1 for k in values.keys()}
-
-    if not destinations:
-
-        destinations = {k: 1 for k in values.keys()}
-
-    sum_cost = 0
-
-    n = 0
-
-    total_weight = sum([v for v in origins.values()])
-
-    for origin, weight_o in origins.items():
-
-        for destination, weight_d in destinations.items():
-
-            if origin != destination:
-
-                # print(constant * (voltage_d - voltage_o) )
-
-                sum_cost += (
-                    constant * weight_o * weight_d /
-                    expectation(
-                        np.atleast_1d(values[destination][origin][field]) * total_weight
-                        )
-                    )
-
-            n += 1
-
-    return sum_cost / n
-
 class Objective():
 
-    def __init__(self, field = 'weight', limit = np.inf):
+    def __init__(self, field = 'weight', edge_limit = np.inf, path_limit = np.inf):
 
         self.field = field
-        self.limit = limit
+        self.edge_limit = edge_limit
+        self.path_limit = path_limit
 
     def initial(self):
 
@@ -314,55 +264,17 @@ class Objective():
 
         return np.inf
 
-    def update(self, values, link, node):
+    def update(self, values, link):
 
-        values += link.get(self.field, 1)
+        edge_value = link.get(self.field, 1)
 
-        return values, values <= self.limit
+        values += edge_value
+
+        return values, (values <= self.path_limit) and (edge_value <= self.edge_limit)
 
     def compare(self, values, approximation):
 
         return values, values < approximation
-
-class Scout():
-
-    def __init__(self, **kwargs):
-
-        self.field = kwargs.get('field', 'time')
-        self.limit = kwargs.get('limit', np.inf)
-        self.edge_limit = kwargs.get('edge_limit', np.inf)
-        self.exclude = kwargs.get('exclude', ['city_city'])
-        self.disambiguation = kwargs.get('disambiguation', 0)
-
-    def initial(self):
-
-        return 0
-
-    def infinity(self):
-
-        return np.inf
-
-    def update(self, values, edge, node):
-
-        if (edge['type'] in self.exclude) or (edge[self.field] > self.edge_limit):
-
-            return values, False
-
-        values += edge.get(self.field, 1)
-
-        return values, values <= self.limit
-
-    def combine(self, values_0, values_1):
-
-        return values_0 + values_1
-
-    def compare(self, values, approximation):
-
-        if approximation == np.inf:
-
-            return values, values < approximation
-
-        return values, values * (1 + self.disambiguation) < approximation
 
 def edge_types(graph):
 
@@ -401,6 +313,21 @@ def supply_costs(graph, vehicle, station_kw):
                 edge = station.update(vehicle, edge)
 
     return graph
+
+def expect_supply_costs(graph):
+    
+    for source, adj in graph._adj.items():
+
+        for target, edge in adj.items():
+
+            station = graph._node[source]['station']
+
+            if station is not None:
+
+                edge = station.expect(edge)
+
+    return graph
+
 
 class Vehicle():
 
@@ -441,6 +368,7 @@ class Vehicle():
             {
                 'total_time': np.zeros(self.cases), # [s]
                 'driving_time': np.zeros(self.cases), # [s]
+                'delay_time': np.zeros(self.cases), # [s]
                 'charging_time': np.zeros(self.cases), # [s]
                 'routing_time': np.zeros(self.cases), # [s]
                 'distance': np.zeros(self.cases), # [m]
@@ -460,7 +388,7 @@ class Vehicle():
     def select_case(self, case):
 
         new_object = deepcopy(self)
-        new_object.expectation = lambda x: x[case]
+        new_object.expectation = lambda x: x[min([len(x) - 1, case])]
 
         return new_object
 
@@ -480,12 +408,15 @@ class Vehicle():
         updated_values['routing_time'] = values['routing_time'] + edge['routing_time']
         updated_values['driving_time'] = values['driving_time'] + edge['time']
         updated_values['charging_time'] = values['charging_time'] + edge['charging_time']
+        updated_values['delay_time'] = values['delay_time'] + edge['delay_time']
         updated_values['distance'] = values['distance'] + edge['distance']
         updated_values['price'] = values['price'] + edge['price']
 
         return updated_values, True
 
     def compare(self, values, approximation):
+
+        # print(values[self.cost])
 
         values_expectation = self.expectation(values[self.cost])
         approximation_expectation  = self.expectation(approximation[self.cost])
@@ -644,7 +575,9 @@ class Station():
 
             if self.usable_ports > 0:
 
-                rho = np.linspace(*self.vehicle.risk_attitude, 100)
+                # rho = np.linspace(*self.vehicle.risk_attitude, 100)
+                rho = np.linspace((.001, .999), 100)
+                # rho = np.random.rand(100)
 
                 self.queue_time = queuing_time_distribution(
                     self.usable_ports, rho, self.power, **self.queue_kw,
@@ -670,12 +603,16 @@ class Station():
             self.queue_time_nominal = 0
 
         self.delay_time = np.zeros(self.cases) + self.queue_time + self.setup_time
-        self.delay_time_expected = np.median(self.delay_time)
+        self.delay_time_expected = super_quantile(
+            self.delay_time, self.vehicle.risk_attitude
+            )
 
         self.delay_time_nominal = (
             np.zeros(self.cases) + self.queue_time_nominal + self.setup_time
             )
-        self.delay_time_nominal_expected = np.median(self.delay_time_nominal)
+        self.delay_time_nominal_expected = super_quantile(
+            self.delay_time_nominal, self.vehicle.risk_attitude
+            )
 
     def update(self, vehicle, edge):
 
@@ -712,3 +649,16 @@ class Station():
         edge['routing_time'] = edge['time'] + delay_time_nominal + charge_duration
 
         return edge
+
+    def expect(self, edge):
+
+        edge['delay_time'] = self.delay_time_expected
+
+        edge['total_time'] = (
+            edge['time'] + self.delay_time_expected + edge['charging_time']
+            )
+
+        edge['routing_time'] = (
+            edge['time'] + self.delay_time_nominal_expected + edge['charging_time']
+            )
+

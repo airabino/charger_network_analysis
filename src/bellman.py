@@ -13,10 +13,11 @@ from sys import maxsize
 
 class Objective():
 
-    def __init__(self, field = 'weight', limit = np.inf):
+    def __init__(self, field = 'weight', edge_limit = np.inf, path_limit = np.inf):
 
         self.field = field
-        self.limit = limit
+        self.edge_limit = edge_limit
+        self.path_limit = path_limit
 
     def initial(self):
 
@@ -26,11 +27,13 @@ class Objective():
 
         return np.inf
 
-    def update(self, values, link, node):
+    def update(self, values, link):
 
-        values += link.get(self.field, 1)
+        edge_value = link.get(self.field, 1)
 
-        return values, values <= self.limit
+        values += edge_value
+
+        return values, (values <= self.path_limit) and (edge_value <= self.edge_limit)
 
     def compare(self, values, approximation):
 
@@ -83,15 +86,7 @@ def bellman(graph, origins, **kwargs):
     queue = deque(origins)
     in_queue = set(origins)
 
-    # print(cost, values, 'a')
-
-    aaa = 0
-
     while queue:
-        aaa +=  1
-        # print(aaa, end = '\r')
-
-        # print('b')
 
         source = queue.popleft()
         in_queue.remove(source)
@@ -103,7 +98,7 @@ def bellman(graph, origins, **kwargs):
 
             for target, edge in adjacency[source].items():
 
-                values_target, feasible = objective.update(values_source, edge, nodes[target])
+                values_target, feasible = objective.update(values_source, edge)
                 
                 if feasible:
 

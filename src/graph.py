@@ -42,6 +42,38 @@ import networkx as nx
 
 from scipy.spatial import KDTree
 
+def graph_from_communities(graph, communities):
+
+    _node = graph._node
+
+    nodes = []
+
+    for idx, community in enumerate(communities):
+
+        x_coordinates = []
+        y_coordinates = []
+        populations = []
+
+        for source in community:
+
+            x_coordinates.append(_node[source]['x'])
+            y_coordinates.append(_node[source]['y'])
+            populations.append(_node[source]['population'])
+
+        node = {
+            'id': f'community_{idx}',
+            'x': np.mean(x_coordinates),
+            'y': np.mean(y_coordinates),
+            'population': sum(populations),
+            'places': [k for k in community],
+        }
+
+        nodes.append(node)
+
+    links = []
+
+    return graph_from_nlg({'nodes': nodes, 'links': links})
+
 # Functions for NLG JSON handling 
 
 class NpEncoder(json.JSONEncoder):

@@ -1,7 +1,5 @@
 \section*{California Case Study}
 
-The randomly generated example is informative but does not reflect any actual \gls{sng}. In order to see effects on a more representative basis a case study is performed on the state of California using information on the states DC EV \gls{sng} with modes of common \glspl{bev} which enjoy different levels of access.
-
 \subsection*{Background}
 
 The state of California is geographically large and diverse in demography and land use. Per 2022 US census bureau annual estimates [SOURCE], California's population numbers over 39 million persons with around 32.5 million living in 482 Incorporated Places including cities and towns. These Places range from Los Angeles with a population of 3.8 million located near the coast to Amador City with a population of 201 located in the Sierra foothills. Connecting these disparate locations are a collection of major road transit corridors. Running roughly north-south are S-1/101, I-5/S-99, and U-395. Running roughly east-west are I-8, I-10, I-15, I-40, and I-80. Much of the traffic on the east-west corridors represents interactions with adjoining states. Incorporated Places in California are shown in Figure \ref{fig:california_incorporated_places}.
@@ -16,7 +14,7 @@ The state of California is geographically large and diverse in demography and la
 Many of the most heavily populated Places are adjacent with each other or nearly so. The bulk of traffic between these will be local and routine. For the benefit of clarity and brevity these can be merged into super-Places. This is accomplished by the computation of maximally modular communities. First the distances for all pairs are computed. Second an inverse proximity is computed as
 
 \begin{equation}
-	\Gamma_{i,j} = \exp{\left(\frac{\Phi_d(i,j)}{\epsilon}\right)}
+	\Gamma_{ij} = \exp{\left(\frac{\Phi_d(i,j)}{\epsilon}\right)}
 \end{equation}
 
 where $\epsilon$ is a characteristic distance set at 10 km in this case. Solving for maximally modular communities, centroids of the 34 resulting communities are shown in Figure \ref{fig:california_incorporated_communities}.
@@ -30,7 +28,7 @@ where $\epsilon$ is a characteristic distance set at 10 km in this case. Solving
 
 Finally, for the purposes of analysis, points representing departure locations for Phoenix AZ, Las Vegas NV, Reno NV, and Portland/Eugene OR are added to the fringes of the map to represent the associated travel demand.
 
-For long trips, \glspl{bev} will rely on DC charging stations. The locations of all DC charging stations in California are available from AFDC \cite{afdc_2023}. In may 2024 \gls{afdc} listed 2,149 active stations with at least 1 DC charger. This number is somewhat misleading as certain networks report each charger as an individual station even if within line-of-sight of one-another. After merging all stations of the same network which are within 100 meters direct distance of each other the number of stations becomes 1,689. California's DC charging stations include proprietary (vehicle \gls{oem} owned and operated) stations such as Tesla Superchargers and the Rivian Adventure network as well as non-proprietary stations such as those operated by ChargePoint, Electrify America, eVgo, and others. The selected locations and DC charging stations are mapped in Figure \ref{fig:california_stations}.
+For long trips, \glspl{bev} will rely on DC charging stations. The locations of all DC charging stations in California are available from AFDC \cite{afdc_2023}. \gls{afdc} is a reasonable but imperfect source for Dc chargers \cite{Xu_2021}. In may 2024 \gls{afdc} listed 2,149 active stations with at least 1 DC charger. This number is somewhat misleading as certain networks report each charger as an individual station even if within line-of-sight of one-another. After merging all stations of the same network which are within 100 meters direct distance of each other the number of stations becomes 1,689. California's DC charging stations include proprietary (vehicle \gls{oem} owned and operated) stations such as Tesla Superchargers and the Rivian Adventure network as well as non-proprietary stations such as those operated by ChargePoint, Electrify America, eVgo, and others. The selected locations and DC charging stations are mapped in Figure \ref{fig:california_stations}.
 
 \end{multicols}
 
@@ -70,7 +68,7 @@ The difference between the Tesla DC charging network and the non-Tesla networks 
 	\label{fig:network_histograms}
 \end{figure}
 
-The Tesla DC charging network develops redundancy primarily in-station where the non-proprietary networks develop redundancy primarily between stations. Non-Tesla chargers are also more likely to be sighted in urban areas suggesting a desire to capture local as well as corridor travel demand. Tesla stations are more often sighted along travel corridors suggesting a focus on enabling long distance travel. In more remote parts of California the proprietary networks nearly match the non-proprietary networks in station numbers. In-station redundancies for DC charging networks in California can be found in Figures \ref{fig:ris_top_networks} and \ref{fig:ris_top_networks_corridor} in the Appendix. Summary statistics for DC charging networks in California can be found in the DC Charger Network Details section of the appendix.
+The Tesla DC charging network develops redundancy primarily in-station where the non-proprietary networks develop redundancy primarily between stations. Non-Tesla chargers are also more likely to be sighted in urban areas suggesting a desire to capture local as well as corridor travel demand. Tesla stations are more often sighted along travel corridors suggesting a focus on enabling long distance travel. In more remote parts of California the proprietary networks nearly match the non-proprietary networks in station numbers. In-station redundancies for DC charging networks in California can be found in Figures in the DC Charger Network Details section of the Appendix. Summary statistics for DC charging networks in California can be found in the DC Charger Network Details section of the appendix.
 
 California \glspl{icev} utilize a third and completely separate network of supply stations. There are estimated to be over 8,000 gasoline stations in California \cite{CEC_2022} and these are widely and proportionally distributed. Because no public database for the locations of gasoline stations in the state exists, and due to their ubiquity it is assumed in this study that \gls{icev} driver optimal paths will not be effected by fueling station availability. For this reason, \glspl{icev} are, herein, assumed to take the "direct" path between cities where \glspl{bev} need to find optimal paths on their \glspl{sng}.
 
@@ -128,7 +126,32 @@ Regional Impedance for \glspl{icev} was computed under the assumption of petrole
 	\end{tabular}
 \end{table}
 
-Outputs were processed to compute neutral expectations of Regional Gravity and Regional Impedance as in \eqref{eq:regional_gravity} and \eqref{eq:regional_impedance} respectively. Linear regression was performed on the results of the random experiment and the experimental parameters for each \gls{sng}. Significant parameters from the regression are shown in Figure \ref{fig:significant_parameters_0}. Regression details are tabulated in the Regression Details section of the Appendix. 
+Outputs were processed to compute neutral expectations of Regional Gravity and Regional Impedance as in \eqref{eq:regional_gravity} and \eqref{eq:regional_impedance} respectively. Boxplots of Regional Gravity and Regional Impedance by \gls{sng} are presented in Figures \ref{fig:networks_boxplots_gravity} and \ref{fig:networks_boxplots_impedance}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Gravity.png}
+	\caption{Boxplots of $G_R$ outputs by \gls{sng}}
+	\label{fig:networks_boxplots_gravity}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Impedance.png}
+	\caption{Boxplots of $Z_R$ outputs by \gls{sng}}
+	\label{fig:networks_boxplots_impedance}
+\end{figure}
+
+An immediate takeaway is the value of access to Tesla stations. The median performance of the Tesla \gls{sng} is only very slightly worse than that of the complete \gls{sng} while the performance of the non-Tesla \gls{sng} is notably worse than either. The outcome spread among the sampled cases is substantial ranging from marginally worse than the \glspl{icev} to markedly worse. As gravity scales with the inverse of the square of impedance it follows that, purely from a road transportation perspective, the current \gls{bev} infrastructure would result in a noticeably less connected region. The bulk of the increase in impedance occurs at-station whether due to queuing or charging times. Although statistically significant, the time lost due to path deviations is minimal as seen in Figure \ref{fig:networks_boxplots_driving}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Impedance_Driving.png}
+	\caption{Boxplots of $Z_R$ outputs by \gls{sng} neglecting supply time}
+	\label{fig:networks_boxplots_driving}
+\end{figure}
+
+Having identified the effects of \gls{sng}, the effects of vehicular and behavioral parameters on experience for the given \glspl{sng} can be identified. Linear regression was performed on the Regional Impedance results of the random experiment and the experimental parameters for each \gls{sng}. Significant parameters from the regression are shown in Figure \ref{fig:significant_parameters_0}. Regression details are tabulated in the Regression Details section of the Appendix. 
 
 \end{multicols}
 
@@ -157,53 +180,10 @@ Outputs were processed to compute neutral expectations of Regional Gravity and R
 \end{figure}
 
 \begin{multicols}{2}
+
+Regardless of \gls{sng}, \gls{ess} capacity and charging power were shown to be significant and important in reducing $Z_R$. The interaction between the two was shown to be subtractive indicating that vehicles with longer ranges benefit less from low recharge times and \textit{vice versa}. Vehicles with high maximum charging speeds can only utilize this advantage at a subset of stations which boast maximum charging speeds equal to or in excess of their own. Vehicles with high ranges have more freedom to choose which stations to utilize on a given route. Past a point, however, these beneficial effects will be saturated. The role of equipment reliability is more complicated. In the model developed herein, poor equipment reliability may cause drivers to opt for paths which appear optimal but are worse in fact due to non-functional equipment. Reliability interacts heavily with risk attitude and in-station redundancy. Where the highly redundant Tesla stations are available the role of reliability in anticipated queuing time is low as, even in the worst case, there is a good chance that the queue will be dissipated. Where these stations are not available, the perceptions of the drivers matter much more in determining expected queuing time. In general, the more and higher quality the stations within a \gls{sng} the less important risk attitude becomes as the fundamental drivers of queuing are lessened. 
 	
-!!!!!!!!!!!!! Need to redo this starting here !!!!!!!!!!!!!!
-
-The regression analysis shows that vehicular, infrastructural, and behavioral parameters have significant impacts on road-trip accessibility. The vehicular parameters of capacity and charge rate have the predictable effect of reducing expected travel times. Capacity being the more more important parameter is explicable as higher capacity vehicles offer the ability to stop less frequently. Saving an entire charging event can be very impactful in a region the size of California. Among the infrastructure parameters, higher reliability contributed to lower travel times where higher arrival ratios contributed to higher travel times. Both reliability and arrival ratio primarily effect queuing times as, even with 50\% equipment reliability, most stations have sufficient redundancy to guarantee at least one operational charger. The range of arrivals ratios considered goes from normal to swamped and long queues can be expected for high arrival ratios even at high redundancy stations. Risk attitude was also significant in determining outcomes as those drivers with more cautious risk attitudes will tend to maintain higher \gls{soc} and utilize more reliable and redundant routes. finally, access to the entire network is better than restriction to just part of it but being restricted to only Tesla stations should be slightly less damaging than access to only non-Tesla stations. Boxplots of expected travel times are shown in Figure \ref{fig:networks_boxplots_impedance}.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Impedance.png}
-	\caption{Boxplots of $Z_R$ outputs by \gls{sng}}
-	\label{fig:networks_boxplots_impedance}
-\end{figure}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Gravity.png}
-	\caption{Boxplots of $G_R$ outputs by \gls{sng}}
-	\label{fig:networks_boxplots_gravity}
-\end{figure}
-
-While the differences between the \glspl{bev} on the basis of \gls{sng} access are observed to be slight, the differences between the means of each and the worst of the \glspl{icev} is quite large. The difference is roughly 45 minutes much of which can be explained by the shorter ranges and longer supply times inherent to the \glspl{bev}. In the best of circumstances, \glspl{bev} can reach near parity with \glspl{icev}. However, \glspl{bev} impedance will, nearly always, be substantially higher than \gls{icev} impedance due to the necessity of charging events. Some will argue that this difference is unimportant as \gls{bev} drivers can charge their vehicles while stopping for meals or during other natural breaks. This logic has been used to show that \glspl{bev} may approach convenience parity with \glspl{icev} in reasonable circumstances \cite{Dixon_2020}. However, where such long breaks are optional for \gls{icev} drivers, they are mandatory for \gls{bev} drivers and must be taken at specific points throughout the trip to coincide with charging. This loss of optionality must be accounted an inconvenience even for drivers who accustomed to long breaks.
-
-Most of the difference in impedance is due to charging and queuing times while only a small part is due to route alterations. Isolating the driving times by subtracting supply and setup times, the differences between \glspl{bev} and \glspl{icev} \glspl{sng} are substantially smaller than those in total trip time as shown in Figure \ref{fig:networks_boxplots_driving}. It should, however, be noted that there is a long tail on the driving time distributions due to the occasional need to take a significantly altered route to confidently reach a remote destination.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Impedance_Driving.png}
-	\caption{Boxplots of $Z_R$ outputs by \gls{sng} neglecting supply time}
-	\label{fig:networks_boxplots_driving}
-\end{figure}
-
-Different parts of the state will have different experiences. Residents of large population centers which are proximate to other large population centers will expect to have lower travel needs than those in more remote areas. In general, the impedance disparities associated with different vehicular, infrastructural, and behavioral characteristics will also scale with impedance. As California is a large state with a diversity of land use and road infrastructure volume, there is a pronounced difference in Specific Regional Impedance as shown in Figure \ref{fig:networks_boxplots_locations}.
-
-%\end{multicols}
-%
-%\begin{figure}[H]
-%\centering
-%\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Weighted_Specific_Impedance_2.png}
-%\caption{Boxplots of experiment outputs on combined \gls{sng} for each origin in California}
-%\label{fig:networks_boxplots_locations}
-%\end{figure}
-%
-%\begin{multicols}{2}
-%	
-\section*{Discussion}
-
-The optimal routes generated in this study only selected corridor chargers. Some insight into the utility provided by each network can be gained by looking into utilization rates for networks and stations when using the combined \gls{sng}. Ratio of stations utilized at least once to total corridor stations in the combined \gls{sng} for each network is shown in Figure \ref{fig:utilization_rates}. Log of utilization (number of times utilized in random experiment) for corridor stations in the combined \gls{sng} is displayed in Figure \ref{fig:utilized_stations}.
-
+Some insight into the utility provided by each network can be gained by looking into utilization rates for networks and stations. Ratios of stations utilized at least once to total corridor stations are shown in Figure \ref{fig:utilization_rates}. Most of the utilized chargers belong to the top four networks. Where Tesla stations are available most were utilized at leas once with those not utilized being remote locations. Where Tesla stations are not available, load is shifted towards the other top four networks. This observation indicates that as more vehicles are able to use Tesla stations, traffic will shift towards these stations or other stations which provide similar benefits.
 
 \end{multicols}
 
@@ -212,28 +192,68 @@ The optimal routes generated in this study only selected corridor chargers. Some
 \begin{subfigure}{\linewidth/3}
 	\centering\captionsetup{width = .8\linewidth}
 	\includegraphics[width = \linewidth]{figs/corridor_station_utilization_0.png}
-	\caption{Coefficients for significant parameters from linear regression}
+	\caption{Complete network}
 \end{subfigure}%
 \begin{subfigure}{\linewidth/3}
 	\centering\captionsetup{width = .8\linewidth}
 	\includegraphics[width = \linewidth]{figs/corridor_station_utilization_1.png}
-	\caption{Coefficients for significant parameters from linear regression}
+	\caption{Tesla stations only}
 \end{subfigure}%
 \begin{subfigure}{\linewidth/3}
 	\centering\captionsetup{width = .8\linewidth}
 	\includegraphics[width = \linewidth]{figs/corridor_station_utilization_2.png}
-	\caption{Coefficients for significant parameters from linear regression}
+	\caption{Non-Tesla stations only}
 \end{subfigure}
 
-\caption{Corridor DC charging network utilization rates}
+\caption{Ratios of corridor stations utilized at least once to total corridor stations by network for each \gls{sng}.}
 \label{fig:utilization_rates}
 
 \end{figure}
 
 \begin{multicols}{2}
+	
+One important parameter for station utilization is location. Those stations which are most central to the network should see the highest rate of vehicles undertaking long trips passing by. In order to understand the relative value of location as compared to station design, the betweenness centralty for each station, in terms of driving time was computed. Betweenness centrality is the ratio of optimal paths which include a given node to the total number of optimal paths. A second regression analysis was performed on station utilization for the complete \gls{sng}. In this case, the output used was log of utilization (number of times a station appears on an optimal route). Regressors were in-station redundancy and station betweenness centrality using driving time as the cost. Regression results are shown in Tables \ref{tab:utilization_anova} and \ref{tab:utilization_parameters}.
 
-It follows intuition that those chargers most useful for drivers are those located between cities on busy transportation corridors and this is backed up in this study. It also follows intuition that those chargers most likely to see use are those with higher redundancy in-station and lower redundancy in-corridor. In this sense Tesla stations are well positioned to absorb traffic should they become fully open to the general light duty \gls{ev} fleet. When one single entity has control over the locations of all stations in a network, that entity can concentrate chargers to maximize in-station redundancy and minimize between-station redundancy. That entity can, then strategically locate the highly concentrated stations. The result should be a network which experiences high utilization at each station and can benefit from economies of scale. When each network is developed by an independent actor these actors must build out their networks under the fear that a competitor could build a competing station near any of their stations at any time. The risk of building a large station only to lose business to a nearby competitor combined with the opportunity cost of not using limited capital to do the same inevitably results in a more inefficient combined network. However, many of the issues inherent with the distributed structure could be mitigated if the uncertainty and latency issues inherent to such a network could be mitigated. These issues can, possibly, be mitigated by an integrated status reporting and reservation system.
+\begin{table}[H]
+	\centering
+	\caption{Combined Network Linear Regression Analysis ANOVA}
+	\label{tab:utilization_anova}
+	\begin{tabular}{|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline \rowcolor{lightgray} R & R-Squared & Adjusted R-Squared & Std. Error \\
+		\hline 0.614 & 0.377 & 0.371 & 0.005 \\
+		\hline \rowcolor{lightgray} Category & Sum of Squares & DOF & Mean Squares \\
+		\hline Model & 1135.565 & 3 & 378.522 \\
+		\hline Error & 1873.617 & 414 & 4.526 \\
+		\hline Total & 3009.182 & 417 & 7.216 \\
+		\hline  \rowcolor{lightgray} \multicolumn{2}{|c|}{$F$} &  \multicolumn{2}{c|}{$P(>F)$}  \\
+		\hline  \multicolumn{2}{|c|}{83.639} &  \multicolumn{2}{c|}{0.000}  \\
+		\hline
+	\end{tabular}
+\end{table}
 
+\begin{table}[H]
+	\centering
+	\caption{Combined Network Linear Regression Analysis Coefficients}
+	\label{tab:utilization_parameters}
+	\begin{tabular}{|C{.5\linewidth}|C{.25\linewidth}|C{.25\linewidth}|}
+		\hline \rowcolor{lightgray} Parameter & Coefficient & P-Value \\
+		\hline {\small Intercept } & 1.919 & 0.000 \\
+		\hline {\small redundancy } & 1.518 & 0.000 \\
+		\hline {\small centrality } & 1.181 & 0.330 \\
+		\hline {\small redundancy:centrality } & 0.987 & 0.098 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+The two factors can only partially explain the results due to the differences in vehicles and individuals. It is notable that redundancy and interaction terms are significant at $\alpha=0.1$ while centrality, on its own, is not. A possible interpretation is that the redundancy has a more determinant effect and that drivers are sometimes willing to sacrifice route directness in favor of more redundant stations.
+
+\section*{Discussion}
+
+Results of this study suggest that \glspl{bev} drivers experience increased Regional Impedance within California. The expeced difference between a given \gls{icev} and \gls{bev} is roughly 5\%-10\% of total travel time for long trips. A large part of this delta is the unavoidable difference in charging times vs. fueling times. Should \gls{bev} ranges or charging speeds substantially increase the delta will substantially decrease. The rest of the delta is due to the differences between the \glspl{sng} used by \glspl{bev} and \glspl{icev}. the differences within the DC charging \gls{sng} are worth examining in light of continued and future public investment in its build-out.
+
+Because of the structure of the network, Tesla stations are well positioned to absorb traffic should they become fully open to the general light duty \gls{ev} fleet. This may have the result of worsening the user experience at Tesla stations and improving it at other stations until a new equilibrium is reached. The results would also suggest that a second Tesla-style network could enjoy a competitive advantage over the existing non-Tesla networks. It is worth theorizing why such a network has not yet developed. When one single entity has control over all stations in a network and has a captive customer base that network can optimize its expansion. Tesla has, in the past, been able to concentrate chargers to maximize in-station redundancy and minimize between-station redundancy. Simultaneously, Tesla has been able to subsidize overbuilt remote stations with the revenues generated from highly utilized central stations and from car sales. When each network is developed by an independent actor game theoretical considerations come into play. The independent actors must build out their networks under the fear that a competitor could build a competing station near any of their stations at any time. The risk of building station only to lose business to a nearby competitor combined with the opportunity cost of not doing the same results in an inefficient combined network. As Tesla integrates into the wider DC charging network it may begin to behave more like the current non-Tesla companies rather than the other way around. 
+
+What makes the distributed network inefficient are the twin issues of uncertainty and latency. These issues can be mitigated by an integrated status reporting and reservation system. Some information is available to drivers. Crowd sourcing applications such as PlugShare have been available for years allowing drivers to get a better idea of the overall reliability and utilization of stations on the basis of user reviews. Google Maps has recently implemented active plug-level availability monitoring with some, but not all, networks. Finally the private applications of the various networks provide different degrees of information and reservation capability. Future work will investigate the impacts of these systems.
 
 Often, the case for \glspl{bev} is made on an economic basis as \gls{bev} may have lower levelized costs of driving. This study focuses on travel times and routing did not optimize for cost. Partly, this is because at present there is no publicly available data on energy costs at a granular station-level for either gasoline or DC fast charging stations. Nevertheless, some sense of the relative economics of long-trip travel can be attained by examining energy costs per km. Energy costs vary substantially by region in the US with California being the most expensive. Energy costs around the time of writing are shown in Table \ref{tab:energy_costs}.
 
@@ -270,8 +290,8 @@ Petroleum prices are from AAA \cite{AAA_2024} and electricity prices are from EI
 
 In the US, DC fast charging a \gls{bev} presents no appreciable economic benefit over fueling an efficient \gls{icev}. In much of the US, home-charging a \gls{bev} provides cost savings for daily travel and the initial part of a long trip. This is not the case in California where residential electricity is, on average, nearly twice as expensive as in the US as a whole.
 
-If \glspl{bev} are a worse option than efficient \glspl{icev} for long trips on a time basis and no better on an energy cost basis this will make them less appealing to customers who value the ability to make long road trips. That customers seem to so highly value these uncommon events is a continuing source of frustration for \gls{bev} advocates. Negative perceptions of \gls{bev} long trip utility on consumer stated preference were found to be quite important in the late 2010s \cite{Skippon_2016, Hardman_2016, Franke_2017, Schmalfuss_2017}. In the intervening time period \gls{bev} ranges and maximum charge rates have markedly increased. Nevertheless, negative perceptions related to long trip utility persist for purchasers \cite{Bhat_2022, Paradies_2023, Corradi_2023, Philip_2023} and \gls{bev} range is a significant factor in determining usage share of \glspl{bev} in multi-vehicle household fleets \cite{Chakraborty_2022}. In the same time period, a massive build-out of DC charging infrastructure has taken place yet is not evident that the increased presence of DC charging infrastructure changes perceptions \cite{Hoogland_2023}.
+If \glspl{bev} are a worse option than efficient \glspl{icev} for long trips on a time basis and no better on an energy cost basis this will make them less appealing to customers who value the ability to make long road trips. That customers seem to so highly value these uncommon events is a continuing source of frustration for \gls{bev} advocates. Negative perceptions of \gls{bev} long trip utility on consumer stated preference were found to be quite important in the late 2010s \cite{Skippon_2016, Hardman_2016, Franke_2017, Schmalfuss_2017}. In the intervening time period \gls{bev} ranges and maximum charge rates have markedly increased. Nevertheless, negative perceptions related to long trip utility persist for purchasers \cite{Bhat_2022, Paradies_2023, Corradi_2023, Philip_2023} and \gls{bev} range is a significant factor in determining usage share of \glspl{bev} in multi-vehicle household fleets \cite{Chakraborty_2022}. In the same time period, a massive build-out of DC charging infrastructure has taken place yet is not evident that the increased presence of DC charging infrastructure changes perceptions \cite{Hoogland_2023}. It is, sometimes, argued that the time added to a trip due to DC charging is not relevant as breaks are needed regardless. This argument has been used to support the idea that time parity is relatively attainable \cite{Dixon_2020}. While possibly true for a subset of drivers, in order to take advantage of natural breaks to charge a vehicle, the driver must time these breaks to coincide with good charging intervals. The loss of optionality is an inconvenience in this case even if total trip time parity is achieved.
 
-As shown in Figure \ref{fig:utility_factors}, a \gls{bev} with 300 km of range can accomplish 80\% of US daily itineraries on a single charge. Fundamentally, the reality is that home or work charging leads to operational costs that often cheaper and rarely more expensive than petroleum. Similarly, home and work charging can lead to convenience benefits for \glspl{bev} as compared to \glspl{icev} \cite{Rabinowitz_2023} as \glspl{icev} require trips and trip deviations to reach supply stations. In theory, the trade-off of lower cost routine travel for higher cost long-distance travel is one which works in favor of \glspl{bev}. This is the logic which underpins the "charging pyramid" model which places long dwell charging events at its base and corridor DC fast charging events at the top. This model is also, to some degree, self-reinforcing. Because \gls{bev} drivers prefer AC charging, DC charging infrastructure has limited revenue potential leading to lower network capacity. Lower network capacity, in turn, leads to the perception that the network is inadequate and should be avoided.
+Most travel is not long trip travel. As shown in Figure \ref{fig:utility_factors}, a \gls{bev} with 300 km of range can accomplish 80\% of US daily itineraries on a single charge. Fundamentally, home nd work charging lead to operational costs that are often cheaper and rarely more expensive than petroleum. Similarly, home and work charging can lead to convenience benefits for \glspl{bev} as compared to \glspl{icev} \cite{Rabinowitz_2023} as \glspl{icev} require trips and trip deviations to reach supply stations. In theory, the trade-off of lower cost routine travel for higher cost long-distance travel is one which works in favor of \glspl{bev}. This is the logic which underpins the "charging pyramid" model which places long dwell charging events at its base and corridor DC fast charging events at its peak. This model is also, to some degree, self-reinforcing. If \gls{bev} drivers prefer AC charging, DC charging infrastructure will have limited revenue potential leading to lower network capacity. Lower network capacity, in turn, leads to the perception that the network is inadequate and should be avoided.
 
 The charging pyramid implies a different way of thinking about the role of car travel as a subset an individual's travel needs. Personal travel is inherently multi-modal and, for many \gls{od} arcs and many individuals, the cost differential between different modes is within the threshold of disambiguation. The strengths and weaknesses of \glspl{bev} as compared to \glspl{icev} may shift more short trips away from local transit and towards cars while shifting more long trips away from cars to air travel and inter-city transit. \glspl{bev} will only be one part of future mobility, unable to meet transportation needs or environmental goals on their own. Investments in \gls{bev} corridor infrastructure should be considered alongside investments into other low carbon inter-city transit modes.
