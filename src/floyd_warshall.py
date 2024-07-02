@@ -1,6 +1,7 @@
 import time
 
 import numpy as np
+import networkx as nx
 
 from heapq import heappop, heappush
 from itertools import count
@@ -68,7 +69,121 @@ class Objective():
         return new_path_cost, new_path_values, new_path_feasible
 
 
-# def floyd_warshall
+def floyd_warshall(graph, fields, **kwargs):
+
+    adjacency = {f: nx.to_numpy_array(graph, weight = f) for f in fields}
+    adjacency_primary = adjacency[fields[0]]
+
+    n = len(adjacency_primary)
+
+    origins = kwargs.get('origins', list(range(n)))
+    destinations = kwargs.get('destinations', list(range(n)))
+    pivots = kwargs.get('pivots', list(range(n)))
+    tolerance = kwargs.get('tolerance', 0)
+    limit = kwargs.get('limit', np.inf)
+
+    if not pivots:
+
+        pivots = list(range(n))
+
+    if tolerance == 0:
+
+        costs = np.zeros_like(adjacency_primary)
+        predecessors = np.zeros_like(adjacency_primary, dtype = int)
+
+        costs, predecessors = _floyd_warshall(
+            adjacency_primary,
+            pivots,
+            costs,
+            predecessors,
+        )
+
+        paths = {}
+        values = {}
+
+        for origin in origins:
+
+            paths[origin] = {}
+            values[origin] = {}
+
+            for destination in destinations:
+
+                path = recover_path(
+                    predecessors, origin, destination
+                    )
+
+                paths[origin][destination] = path
+
+                values[origin][destination] = (
+                    {f: recover_path_costs(adjacency[f], path) for f in fields}
+                    )
+
+    else:
+
+        costs = np.zeros_like(adjacency_primary)
+        predecessors = np.zeros_like(adjacency_primary, dtype = int)
+
+        costs, predecessors, store = _floyd_warshall_multi(
+            adjacency_primary,
+            pivots,
+            costs,
+            predecessors,
+            tolerance = tolerance,
+        )
+
+        extended = extended_predecessors(
+            costs, predecessors, store, tolerance = tolerance * 10
+        )
+
+        paths = {}
+        values = {}
+
+        for origin in origins:
+
+            paths[origin] = {}
+            values[origin] = {}
+
+            for destination in destinations:
+
+                path = recover_paths(
+                    extended, origin, [[destination]], []
+                    )
+
+                paths[origin][destination] = path
+
+                values[origin][destination] = [
+                    {f: recover_path_costs(adjacency[f], p) for f in fields} for p in path
+                    ]
+
+    return costs, values, paths
+
+def recover_path(predecessors, origin, destination):
+
+    max_iterations = len(predecessors)
+
+    path = [destination]
+
+    idx = 0
+
+    while (origin != destination) and (idx <= max_iterations):
+
+        destination = predecessors[origin][destination]
+        path = [destination] + path
+
+        idx +=1
+
+    return path
+
+def recover_path_costs(adjacency, path):
+
+    cost = 0
+
+    for idx in range(len(path) - 1):
+        # print()
+
+        cost += adjacency[path[idx]][path[idx + 1]]
+
+    return cost
 
 @jit(nopython = True, cache = True)
 def _floyd_warshall(adjacency, pivots, costs, predecessors):
@@ -100,10 +215,6 @@ def _floyd_warshall_multi(adjacency, pivots, costs, predecessors, tolerance = .0
     n = len(adjacency)
 
     store = []
-    # store0 = []
-    # store1 = []
-    # store2 = []
-    # store3 = []
 
     for source in range(n):
 
@@ -121,31 +232,20 @@ def _floyd_warshall_multi(adjacency, pivots, costs, predecessors, tolerance = .0
                 if costs_new < costs[source][target]:
 
                     if costs[source][target] < min([tolerance * costs_new, np.inf]):
-                    # if costs[source][target] < np.inf:
 
                         store.append(
                             (
                                 source, target,
                                 predecessors[source][target],
-                                costs[source][target]
+                                costs[source][target],
                                 )
                             )
-
-                        # store0.append(source)
-                        # store1.append(target)
-                        # store2.append(predecessors[source][target])
-                        # store3.append(costs[source][target])
-
-                    # if len(store) > limit:
-
-                    #     store.pop(0)
 
                     costs[source][target] = costs[source][pivot] + costs[pivot][target]
                     predecessors[source][target] = predecessors[pivot][target]
 
     return costs, predecessors, store
 
-# @jit(nopython = True, cache = True)
 def extended_predecessors(costs, predecessors, store, tolerance = .05):
 
     tolerance += 1.
@@ -165,14 +265,8 @@ def extended_predecessors(costs, predecessors, store, tolerance = .05):
     for predecessor in store:
 
         s, t, p, c = predecessor
-        # s = store0[idx]
-        # t = store1[idx]
-        # p = store2[idx]
-        # c = store3[idx]
 
         if c <= tolerance * costs[s][t]:
-
-            # print(s)
 
             extended[s][t].add(p)
 
@@ -226,157 +320,3 @@ def recover_paths(predecessors, origin, paths, complete_paths):
             paths.append([predecessor] + path)
 
         return recover_paths(predecessors, origin, paths, complete_paths)
-
-
-def recover_path(predecessors, origin, destination):
-
-    max_iterations = len(predecessors)
-
-    path = [destination]
-
-    idx = 0
-
-    while (origin != destination) and (idx <= max_iterations):
-
-        destination = predecessors[origin][destination]
-        path = [destination] + path
-
-        idx +=1
-
-    return path
-
-
-# def floyd_warshall(graph, origins, **kwargs):
-
-#     pivots = kwargs.get('pivots', [k for k in graph.nodes])
-#     objective = kwargs.get('objective', Objective())
-#     return_paths = kwargs.get('return_paths', True)
-
-#     infinity = objective.infinity()
-
-#     if return_paths:
-
-#         paths = {origin: [origin] for origin in origins}
-
-#     else:
-
-#         paths = None
-
-#     _node = graph._node
-#     _adj = graph._adj
-
-#     values = {k: {} for k in _node.keys()}
-
-#     costs = {k: {} for k in _node.keys()}
-
-#     previous = {k: {} for k in _node.keys()}
-
-#     for source, adj in _adj.items():
-
-#         for target, edge in adj.items():
-
-#             values[source][target] = (
-#                 _adj.get(source, {}).get(target, objective.infinity())
-#                 )
-
-#             costs[source][target] = objective.cost(values[source][target])
-
-#             previous[source][target] = source
-
-#     for pivot in pivots:
-#         for source in graph.nodes:
-#             for target in graph.nodes:
-#                 if source != target:
-                
-#                     new_path_cost, new_path_values, new_path_feasible = objective.combine(
-#                         values[source][pivot], values[pivot][target]
-#                         )
-
-#                     _, new_path_savings = objective.compare(
-#                         new_path_cost, costs[source][target]
-#                         )
-
-#                     if new_path_feasible:
-                        
-#                         if new_path_savings:
-
-#                             costs[source][target] = new_path_cost
-#                             values[source][target] = new_path_values
-#                             previous[source][target] = previous[pivot][target]
-
-#     return costs, values, previous
-
-
-
-
-
-
-
-
-    visited = {} # dictionary of costs-to-reach for nodes
-
-
-    destinations_visited = 0
-
-    terminals = []
-
-    if terminate_at_destinations:
-
-        terminals = [d for d in destinations if d not in origins]
-
-    c = count() # use the count c to avoid comparing nodes (may not be able to)
-    heap = [] # heap is heapq with 3-tuples (cost, c, node)
-
-    for origin in origins:
-
-        # Source is seen at the start of iteration and at 0 cost
-        visited[origin] = objective.initial()
-
-        # Adding the source tuple to the heap (initial cost, count, id)
-        values = objective.initial()
-
-        heappush(heap, (0, next(c), values, origin))
-
-    while heap: # Iterating while there are accessible unseen nodes
-
-        # Popping the lowest cost unseen node from the heap
-        cost, _, values, source = heappop(heap)
-
-        if source in path_values:
-
-            continue  # already searched this node.
-
-        path_values[source] = values
-        path_costs[source] = cost
-
-        if source in terminals:
-
-            continue
-
-        for target, edge in edges[source].items():
-
-            if edge.get('feasible', True):
-
-                # Updating states for edge traversal
-                values_target, path_feasible = objective.update(
-                    values, edge,
-                    )
-
-                if path_feasible:
-
-                    # Updating the weighted cost for the path
-                    cost, savings = objective.compare(
-                        values_target, visited.get(target, infinity)
-                        )
-
-                    if savings:
-                       
-                        visited[target] = values_target
-
-                        heappush(heap, (cost, next(c), values_target, target))
-
-                        if paths is not None:
-
-                            paths[target] = paths[source] + [target]
-
-    return path_costs, path_values, paths
