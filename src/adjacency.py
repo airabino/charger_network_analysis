@@ -15,11 +15,14 @@ import numpy as np
 from sys import maxsize
 
 from scipy.spatial import KDTree
+from itertools import count
 
 from .progress_bar import ProgressBar
 
 from .dijkstra import dijkstra
 from .bellman import bellman
+from .floyd_warshall import floyd_warshall
+from .graph import graph_from_nlg
 
 # Routing functions and related objects
 
@@ -171,6 +174,116 @@ def adjacency(atlas, graph, objective = Graph_From_Atlas(), algorithm = dijkstra
             for node in nodes:
 
                 adj[node] = values[destination]
+
+        graph._adj[origin] = adj
+
+    return graph
+
+def reduction(atlas, graph, objective = Graph_From_Atlas(), algorithm = dijkstra):
+    '''
+    Adds adjacency to graph by routing on atlas
+    '''
+
+    graph_to_atlas, atlas_to_graph = node_assignment(graph, atlas)
+
+    destinations = list(graph.nodes)
+
+    destinations_atlas = [graph_to_atlas[node] for node in destinations]
+
+    intersections = []
+
+    for source, adj in atlas._adj.items():
+
+        if len(adj) > 2:
+
+            intersections.append(source)
+
+    reduced_nodes = np.unique(destinations_atlas + intersections)
+    reduced_node_ids = {node: idx for idx, node in enumerate(reduced_nodes)}
+    # print(reduced_node_ids)
+
+    _node = atlas._node
+
+    nodes = []
+    links = []
+
+    null_edge = objective.infinity()
+
+    for origin in ProgressBar(reduced_nodes):
+
+        node = _node[origin]
+        node['id'] = reduced_node_ids[origin]
+
+        nodes.append(node)
+
+        # origin_atlas = graph_to_atlas[origin]
+
+        cost, values, paths = dijkstra(
+            atlas,
+            [origin],
+            destinations = reduced_nodes,
+            objective = objective,
+            terminate_at_destinations = True
+            )
+
+
+        destinations_reached = np.intersect1d(
+            list(values.keys()),
+            reduced_nodes,
+            )
+
+
+        for destination in destinations_reached:
+
+            link = values.get(destination, null_edge)
+            link['source'] = reduced_node_ids[origin]
+            link['target'] = reduced_node_ids[destination]
+
+            links.append(link)
+
+    return graph_from_nlg({'nodes': nodes, 'links': links})
+
+def adjacency_fw(atlas, graph, fields = ['time']):
+    '''
+    Adds adjacency to graph by routing on atlas
+    '''
+
+    graph_to_atlas, atlas_to_graph = node_assignment(graph, atlas)
+
+    destinations = list(graph.nodes)
+
+    destinations_atlas = [graph_to_atlas[node] for node in destinations]
+
+    costs, values, paths = floyd_warshall(
+        atlas, fields,
+        origins = destinations_atlas,
+        destinations = destinations_atlas,
+        )
+
+    for origin in ProgressBar(destinations):
+
+        # origin_atlas = graph_to_atlas[origin]
+
+        # cost, values, paths = algorithm(
+        #     atlas,
+        #     [origin_atlas],
+        #     objective = objective,
+        #     )
+
+        # adj = {}
+
+        # destinations_reached = np.intersect1d(
+        #     list(values.keys()),
+        #     destinations_atlas,
+        #     )
+
+        for destination in destinations:
+
+            nodes = atlas_to_graph[destination]
+
+            for node in nodes:
+
+                adj[node] = values[origin][destination]
 
         graph._adj[origin] = adj
 

@@ -9,87 +9,47 @@ from sys import maxsize
 
 from numba import jit
 
-class Objective():
-
-    def __init__(self, field = 'weight', edge_limit = np.inf, path_limit = np.inf):
-
-        self.field = field
-        self.edge_limit = edge_limit
-        self.path_limit = path_limit
-
-    def initial(self):
-
-        return 0
-
-    def infinity(self):
-
-        return np.inf
-
-    def zero(self):
-
-        return {self.field: 0}
-
-    def update(self, values, link):
-
-        edge_value = link.get(self.field, 1)
-
-        values += edge_value
-
-        return values, (values <= self.path_limit) and (edge_value <= self.edge_limit)
-
-    def compare(self, values, approximation):
-
-        return values, values < approximation
-
-    def cost(self, values):
-
-        cost = values.get(self.field, 1)
-
-        if cost <= self.edge_limit:
-
-            return cost
-
-        else:
-
-            return self.infinity()
-
-    def combine(self, values_0, values_1):
-
-        new_path_values = {k: values_0.get(k, 0) + values_1.get(k, 0) for k in values_0.keys()}
-
-        cost_0 = values_0.get(self.field, 1)
-        cost_1 = values_1.get(self.field, 1)
-
-        # print(cost_0, cost_1)
-
-        new_path_cost = cost_0 + cost_1
-
-        new_path_feasible = new_path_cost <= self.path_limit
-
-        return new_path_cost, new_path_values, new_path_feasible
-
 
 def floyd_warshall(graph, fields, **kwargs):
+    '''
+    Implements the Floyd-Warshall algorithm for all-pairs routing
 
-    adjacency = {f: nx.to_numpy_array(graph, weight = f) for f in fields}
+    args:
+
+    graph is a NetworkX Graph
+    fields is a list of edge attributes - the first one listed will be used for routing
+
+    kwargs:
+
+    origins - list of nodes in graph from which routes will start
+    destinations - list of nodes in graph at which reoutes will end
+    pivots - list of nodes in graph which can serve as intermediaries in routes
+
+    if origins, destinations, or pivots are not provided then all nodes will be used
+
+    tolerance - float threshold of disambiguation for selecting alterante paths
+
+    if a non-zero tolerance is provided then alternate paths may be produced
+    '''
+
+    # Creating adjacency matrices
+    adjacency = {f: nx.to_numpy_array(graph, weight = f, nonedge = np.inf) for f in fields}
     adjacency_primary = adjacency[fields[0]]
 
     n = len(adjacency_primary)
 
+    # Processing kwargs
     origins = kwargs.get('origins', list(range(n)))
     destinations = kwargs.get('destinations', list(range(n)))
     pivots = kwargs.get('pivots', list(range(n)))
     tolerance = kwargs.get('tolerance', 0)
-    limit = kwargs.get('limit', np.inf)
+    
+    if tolerance == 0: # Only store optimal routes
 
-    if not pivots:
-
-        pivots = list(range(n))
-
-    if tolerance == 0:
-
+        # Running the Floyd Warshall algorithm
         costs = np.zeros_like(adjacency_primary)
         predecessors = np.zeros_like(adjacency_primary, dtype = int)
+
 
         costs, predecessors = _floyd_warshall(
             adjacency_primary,
@@ -98,6 +58,8 @@ def floyd_warshall(graph, fields, **kwargs):
             predecessors,
         )
 
+
+        # Recovering paths and values
         paths = {}
         values = {}
 
@@ -118,8 +80,9 @@ def floyd_warshall(graph, fields, **kwargs):
                     {f: recover_path_costs(adjacency[f], path) for f in fields}
                     )
 
-    else:
+    else: # Search for alternate routes within threshold of disambiguation
 
+        # Running the Floyd Warshall algorithm
         costs = np.zeros_like(adjacency_primary)
         predecessors = np.zeros_like(adjacency_primary, dtype = int)
 
@@ -135,6 +98,7 @@ def floyd_warshall(graph, fields, **kwargs):
             costs, predecessors, store, tolerance = tolerance * 10
         )
 
+        # Recovering paths and values
         paths = {}
         values = {}
 
@@ -146,7 +110,7 @@ def floyd_warshall(graph, fields, **kwargs):
             for destination in destinations:
 
                 path = recover_paths(
-                    extended, origin, [[destination]], []
+                    extended, origin, destination
                     )
 
                 paths[origin][destination] = path
@@ -158,6 +122,9 @@ def floyd_warshall(graph, fields, **kwargs):
     return costs, values, paths
 
 def recover_path(predecessors, origin, destination):
+    '''
+    recovers paths by working backward from destination to origin
+    '''
 
     max_iterations = len(predecessors)
 
@@ -175,11 +142,13 @@ def recover_path(predecessors, origin, destination):
     return path
 
 def recover_path_costs(adjacency, path):
+    '''
+    Recovers costs for a path on an adjacency matrix
+    '''
 
     cost = 0
 
     for idx in range(len(path) - 1):
-        # print()
 
         cost += adjacency[path[idx]][path[idx + 1]]
 
@@ -187,19 +156,29 @@ def recover_path_costs(adjacency, path):
 
 @jit(nopython = True, cache = True)
 def _floyd_warshall(adjacency, pivots, costs, predecessors):
+    '''
+    Implementation of Floyd Warshall algorithm
+    https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
+    '''
 
     n = len(adjacency)
 
+    # Creating initial approximations
     for source in range(n):
         for target in range(n):
 
+            # Initial assumption is that source is the direct predecessor to target
+            # and that the cost is adjacency[source][target]. Non-edges should be
+            # set to infinite cost for the algorithm to produce correct results
             costs[source][target] = adjacency[source][target]
             predecessors[source][target] = source
 
+    # Updating approximations
     for pivot in pivots:
         for source in range(n):
             for target in range(n):
 
+                # if source-pivot-target is lower cost than source-target then update
                 if costs[source][pivot] + costs[pivot][target] < costs[source][target]:
 
                     costs[source][target] = costs[source][pivot] + costs[pivot][target]
@@ -209,28 +188,42 @@ def _floyd_warshall(adjacency, pivots, costs, predecessors):
 
 @jit(nopython = True, cache = True)
 def _floyd_warshall_multi(adjacency, pivots, costs, predecessors, tolerance = .05):
+    '''
+    Implementation of Floyd Warshall algorithm
+    https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
+
+    This implementation stores some sub-optimal approximations in order to
+    produce alternate paths
+    '''
 
     tolerance += 1.
 
     n = len(adjacency)
 
-    store = []
+    store = [] # List for storing non-optimal approximations
 
+    # Creating initial approximations
     for source in range(n):
-
         for target in range(n):
 
+            # Initial assumption is that source is the direct predecessor to target
+            # and that the cost is adjacency[source][target]. Non-edges should be
+            # set to infinite cost for the algorithm to produce correct results
             costs[source][target] = adjacency[source][target]
             predecessors[source][target] = source
 
+    # Updating approximations
     for pivot in pivots:
         for source in range(n):
             for target in range(n):
 
                 costs_new = costs[source][pivot] + costs[pivot][target]
 
+                # if source-pivot-target is lower cost than source-target then update
                 if costs_new < costs[source][target]:
 
+                    # If the difference is less than the threshold of disambiguation
+                    # then store the previous approximation
                     if costs[source][target] < min([tolerance * costs_new, np.inf]):
 
                         store.append(
@@ -247,6 +240,9 @@ def _floyd_warshall_multi(adjacency, pivots, costs, predecessors, tolerance = .0
     return costs, predecessors, store
 
 def extended_predecessors(costs, predecessors, store, tolerance = .05):
+    '''
+    Computes a multi-predecessors dictionary to allow for alternative routing
+    '''
 
     tolerance += 1.
 
@@ -272,51 +268,33 @@ def extended_predecessors(costs, predecessors, store, tolerance = .05):
 
     return extended
 
+def recover_paths(predecessors, origin, destination):
+    '''
+    Recovers multiple branching path alternatives
+    '''
 
-def recover_tree(predecessors, origin, destinations, tree):
+    paths = []
 
-    if len(destinations) == 0:
+    heap = []
 
-        return tree
-    
-    destination = destinations.pop()
+    c = count()
 
-    # If the origin is the destination then move to next branch in queue
-    if origin == destination:
+    heappush(heap, (next(c), [destination]))
 
-        return recover_tree(predecessors, origin, destinations, tree)
+    while heap:
 
-    # If the origin is not the destination then add edges to tree and queue
-    else:
+        _, path = heappop(heap)
 
-        for predecessor in predecessors[origin][destination]:
+        destinations = predecessors[origin][path[0]]
 
-            tree.append((predecessor, destination))
-            destinations.append(predecessor)
+        for destination in destinations:
 
-        return recover_tree(predecessors, origin, destinations, tree)
+            if destination == origin:
 
-def recover_paths(predecessors, origin, paths, complete_paths):
+                paths.append([destination] + path)
 
-    if len(paths) == 0:
+            else:
 
-        return complete_paths
-    
-    path = paths.pop()
-    destination = path[0]
+                heappush(heap, (c, [destination] + path))
 
-    # If the origin is the destination then move to next branch in queue
-    if origin == destination:
-
-        complete_paths.append(path)
-
-        return recover_paths(predecessors, origin, paths, complete_paths)
-
-    # If the origin is not the destination then add new paths and update queue
-    else:
-
-        for predecessor in predecessors[origin][destination]:
-
-            paths.append([predecessor] + path)
-
-        return recover_paths(predecessors, origin, paths, complete_paths)
+    return paths

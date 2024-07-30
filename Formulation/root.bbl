@@ -1,0 +1,63 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global}
+  \entry{Rempel_2023}{article}{}
+    \name{author}{4}{}{%
+      {{hash=RD}{%
+         family={Rempel},
+         familyi={R\bibinitperiod},
+         given={David},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=CC}{%
+         family={Cullen},
+         familyi={C\bibinitperiod},
+         given={Carleen},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=BMM}{%
+         family={Bryan},
+         familyi={B\bibinitperiod},
+         given={Mary\bibnamedelima Matteson},
+         giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=CGV}{%
+         family={Cezar},
+         familyi={C\bibinitperiod},
+         given={Gustavo\bibnamedelima Vianna},
+         giveni={G\bibinitperiod\bibinitdelim V\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RD+1}
+    \strng{fullhash}{RDCCBMMCGV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1177/00187208231215242
+    \endverb
+    \field{number}{0}
+    \field{pages}{00187208231215242}
+    \field{title}{Reliability of Open Public Electric Vehicle Direct Current
+  Fast Chargers}
+    \field{volume}{0}
+    \field{journaltitle}{Human Factors}
+    \field{year}{0}
+  \endentry
+\enddatalist
+\endinput

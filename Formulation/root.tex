@@ -1,0 +1,241 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[
+	letterpaper,
+	left = 1in,
+	right = 1in,
+	top = 1in,
+	bottom  = 1in
+]{geometry}
+\setlength{\columnsep}{.25in}
+\usepackage{graphicx}
+\usepackage{mathptmx}
+\usepackage{float}
+\usepackage[cmex10]{amsmath}
+\usepackage{amsthm,amssymb}
+\usepackage{url}
+\urlstyle{same} 
+\def\UrlBreaks{\do\/\do-}
+\usepackage{breakurl}
+\usepackage{fancybox}
+\usepackage{breqn}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+%\usepackage{comment}
+\usepackage[english]{babel}
+\usepackage[acronym,nomain]{glossaries} % list of acronyms
+%\usepackage{xurl}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{mathptmx}
+\usepackage{float}
+\usepackage{lipsum}
+%\usepackage{framed}
+\usepackage[T1]{fontenc}
+\usepackage[pdfpagelabels,pdfusetitle,colorlinks=false,pdfborder={0 0 0}]{hyperref}
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+%\usepackage{tabularx}
+%\usepackage{wrapfig}
+%\usepackage{enumitem}
+\usepackage{paralist}
+
+% draw a frame around given text
+\newcommand{\framedtext}[1]{%
+	\par%
+	\noindent\fbox{%
+		\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{#1}%
+	}%
+}
+
+\renewcommand{\arraystretch}{1.2}
+
+\sloppy
+\raggedbottom
+\raggedcolumns
+
+\setlength{\arrayrulewidth}{.5mm}
+
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1-2\tabcolsep - \arrayrulewidth}}
+
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+\definecolor{lightgray}{rgb}{.85, .85, .85}
+\definecolor{whitesmoke}{rgb}{.95, .95, .95}
+
+
+
+\usepackage[%
+backend=bibtex,     % biber or bibtex
+%style=authoryear,    % Alphabeticalsch
+style=numeric-comp,  % numerical-compressed
+sorting=none,        % no sorting
+sortcites=true,      % some other example options ...
+block=none,
+indexing=false,
+citereset=none,
+isbn=true,
+url=true,
+doi=true,           % prints doi
+natbib=true,         % if you need natbib functions
+]{biblatex}
+\addbibresource{./sources/sources.bib,}  % better than \bibliography
+
+\title{Formulation Document}
+\author{Aaron I. Rabinowitz}
+\date{}
+
+\input{gloss}
+\makeglossaries
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+
+This document shows the formulation for EV optimal routing sensitive to charging constraints. In the first section the basic formulation is presented. The basic formulation is a stochastic optimal routing algorithm which minimizes an expectation of total travel time while limiting the risk of an out-of-charge event. Subsequent formulations deal with information aspects which may effect optimal routing.
+
+\subsection*{Holistic Charger Reliability Framework}
+
+UC Davis's Holistic Charger Reliability Framework considers a successful charge event in six steps:
+
+\begin{description}
+	\item[Locate] The driver identifies and navigates to a charging station.
+	\item[Avail] The driver identifies an unoccupied port within the station.
+	\item[Connect] The driver positions the vehicle such that the vehicle may be plugged-in.
+	\item[Initiate] The driver completes all required payment and setup tasks. The vehicle and charger negotiate charge parameters and begin power delivery.
+	\item[Charge] The charger delivers power to the vehicle.
+	\item[Terminate] The charge event is terminated either by the driver or by the vehicle/charger when a pre-set limit is met.
+\end{description}
+
+The first three steps occur before any electrical interaction between vehicle and charger and the last three take place after. All six steps must be completed in order to achieve a complete success outcome. Not all outcomes are contained in the complete success/failure set. Partial failures may occur at multiple stages and the end result may still be a full charge. For each of the steps there are multiple possible outcomes which fall into three sets: $S$ for successful outcomes, $P$ for partial outcomes, and $F$ for failure outcomes. These outcomes are defined below.
+
+\begin{description}
+	\item[Locate] \begin{description}
+		\item[]
+		\item[$S^L_0$] Driver navigates to desired station using pre-defined route.
+		\item[$P^L_0$] Driver navigates to desired station using modified route.
+		\item[$F^L_0$] Driver is unable to navigate to any station.
+	\end{description}
+	\item[Avail] \begin{description}
+		\item[]
+		\item[$S^A_0$] Driver identifies an unoccupied, compatible port.
+		\item[$P^A_0$] Driver identifies an occupied, compatible port.
+		\item[$F^A_0$] Driver fails to identify any compatible port.
+	\end{description}
+	\item[Connect] \begin{description}
+		\item[]
+		\item[$S^C_0$] Driver positions vehicle and connects vehicle to port.
+		\item[$F^C_0$] Driver is unable to position vehicle to connect vehicle to port.
+		\item[$F^C_1$] Driver positions vehicle but is unable to connect vehicle to port.
+	\end{description}
+	\item[Initiate] \begin{description}
+		\item[]
+		\item[$S^I_0$] Vehicle and charger complete all preliminaries and enter into current-demand loop.
+		\item[$F^I_0$] Driver is unable to authorize charge event.
+		\item[$F^I_1$] Vehicle and charger are unable to communicate.
+		\item[$F^I_2$] Charger is unable to comply with vehicle-provided charge event parameters.
+		\item[$F^I_3$] Charger is unable to begin power delivery to vehicle.
+	\end{description}
+	\item[Deliver] \begin{description}
+		\item[]
+		\item[$S^D_0$] Charger delivers power to vehicle at or near nominal rate until termination.
+		\item[$P^D_0$] Charger delivers power to vehicle at significantly below nominal rate until termination.
+		\item[$F^D_0$] Charger ceases to deliver power to vehicle before event termination.
+	\end{description}
+	\item[Terminate] \begin{description}
+		\item[]
+		\item[$S^T_0$] Charger ceases to deliver power to vehicle when a pre-set limit is met and/or due to driver intervention.
+		\item[$P^T_0$] Charger continues to deliver power after exceeding pre-set limits and/or attempted driver intervention.
+	\end{description}
+\end{description}
+
+Any charge event can be defined as a set of the above events denoted as $E$. An event is a complete success if and only if $E = S$. $E$ must be a complete failure if $|E\cap F| > 0$. All other $E$ are partial outcomes even if $S \subset E$. If an event is a complete failure and the driver tries again, this counts as two events ($E$ and $E'$). The following are examples: 
+
+\begin{enumerate}
+	\item A driver navigates to a charger, plugs-in, pays for the event, and starts the charge but power drops after two minutes. The driver un-plugs and initiates a new charge which delivers until the driver stops it. $E = S \cup \{P^D_0\}$, $E' = S$.
+	\item A driver navigates to a station and finds that all compatible chargers are blocked by a large snow-bank. The driver does not immediately try another station. $E = \{S^L_0, S^A_0, F^C_0\}$.
+	\item A driver navigates to a station, waits for a charger to become available, and charges. $E = \{S^L_0, P^A_0, S^C_0, S^I_0, S^D_0, S^T_0\}$.
+	\item A driver is navigating to a station and sees another station along the route which he uses instead. $E = S$.
+\end{enumerate}
+
+There are four sequences (sets of event outcomes) which will constitute the mode of driver experiences. These sequences are:
+
+\begin{description}
+	\item[Complete Success] All goes to plan - $E = S$.
+	\item[Delayed Success] All goes to plan except that the driver has to wait to charge - $E = \{S^L_0, P^A_0, S^C_0, S^I_0, S^D_0, S^T_0\}$.
+	\item[Relocated Success] The driver chooses to try a different station rather than wait for a port to become available - $E = \{S^L_0, P^A_0\},\ E' = S$.
+	\item[Complete Failure] The event fails at some stage and the driver does not immediately attempt a new event - $|E\cap F| > 0$. 
+\end{description}
+
+\subsection*{Uncertainty and Latency}
+
+Two major issues with EV routing are uncertainty and latency. In this context uncertainty is the inability of a driver to know the status of a given port and latency is the inability of a driver to know what the status of a port will be in the future. Without electronic communications, drivers will only know whether or not a port is available, accessible, and functional if the driver can see the port. Without a reservation system, a driver will not be able to know whether or not a port will still be available upon arrival with this uncertainty compounding with distance.
+
+\section*{Methodology}
+
+\subsection*{Guaranteeing a Successful Charge}
+
+The prospect of charger unreliability necessitates maintaining a reserve of energy. Redundancy in-station and between-station effects what this energy reserve must be. In-station redundancy is the number of chargers within a station whose status can be ascertained simultaneously. Between-station redundancy is the number of chargers contained within a set of stations sufficiently proximate as to provide mutual assistance. The amount of reserve required will be station-specific and can be computed as follows.
+
+The first component is in-station. Each station consists of one or more chargers as well as power electronics and is connected to a grid. A study conducted by UC Berkeley on Bay Area DC chargers found around a 75\% reliability rate on a port level \cite{Rempel_2023}. If one assumes that charger failure rates within a station are independent then the probability of at least one functional charger will increase rapidly and monotonically with in-station redundancy. This assumption seems naive but little data exists with which to evaluate it. Educated speculation would pose that there is significant correlation of failure rates among chargers within a given station for at least three reasons: (1) Failure of the grid at the station would cause all chargers to fail simultaneously absent on-site energy storage, (2) several chargers may be downstream of the same transformer, (3) software issues which effect one charger will be likely to effect chargers running the same software, (4) access failures due to snow/ice, non-charging vehicles, vandalism, location closure, etc. are likely to effect multiple chargers in a given station, and (5) failures due to insufficient maintenance are likely to effect chargers operated by the same entity. These issues can be separated into events which will necessarily effect all chargers in a given station and those which will not and dealt with separately.
+
+Let $1 - P_T$ be the probability of an event which causes all chargers to lose functionality. Let $1 - P_0$ be the probability of a single charger failing when all others are functional. Let $\sigma \in [0, 1]$ be a constant. If the probability of $K$ chargers failing is dependent on $K - 1$ chargers having failed then we can define $1 - P_0\sigma^k$ as being the probability of failure for a functional charger given $K - 1$ concurrent failures. Thus, the probability of exactly $K$ chargers failing simultaneously is the PMF of the binomial distribution defined by the number of chargers in the station $N$, $K$, $P_0$, and $\sigma$ as shown in \eqref{eq:exactly_k}.
+
+\begin{equation}
+	P_F(K) = \binom{N}{K}(P_0\sigma^K)^K(1 - (P_0\sigma^K))^{N-K}\label{eq:exactly_k}
+\end{equation}
+
+The probability of any number of failures up to and including $K$ is the CDF of the same distribution as in \eqref{eq:leq_k}.
+
+\begin{equation}
+	P_F(\leq K) = \sum_{i=0}^{K}\binom{N}{i}P(i)^i(1 - P(i))^{N-i}\label{eq:leq_k}
+\end{equation}
+
+Then, finally, the probability of at least $J$ chargers being functional is $1 - P_F(\leq N-J)$. The most relevant case is where $J = 1$ as this is the probability that a vehicle will be able to charge at all at the station. The probability of at least one functional charger at a given station is as in \eqref{eq:at_least_one}.
+
+\begin{equation}
+	P(\geq 1) = f(N, P(N), P(0), \sigma) = (1 - P(N))(P_F(\leq N-1))\label{eq:at_least_one}
+\end{equation}
+
+%Thus, the probability of functionality for any $k$ chargers within a station of $N$ total chargers is
+%
+%\begin{equation}
+%	P^{fun}_i = (1 - P^)(1 - \hat{P}^{ind}_i)
+%\end{equation}
+%
+%where $P^{tot}$ is the probability of a failure which effects all chargers in a station and $\hat{P}^{ind}_i$ is the probability of a failure specific to charger $i$. Because independence cannot be assumed, $\hat{P}^{ind}_i$ is computed as
+%
+%\begin{equation}
+%	\hat{P}^{ind} = \Sigma P^{ind} = 
+%	\begin{bmatrix}
+%		\hat{P}^{ind}_0 \\ \hat{P}^{ind}_1 \\ \vdots \\ \hat{P}^{ind}_N
+%	\end{bmatrix} =
+%	\begin{bmatrix}
+%		1 & \sigma_{0, 1} & \dots & \sigma_{0, N} \\
+%		\sigma_{1, 0} & 1 &  & \vdots \\
+%		\vdots &  & \ddots &  \\
+%		\sigma_{N, 0} & \dots &  & 1 \\
+%	\end{bmatrix}
+%	\begin{bmatrix}
+%		P^{ind}_0 \\ P^{ind}_1 \\ \vdots \\ P^{ind}_N
+%	\end{bmatrix}
+%\end{equation}
+%
+%where $P^{ind}_i$ is the probability of failure for a given charger independent of any other charger and $\sigma_{i, j}$ is the covariance between chargers $i$ and $j$. If one assumes that all independent probabilities of failure and all covariances between chargers in a station are the same then the likelihood of functionality for any charger in the station is parametrized by three terms, $P^{tot}$, $P^{ind}$, and $\sigma$
+
+
+
+
+
+%The routing methodology developed is sensitive to the true charge event outcomes as defined below:
+%
+%\begin{description}
+%	\item[Immediate Success] A functional port is available when the driver arrives and charging occurs without fault until the driver terminates the event.
+%	\item[Delayed Success] A functional port is available after some delay and charging occurs without fault until the driver terminates the event.
+%\end{description}
+
+\end{document}

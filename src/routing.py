@@ -8,6 +8,7 @@ from scipy.special import factorial
 from .progress_bar import ProgressBar
 from .dijkstra import dijkstra
 from .bellman import bellman
+from .floyd_warshall import floyd_warshall
 from .queuing import queuing_time_distribution
 
 _network_power = {
@@ -147,6 +148,8 @@ def all_pairs_shortest_paths(graph, origins, method = 'dijkstra', **kwargs):
         costs[origin] = result[0]
         values[origin] = result[1]
         paths[origin] = result[2]
+
+    # costs, values, paths = floyd_warshall(graph, fields, **kwargs)
 
     return costs, values, paths
 
