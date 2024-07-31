@@ -10,6 +10,7 @@ from .dijkstra import dijkstra
 from .bellman import bellman
 from .floyd_warshall import floyd_warshall
 from .queuing import queuing_time_distribution
+from .graph import remove_edges
 
 _network_power = {
     'Tesla': [250e3],
@@ -293,13 +294,21 @@ def edge_types(graph):
 
     return graph
 
+def reserve_range(graph, node, n = 3):
+
+    distances = [v['distance'] for v in graph._adj[node].values()]
+
+    return np.sort(distances)[1: n + 1].mean()
+
 def supply_costs(graph, vehicle, station_kw):
 
-    graph = edge_types(graph)
+    # graph = edge_types(graph)
 
     for source, node in graph._node.items():
 
         if node['type'] in station_kw:
+
+            node['reserve_range'] = reserve_range(graph, source)
 
             kw = station_kw[node['type']]
 
@@ -313,7 +322,13 @@ def supply_costs(graph, vehicle, station_kw):
 
             if station is not None:
 
+                distance = edge['distance']
+
+                edge['distance'] = distance + graph._node[target]['reserve_range']
+
                 edge = station.update(vehicle, edge)
+
+                edge['distance'] = distance
 
     return graph
 
@@ -330,7 +345,6 @@ def expect_supply_costs(graph):
                 edge = station.expect(edge)
 
     return graph
-
 
 class Vehicle():
 
@@ -540,6 +554,8 @@ class Station():
 
         self.cases = kwargs.get('cases', 1) # [-]
 
+        self.reserve_range = kwargs.get('reserve_range', 0) # [-]
+
         # Parameters for charge events
         power_input = kwargs.get('power', np.inf)
 
@@ -645,11 +661,26 @@ class Station():
         # print(delay_time, delay_time_nominal)
 
         edge['feasible'] = feasible
-        edge['energy'] = charge_energy
-        edge['charging_time'] = charge_duration
-        edge['delay_time'] = delay_time
-        edge['total_time'] = edge['time'] + delay_time + charge_duration
-        edge['routing_time'] = edge['time'] + delay_time_nominal + charge_duration
+
+        if feasible:
+
+            edge['energy'] = charge_energy
+            edge['charging_time'] = charge_duration
+            edge['delay_time'] = delay_time
+            edge['driving_time'] = edge['time']
+            edge['total_time'] = edge['time'] + delay_time + charge_duration
+            edge['routing_time'] = edge['time'] + delay_time_nominal + charge_duration
+            edge['charge_event'] = int(charge_duration > 0)
+
+        else:
+
+            edge['energy'] = np.inf
+            edge['charging_time'] = np.inf
+            edge['delay_time'] = np.inf
+            edge['driving_time'] = np.inf
+            edge['total_time'] = np.inf
+            edge['routing_time'] = np.inf
+            edge['charge_event'] = 0
 
         return edge
 

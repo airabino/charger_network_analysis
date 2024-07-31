@@ -36,13 +36,21 @@ def floyd_warshall(graph, fields, **kwargs):
     adjacency = {f: nx.to_numpy_array(graph, weight = f, nonedge = np.inf) for f in fields}
     adjacency_primary = adjacency[fields[0]]
 
+    node_to_idx = {k: idx for idx, k in enumerate(graph.nodes)}
+    idx_to_node = {idx: k for idx, k in enumerate(graph.nodes)}
+
     n = len(adjacency_primary)
 
     # Processing kwargs
-    origins = kwargs.get('origins', list(range(n)))
-    destinations = kwargs.get('destinations', list(range(n)))
-    pivots = kwargs.get('pivots', list(range(n)))
+    origins = kwargs.get('origins', list(graph.nodes))
+    destinations = kwargs.get('destinations', list(graph.nodes))
+    pivots = kwargs.get('pivots', list(graph.nodes))
     tolerance = kwargs.get('tolerance', 0)
+
+    # origins_idx = [node_to_idx[k] for k in origins]
+    # destinations_idx = [node_to_idx[k] for k in destinations]
+    pivots_idx = [node_to_idx[k] for k in pivots]
+
     
     if tolerance == 0: # Only store optimal routes
 
@@ -53,7 +61,7 @@ def floyd_warshall(graph, fields, **kwargs):
 
         costs, predecessors = _floyd_warshall(
             adjacency_primary,
-            pivots,
+            pivots_idx,
             costs,
             predecessors,
         )
@@ -71,10 +79,10 @@ def floyd_warshall(graph, fields, **kwargs):
             for destination in destinations:
 
                 path = recover_path(
-                    predecessors, origin, destination
+                    predecessors, node_to_idx[origin], node_to_idx[destination]
                     )
 
-                paths[origin][destination] = path
+                paths[origin][destination] = [idx_to_node[n] for n in path]
 
                 values[origin][destination] = (
                     {f: recover_path_costs(adjacency[f], path) for f in fields}
