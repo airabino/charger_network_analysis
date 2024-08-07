@@ -2,7 +2,7 @@ import time
 import numpy as np
 
 from copy import deepcopy
-from scipy.stats import norm
+from scipy.stats import norm, beta
 from scipy.special import factorial
 
 from .progress_bar import ProgressBar
@@ -172,25 +172,44 @@ def gravity(values, origins = {}, destinations = {}, **kwargs):
 
     sum_cost = 0
 
+    sum_cost_0 = 0
+
     n = 0
 
     for origin, mass_o in origins.items():
+
+        val_o = values[origin]
 
         for destination, mass_d in destinations.items():
 
             if origin != destination:
 
+                # sum_cost += (
+                #     constant * mass_o * mass_d /
+                #     (
+                #         expectation(
+                #             np.atleast_1d(values[origin][destination][field])) / adjustment
+                #         ) ** 2
+                #     )
+
+                # if values[origin][destination][field] == 0:
+                #     print(origin, destination)
+
                 sum_cost += (
-                    constant * mass_o * mass_d /
-                    (
-                        expectation(
-                            np.atleast_1d(values[origin][destination][field])) / adjustment
+                    constant * mass_o * mass_d / (
+                        max([val_o[destination][field], 600]) / adjustment
                         ) ** 2
                     )
 
-            n += 1
+                # sum_cost_0 += (
+                #     constant * mass_o * mass_d *
+                #     max([val_o[destination]['driving_time'], 600])
+                #     )
 
-    return sum_cost / n
+        n += 1
+    
+    # print(n)
+    return sum_cost / (n ** 2)
 
 def impedance(values, origins = {}, destinations = {}, **kwargs):
 
@@ -209,9 +228,13 @@ def impedance(values, origins = {}, destinations = {}, **kwargs):
 
     sum_cost = 0
 
+    sum_cost_1 = 0
+
     n = 0
 
     for origin, mass_o in origins.items():
+
+        val_o = values[origin]
 
         for destination, mass_d in destinations.items():
 
@@ -219,12 +242,13 @@ def impedance(values, origins = {}, destinations = {}, **kwargs):
 
                 sum_cost += (
                     constant * mass_o * mass_d *
-                    expectation(np.atleast_1d(values[origin][destination][field]))
+                    max([val_o[destination][field], 600])
                     )
+
 
             n += 1
 
-    return sum_cost / n
+    return sum_cost / n, sum_cost_0 / n
 
 def specific_impedance(values, destinations = {}, **kwargs):
 
@@ -296,13 +320,17 @@ def edge_types(graph):
 
 def reserve_range(graph, node, n = 3):
 
+    if graph._node[node].get('type', '') == 'place':
+
+        return 0
+
     distances = [v['distance'] for v in graph._adj[node].values()]
 
-    return np.sort(distances)[1: n + 1].mean()
+    return np.sort(distances)[n + 1]
 
 def supply_costs(graph, vehicle, station_kw):
 
-    # graph = edge_types(graph)
+    t0 = time.time()
 
     for source, node in graph._node.items():
 
@@ -323,8 +351,10 @@ def supply_costs(graph, vehicle, station_kw):
             if station is not None:
 
                 distance = edge['distance']
+                effective_distance = distance + graph._node[target]['reserve_range']
 
-                edge['distance'] = distance + graph._node[target]['reserve_range']
+                edge['distance'] = effective_distance
+                edge['effective_distance'] = effective_distance
 
                 edge = station.update(vehicle, edge)
 
@@ -401,7 +431,6 @@ class Vehicle():
 
         self.min_edge_distance = (1 - self.max_charge_start_soc) * self.range
 
-
     def select_case(self, case):
 
         new_object = deepcopy(self)
@@ -433,8 +462,6 @@ class Vehicle():
 
     def compare(self, values, approximation):
 
-        # print(values[self.cost])
-
         values_expectation = self.expectation(values[self.cost])
         approximation_expectation  = self.expectation(approximation[self.cost])
 
@@ -444,19 +471,7 @@ class Vehicle():
 
     def edge_feasible(self, edge):
 
-        if edge.get('type', '') != 'to_station':
-
-            min_edge_distance = 0
-
-        else:
-
-            min_edge_distance = self.min_edge_distance
-
-        feasible = in_range(
-            edge['distance'],
-            min_edge_distance,
-            self.range,
-            )
+        feasible = edge['distance'] <= self.range
 
         return feasible
 
@@ -583,6 +598,10 @@ class Station():
         self.setup_time = kwargs.get('setup_time', 0) # [s]
 
         self.queue_kw = kwargs.get('queue', {})
+
+        self.rho_dist_bounds = kwargs.get('rho_dist_bounds', (2, 4))
+        self.rho_dist_bounds_flip = np.flip(self.rho_dist_bounds)
+        self.traffic = kwargs.get('traffic', .5)
         
         self.vehicle = None
         self.delay_time = None
@@ -597,6 +616,15 @@ class Station():
                 # rho = np.linspace(*self.vehicle.risk_attitude, 100)
                 rho = np.linspace((.001, .999), 100)
                 # rho = np.random.rand(100)
+
+                dist_args = (
+                    np.interp(self.traffic, [0, 1], self.rho_dist_bounds),
+                    np.interp(self.traffic, [0, 1], self.rho_dist_bounds_flip),
+                    )
+
+                rho = beta(*dist_args).rvs(size = 100, random_state = self.rng)
+                # self.rho = rho
+                # print(rho.mean(), rho)
 
                 self.queue_time = queuing_time_distribution(
                     self.usable_ports, rho, self.power, **self.queue_kw,
@@ -653,12 +681,10 @@ class Station():
         
         feasible, charge_energy, charge_duration = self.vehicle.energy(self, edge)
 
-        if self.power == np.inf:
+        if (self.power == np.inf) and feasible:
 
             charge_duration = 0
             delay_time = 0
-
-        # print(delay_time, delay_time_nominal)
 
         edge['feasible'] = feasible
 
@@ -674,13 +700,17 @@ class Station():
 
         else:
 
-            edge['energy'] = np.inf
-            edge['charging_time'] = np.inf
-            edge['delay_time'] = np.inf
-            edge['driving_time'] = np.inf
-            edge['total_time'] = np.inf
-            edge['routing_time'] = np.inf
-            edge['charge_event'] = 0
+            ratio = charge_energy / vehicle.usable_capacity
+
+            edge['energy'] = charge_energy
+            edge['charging_time'] = charge_duration * ratio
+            edge['delay_time'] = delay_time * ratio
+            edge['driving_time'] = edge['time']
+            edge['total_time'] = edge['time'] + delay_time * ratio + charge_duration * ratio
+            edge['routing_time'] = (
+                edge['time'] + delay_time_nominal * ratio + charge_duration * ratio
+                )
+            edge['charge_event'] = int(charge_duration > 0) * np.ceil(ratio)
 
         return edge
 

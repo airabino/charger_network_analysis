@@ -58,7 +58,7 @@ _network_power = {
 
 _station_kwargs = {
     'place': {
-        'cases': 100,
+        'cases': 30,
         'type': 'ac',
         'access': 'private',
         'price': .4 / 3.6e6,
@@ -67,21 +67,27 @@ _station_kwargs = {
     },
     'station': {
         'reliability': lambda rng: rng.random() * .5 + .5,
-        'cases': 100,
+        'cases': 30,
         'type': 'dc',
         'access': 'public',
         'power': _network_power,
         'price': .5 / 3.6e6,
         'setup_time': 300,
+        'traffic': lambda rng: rng.random(),
         'rng': lambda rng: rng,
     },
 }
 
-sng_combined = src.graph.graph_from_json('Outputs/sng_combined_directed.json')
-sng_tesla = src.graph.graph_from_json('Outputs/sng_tesla_directed.json')
-sng_other = src.graph.graph_from_json('Outputs/sng_other_directed.json')
+sng_combined = src.graph.graph_from_json('Outputs/graph_full_red.json')
+sng_tesla = src.graph.graph_from_json('Outputs/graph_full_tesla.json')
+sng_other = src.graph.graph_from_json('Outputs/graph_full_non_tesla.json')
 
 graphs = [sng_combined, sng_tesla, sng_other]
+
+places = [k for k, v in sng_combined._node.items() if v['type'] == 'place']
+nodes = list(sng_combined.nodes)
+
+output_directory = '/media/aaron/Extreme SSD/random_experiment/'
 
 def main(index = 0, cases = 1, seed = None):
 
@@ -99,9 +105,17 @@ def main(index = 0, cases = 1, seed = None):
                 graphs[idx_graph], vehicle_kw, station_kw, method = 'dijkstra',
             )
 
+            out_arrays = src.analysis.values_to_array(
+                places, values, ['total_time', 'driving_time', 'charge_event']
+            )
+
+            visits = src.analysis.nodes_visited(
+                nodes, paths,
+            )
+
             pkl.dump(
-                [idx_graph, vehicle_kw, station_kw, costs, values, paths],
-                open(f'Outputs/Random_Experiment/case_{idx}_{idx_graph}.pkl', 'wb')
+                [idx_graph, vehicle_kw, station_kw, out_arrays, visits],
+                open(output_directory + f'case_{idx}_{idx_graph}.pkl', 'wb')
                 )
 
 if __name__ == '__main__':

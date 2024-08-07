@@ -1,0 +1,132 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: root.aux
+Reallocating 'name_of_file' (item size: 1) to 9 items.
+The style file: biblatex.bst
+Reallocating 'name_of_file' (item size: 1) to 9 items.
+Reallocating 'name_of_file' (item size: 1) to 18 items.
+Reallocating 'name_of_file' (item size: 1) to 21 items.
+Reallocating 'glb_str_end' (item size: 4) to 20 items.
+Reallocating 'glb_str_ptr' (item size: 4) to 20 items.
+Reallocating 'global_strs' (item size: 1) to 4000000 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'wiz_functions' (item size: 4) to 6000 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'field_info' (item size: 4) to 12420 items.
+Database file #1: root-blx.bib
+Database file #2: ./sources/sources.bib
+Database file #3: ./sources/sources-sp.bib
+Repeated entry---line 332 of file ./sources/sources-sp.bib
+ : @article{Dixon_2020
+ :                    ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 644 of file ./sources/sources-sp.bib
+ : @article{Chakraborty_2022
+ :                          ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 709 of file ./sources/sources-sp.bib
+ : @article{Hardman_2018
+ :                      ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 768 of file ./sources/sources-sp.bib
+ : @article{Schmalfuss_2017
+ :                         ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1117 of file ./sources/sources-sp.bib
+ : @article{Gamage_2023
+ :                     ,
+I'm skipping whatever remains of this entry
+Biblatex version: 3.19
+Reallocating 'wiz_functions' (item size: 4) to 9000 items.
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2699 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2699 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2699 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2699 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2703 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2709 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2713 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2713 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2717 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2723 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2727 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2727 of file biblatex.bst
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2815 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2815 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2815 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2815 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2815 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2815 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2815 of file biblatex.bst
+Name 1 in "National Academies of Sciences, Engineering, and Medicine" has a comma at the end for entry NA_2021
+while executing---line 2815 of file biblatex.bst
+You've used 53 entries,
+            6399 wiz_defined-function locations,
+            1668 strings with 51645 characters,
+and the built_in function-call counts, 444921 in all, are:
+= -- 37307
+> -- 5691
+< -- 1315
++ -- 12530
+- -- 2277
+* -- 32235
+:= -- 51253
+add.period$ -- 0
+call.type$ -- 53
+change.case$ -- 700
+chr.to.int$ -- 96
+cite$ -- 104
+duplicate$ -- 44304
+empty$ -- 39544
+format.name$ -- 3471
+if$ -- 89384
+int.to.chr$ -- 0
+int.to.str$ -- 120
+missing$ -- 0
+newline$ -- 1919
+num.names$ -- 2344
+pop$ -- 18830
+preamble$ -- 1
+purify$ -- 1055
+quote$ -- 0
+skip$ -- 9249
+stack$ -- 0
+substring$ -- 72494
+swap$ -- 7940
+text.length$ -- 1134
+text.prefix$ -- 2
+top$ -- 1
+type$ -- 1790
+warning$ -- 0
+while$ -- 5911
+width$ -- 0
+write$ -- 1867
+(There were 25 error messages)

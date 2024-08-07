@@ -1,13 +1,14 @@
 import numpy as np
 
 from .routing import Vehicle, Station, all_pairs_shortest_paths, supply_costs
+from .floyd_warshall import floyd_warshall
 from .utilities import full_factorial
 
 _vehicle_kwargs = {
     'capacity': lambda rng: (rng.random() * 80 + 40) * 3.6e6,
     'power': lambda rng: (rng.random() * 150 + 50) * 1e3,
     'risk_attitude': lambda rng: (rng.random() * .8 + .1) + np.array([-.1, .1]),
-    'cases': 30,
+    'cases': 1,
     'soc_bounds': (.1, 1),
     'efficiency': 550,
     'linear_fraction': .8,
@@ -38,6 +39,7 @@ _station_kwargs = {
         'power': _network_power,
         'price': .5 / 3.6e6,
         'setup_time': 300,
+        'traffic': lambda rng: rng.random(),
         'rng': lambda rng: rng,
     },
 }
@@ -80,15 +82,26 @@ def run_case(graph, vehicle_kw, station_kw, method = 'dijkstra'):
 
     vehicle = Vehicle(**vehicle_kw)
 
-    origins = [k for k, v in graph._node.items() if v['type'] == 'place']
+    # origins = [k for k, v in graph._node.items() if v['type'] == 'place']
 
     graph = supply_costs(graph, vehicle, station_kw)
     
-    costs, values, paths = all_pairs_shortest_paths(
-        graph, origins,
-        objective = vehicle,
-        method = method,
-        progress_bar_kw = {'disp': False},
+    # costs, values, paths = all_pairs_shortest_paths(
+    #     graph, origins,
+    #     objective = vehicle,
+    #     method = method,
+    #     progress_bar_kw = {'disp': False},
+    # )
+
+    places = [k for k, v in graph._node.items() if v['type'] == 'place']
+    stations = [k for k, v in graph._node.items() if v['type'] == 'station']
+
+    costs, values, paths = floyd_warshall(
+        graph,
+        fields = ['routing_time', 'total_time', 'driving_time', 'distance', 'charge_event'],
+        origins = places,
+        destinations = places,
+        pivots = stations,
     )
 
     return costs, values, paths

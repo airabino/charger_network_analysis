@@ -3,9 +3,79 @@ import pandas as pd
 import scipy.stats as st
 import networkx as nx
 
+from math import comb
+from itertools import combinations
 from scipy.stats import f as f_dist
 from scipy.stats import rv_histogram
-from math import comb
+
+from .utilities import gini
+
+def gravity_from_array(array, weights, min_value = 0):
+
+    weights = np.atleast_2d(weights)
+
+    array[array < min_value] = min_value
+    array = 1 / (array  ** 2)
+    array[array == np.inf] = min_value
+    
+    np.fill_diagonal(array, 0)
+
+    return weights @ array @ weights.T
+
+def gini_from_array(array, weights, min_value = 0):
+
+    array *= weights
+
+    array[array < min_value] = min_value
+    # array = 1 / (array  ** 2)
+    array[array == np.inf] = min_value
+    
+    np.fill_diagonal(array, 0)
+
+    # return weights @ array
+
+    return gini(array.sum(axis = 1))
+
+def impedance_from_array(array, weights, min_value = 0):
+
+
+    weights = np.atleast_2d(weights)
+
+    array[array < min_value] = min_value
+    array[array == np.inf] = min_value
+
+    np.fill_diagonal(array, 0)
+
+    return weights @ array @ weights.T
+
+def values_to_array(nodes, values, fields):
+
+    node_to_idx = {k: idx for idx, k in enumerate(nodes)}
+    idx_to_node = {idx: k for idx, k in enumerate(nodes)}
+
+    n = len(nodes)
+
+    out_arrays = {field: np.ones((n, n)) * -1 for field in fields}
+
+    for idx_s, source in enumerate(nodes):
+        for idx_t, target in enumerate(nodes):
+            for field, array in out_arrays.items():
+
+                array[idx_s][idx_t] = values[source][target][field]
+
+    return out_arrays
+
+def nodes_visited(nodes, paths):
+
+    visits = {k: 0 for k in nodes}
+
+    for data in paths.values():
+        for path in data.values():
+            for node in path:
+
+                visits[node] += 1
+
+    return visits
 
 def redundancy_in_station(graph):
 
@@ -51,6 +121,35 @@ def redundancy_between_stations(graph, field = 'distance', cutoff = 10e3):
 
     return x, n, h
 
+def interaction_terms(df, columns = None, order = None):
+
+    n = df.shape[0]
+
+    if columns is None:
+
+        columns = list(df.keys())
+
+    if order is None:
+
+        order = len(columns)
+
+    data = {}
+
+    for level in range(1, order + 2):
+        for combination in combinations(columns, level):
+
+            name = combination[0] + ''.join([':' + column for column in combination[1:]])
+
+            values = np.ones(n)
+
+            for column in combination:
+
+                values *= df[column]
+
+            data[name] = values
+
+    return pd.DataFrame(data = data)
+
 def residual_sum_of_squares(x, y):
 
     return ((x - y) ** 2).sum()
@@ -80,7 +179,7 @@ def anova_tabular(x, y, n, p):
     dfm = p - 1
     dft = n - 1
 
-    print(dfe, dfm, dft)
+    # print(dfe, dfm, dft)
 
     mse = sse / dfe
     msm = ssm / dfm
@@ -94,11 +193,11 @@ def anova_tabular(x, y, n, p):
     out_string = "\\hline R & R-Squared & Adjusted R-Squared & Std. Error \\\\\n"
     out_string += "\\hline {:.3f} & {:.3f} & {:.3f} & {:.3f} \\\\\n".format(
         np.sqrt(r2), r2, ar2, (x - y).std() / n)
-    out_string += "\\hline"
+    # out_string += "\\hline"
 
-    print(out_string)
+    # print(out_string)
 
-    out_string = "\\hline Category & Sum of Squares & DOF & Mean Squares \\\\\n"
+    out_string += "\\hline Category & Sum of Squares & DOF & Mean Squares \\\\\n"
     out_string += "\\hline Model & {:.3f} & {:.0f} & {:.3f} \\\\\n".format(ssm, dfm, msm)
     out_string += "\\hline Error & {:.3f} & {:.0f} & {:.3f} \\\\\n".format(sse, dfe, mse)
     out_string += "\\hline Total & {:.3f} & {:.0f} & {:.3f} \\\\\n".format(sst, dft, mst)
@@ -108,7 +207,8 @@ def anova_tabular(x, y, n, p):
     out_string += "\\multicolumn{{2}}{{c|}}{{{:.3f}}}  \\\\\n".format(pf)
     out_string += "\\hline"
 
-    print(out_string)
+    # print(out_string)
+    return out_string
 
 def model_anova_tabular(model, df_norm, res_column, n, c = 1):
 
@@ -117,7 +217,7 @@ def model_anova_tabular(model, df_norm, res_column, n, c = 1):
     m = df_norm.shape[0]
     p = sum([comb(n, k) for k in range(n + 1)]) * c
 
-    print(n, p, c)
+    # print(n, p, c)
 
     return anova_tabular(y, y_hat, m, p)
 

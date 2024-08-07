@@ -2,31 +2,14 @@
 
 \subsection*{Background}
 
-The state of California is geographically large and diverse in demography and land use. Per 2022 US census bureau annual estimates [SOURCE], California's population numbers over 39 million persons with around 32.5 million living in 482 Incorporated Places including cities and towns. These Places range from Los Angeles with a population of 3.8 million located near the coast to Amador City with a population of 201 located in the Sierra foothills. Connecting these disparate locations are a collection of major road transit corridors. Running roughly north-south are S-1/101, I-5/S-99, and U-395. Running roughly east-west are I-8, I-10, I-15, I-40, and I-80. Much of the traffic on the east-west corridors represents interactions with adjoining states. Incorporated Places in California are shown in Figure \ref{fig:california_incorporated_places}.
+The state of California is geographically large and diverse in demography and land use. Per 2022 US census bureau annual estimates, California's population numbers over 39 million persons with around 32.5 million living in 482 Incorporated Places including cities and towns. These Places range from Los Angeles with a population of 3.8 million located near the coast to Amador City with a population of 201 located in the Sierra foothills. Connecting these disparate locations are a collection of major road transit corridors. Running roughly north-south are S-1/101, I-5/S-99, and U-395. Running roughly east-west are I-8, I-10, I-15, I-40, and I-80. Much of the traffic on the east-west corridors represents interactions with adjoining states. Incorporated Places in California are shown in Figure \ref{fig:california_incorporated_places}.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width = \linewidth]{figs/california_incorporated_places.png}
-	\caption{Natural logarithm of population for Incorporated Places in California}
+	\caption{Base 10 logarithm of population for incorporated Places in California}
 	\label{fig:california_incorporated_places}
 \end{figure}
-
-Many of the most heavily populated Places are adjacent with each other or nearly so. The bulk of traffic between these will be local and routine. For the benefit of clarity and brevity these can be merged into super-Places. This is accomplished by the computation of maximally modular communities. First the distances for all pairs are computed. Second an inverse proximity is computed as
-
-\begin{equation}
-	\Gamma_{ij} = \exp{\left(\frac{\Phi_d(i,j)}{\epsilon}\right)}
-\end{equation}
-
-where $\epsilon$ is a characteristic distance set at 10 km in this case. Solving for maximally modular communities, centroids of the 34 resulting communities are shown in Figure \ref{fig:california_incorporated_communities}.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width = \linewidth]{figs/california_incorporated_communities.png}
-	\caption{Natural logarithm  of population for Incorporated Place Communities in California}
-	\label{fig:california_incorporated_communities}
-\end{figure}
-
-Finally, for the purposes of analysis, points representing departure locations for Phoenix AZ, Las Vegas NV, Reno NV, and Portland/Eugene OR are added to the fringes of the map to represent the associated travel demand.
 
 For long trips, \glspl{bev} will rely on DC charging stations. The locations of all DC charging stations in California are available from AFDC \cite{afdc_2023}. \gls{afdc} is a reasonable but imperfect source for Dc chargers \cite{Xu_2021}. In may 2024 \gls{afdc} listed 2,149 active stations with at least 1 DC charger. This number is somewhat misleading as certain networks report each charger as an individual station even if within line-of-sight of one-another. After merging all stations of the same network which are within 100 meters direct distance of each other the number of stations becomes 1,689. California's DC charging stations include proprietary (vehicle \gls{oem} owned and operated) stations such as Tesla Superchargers and the Rivian Adventure network as well as non-proprietary stations such as those operated by ChargePoint, Electrify America, eVgo, and others. The selected locations and DC charging stations are mapped in Figure \ref{fig:california_stations}.
 
@@ -95,7 +78,7 @@ In order to understand the effects of vehicular, infrastructural, and behavioral
 	\end{tabular}
 \end{table}
 
-Regional Impedance for \glspl{icev} was computed under the assumption of petroleum supply infrastructure ubiquity. As such, \glspl{icev} were given the "direct" path between locations with stop times added where additional range was needed. For each necessary stop, time was added for refueling to full as well as 10 minutes to divert from the road and handle the transaction prior to refueling. Additionally, drivers of the \glspl{icev} were assumed to keep a 10\% buffer of remaining range. The \glspl{icev} each had similar road-trip accessibility scores of roughly 5.5 hours. The longest arc considered in Crescent City (Location 0) to Phoenix - State Line (Location 13) which is roughly 1,530 km just exceeding double the usable range of the Pacifica.
+\glspl{icev} were given the "direct" path between locations with stop times added where additional range was needed. For each necessary stop, time was added for refueling to full as well as 10 minutes to divert from the road and handle the transaction prior to refueling. Additionally, drivers of the \glspl{icev} were assumed to keep a 10\% buffer of remaining range. The \glspl{icev} each had similar road-trip accessibility scores of roughly 5.5 hours. The longest arc considered in Crescent City (Location 0) to Phoenix - State Line (Location 13) which is roughly 1,530 km just exceeding double the usable range of the Pacifica.
 
 500 random scenarios were generated by uniform random sampling of the parameters listed in Table \ref{tab:experimental_parameters} and run on three \glspl{sng} as described in \ref{tab:experimental_sngs}. All randomly sampled \glspl{bev} in this study are assumed to have an energy consumption rate of 608 kJ/km this being the EPA energy consumption rate of a Tesla Model 3 in highway operation \cite{DOE_EPA_2024}. Highway operation is assumed herein due to the focus on long trips. Thus \gls{bev} full-charge ranges will be between 237 and 711 km. When charging, sampled \glspl{bev} add highway range at a rate between 4.9 and 19.7 km per minute. Risk attitude is modeled as in \eqref{eq:superquantile} with the range centered around the mean parameter $\overline{p}$ where $p_0 = \overline{p} - .1$ and $p_1 = \overline{p} + .1$. 
 
@@ -109,6 +92,7 @@ Regional Impedance for \glspl{icev} was computed under the assumption of petrole
 		\hline \gls{ess} Max Charge Rate & [50 kW, 200 kW] \\
 		\hline Driver Risk-Attitude Mean & [.1, .9] \\
 		\hline \gls{evse} Reliability & [.5, 1] \\
+		\hline Demand Level & [0, 1] \\
 		\hline
 	\end{tabular}
 \end{table}
@@ -131,14 +115,14 @@ Outputs were processed to compute neutral expectations of Regional Gravity and R
 \begin{figure}[H]
 	\centering
 	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Gravity.png}
-	\caption{Boxplots of $G_R$ outputs by \gls{sng}}
+	\caption{Boxplots of Regional Gravity ($G_R$) outputs by \gls{sng}}
 	\label{fig:networks_boxplots_gravity}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Impedance.png}
-	\caption{Boxplots of $Z_R$ outputs by \gls{sng}}
+	\caption{Boxplots of Regional Impedance ($Z_R$) outputs by \gls{sng}}
 	\label{fig:networks_boxplots_impedance}
 \end{figure}
 
@@ -147,7 +131,7 @@ An immediate takeaway is the value of access to Tesla stations. The median perfo
 \begin{figure}[H]
 	\centering
 	\includegraphics[width = \linewidth]{figs/Networks_Boxplots_Impedance_Driving.png}
-	\caption{Boxplots of $Z_R$ outputs by \gls{sng} neglecting supply time}
+	\caption{Boxplots of Regional Impedance ($Z_R$) outputs by \gls{sng} neglecting supply time}
 	\label{fig:networks_boxplots_driving}
 \end{figure}
 
@@ -160,17 +144,17 @@ Having identified the effects of \gls{sng}, the effects of vehicular and behavio
 
 \begin{subfigure}[t]{.33\linewidth}
 	\centering\captionsetup{width = .8\linewidth}
-	\includegraphics[width = \linewidth]{figs/significant_parameters_0.png}
+	\includegraphics[width = \linewidth]{figs/significant_parameters_new_0.png}
 	\caption{Complete network}
 \end{subfigure}%
 \begin{subfigure}[t]{.33\linewidth}
 	\centering\captionsetup{width = .8\linewidth}
-	\includegraphics[width = \linewidth]{figs/significant_parameters_1.png}
+	\includegraphics[width = \linewidth]{figs/significant_parameters_new_1.png}
 	\caption{Tesla stations only}
 \end{subfigure}%
 \begin{subfigure}[t]{.33\linewidth}
 	\centering\captionsetup{width = .8\linewidth}
-	\includegraphics[width = \linewidth]{figs/significant_parameters_2.png}
+	\includegraphics[width = \linewidth]{figs/significant_parameters_new_2.png}
 	\caption{Non-Tesla stations only}
 \end{subfigure}
 
@@ -183,7 +167,7 @@ Having identified the effects of \gls{sng}, the effects of vehicular and behavio
 
 Regardless of \gls{sng}, \gls{ess} capacity and charging power were shown to be significant and important in reducing $Z_R$. The interaction between the two was shown to be subtractive indicating that vehicles with longer ranges benefit less from low recharge times and \textit{vice versa}. Vehicles with high maximum charging speeds can only utilize this advantage at a subset of stations which boast maximum charging speeds equal to or in excess of their own. Vehicles with high ranges have more freedom to choose which stations to utilize on a given route. Past a point, however, these beneficial effects will be saturated. The role of equipment reliability is more complicated. In the model developed herein, poor equipment reliability may cause drivers to opt for paths which appear optimal but are worse in fact due to non-functional equipment. Reliability interacts heavily with risk attitude and in-station redundancy. Where the highly redundant Tesla stations are available the role of reliability in anticipated queuing time is low as, even in the worst case, there is a good chance that the queue will be dissipated. Where these stations are not available, the perceptions of the drivers matter much more in determining expected queuing time. In general, the more and higher quality the stations within a \gls{sng} the less important risk attitude becomes as the fundamental drivers of queuing are lessened. 
 	
-Some insight into the utility provided by each network can be gained by looking into utilization rates for networks and stations. Ratios of stations utilized at least once to total corridor stations are shown in Figure \ref{fig:utilization_rates}. Most of the utilized chargers belong to the top four networks. Where Tesla stations are available most were utilized at leas once with those not utilized being remote locations. Where Tesla stations are not available, load is shifted towards the other top four networks. This observation indicates that as more vehicles are able to use Tesla stations, traffic will shift towards these stations or other stations which provide similar benefits.
+Some insight into the utility provided by each network can be gained by looking into utilization rates for networks and stations. Ratios of stations utilized at least once to total corridor stations are shown in Figure \ref{fig:utilization_rates}. Most of the utilized chargers belong to the top four networks. Where Tesla stations are available most were utilized at least once with those not utilized being remote locations. Where Tesla stations are not available, load is shifted towards the other top four networks. This observation indicates that as more vehicles are able to use Tesla stations, traffic will shift towards these stations or other stations which provide similar benefits.
 
 \end{multicols}
 
